@@ -7,8 +7,9 @@ class InstitucionSerializer(serializers.ModelSerializer):
         model = Institucion
         fields = '__all__'
 class ContactoSerializer(serializers.ModelSerializer):  
-    
     #Esto sale en el frontend.
     class Meta:
         model = Contacto
         fields = '__all__'
+
+  

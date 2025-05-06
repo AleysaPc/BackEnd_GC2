@@ -7,9 +7,9 @@ router = DefaultRouter()
 
 # Registrar los viewsets con el router
 router.register(r'correspondencia', CorrespondenciaView)
-router.register(r'doc_entrante', DocEntranteView)
-router.register(r'doc_saliente', DocSalienteView)
-router.register(r'doc_interno', DocInternoView)  
+router.register(r'correspondencia_entrante', DocEntranteView)
+router.register(r'correspondencia_saliente', DocSalienteView)
+router.register(r'correspondencia_interna', DocInternoView)  
 
 urlpatterns = [
     path('', include(router.urls)),

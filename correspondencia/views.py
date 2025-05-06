@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 # Create your views here.
 class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    queryset = Correspondencia.objects.all().order_by('id')
+    queryset = Correspondencia.objects.all().order_by('id_correspondencia')
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -23,15 +23,15 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     
 class DocEntranteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = DocEntranteSerializer
-    queryset = DocEntrante.objects.all().order_by('id')
+    queryset = DocEntrante.objects.all().order_by('id_correspondencia')
 
 class DocSalienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = DocSalienteSerializer
-    queryset = DocSaliente.objects.all().order_by('id')
+    queryset = DocSaliente.objects.all().order_by('id_correspondencia')
 
 class DocInternoView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = DocInternoSerializer
-    queryset = DocInterno.objects.all().order_by('id')
+    queryset = DocInterno.objects.all().order_by('id_correspondencia')
 
 @csrf_exempt
 def generar_documento(request, id):
