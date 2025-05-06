@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'documento',
 ]
 
+
 MIDDLEWARE = [
    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -60,6 +61,7 @@ MIDDLEWARE = [
 
 AUTH_USER_MODEL = 'usuario.CustomUser' #Para evitar el error entre el user de django y el de mi app
 CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORTS_ALLOWED_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'gestion_documental.urls'
 
@@ -83,7 +85,13 @@ WSGI_APPLICATION = 'gestion_documental.wsgi.application'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
     #"DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.openapi.AutoSchema",
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',  # Necesario para archivos
+    ],
 }
+
 
 
 # Database

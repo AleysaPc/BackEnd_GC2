@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .utils import generar_documento_word
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Create your views here.
 class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -24,6 +24,7 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 class DocEntranteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = DocEntranteSerializer
     queryset = DocEntrante.objects.all().order_by('id_correspondencia')
+    parser_classes = (MultiPartParser, FormParser)
 
 class DocSalienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = DocSalienteSerializer

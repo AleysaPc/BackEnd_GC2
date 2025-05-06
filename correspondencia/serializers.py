@@ -51,13 +51,25 @@ class CorrespondenciaDetailSerializer(serializers.ModelSerializer):
             ]
 
 class DocEntranteSerializer(serializers.ModelSerializer):
-    
-    documentos = DocumentoSerializer(many=True) 
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
+    documentos = DocumentoSerializer(many=True)
     class Meta:
         model = DocEntrante
         fields = '__all__'               
 
+    def create(self, validated_data):
+        documentos_data = validated_data.pop('documentos')
+        # Crea la correspondencia entrante
+        doc_entrante = DocEntrante.objects.create(**validated_data)
+        
+        # Crea los documentos asociados
+        for doc_data in documentos_data:
+            Documento.objects.create(correspondencia=doc_entrante, **doc_data)
+        
+        return doc_entrante  # Retorna la correspondencia con los documentos creados
+
+        
+        return doc_entrante
 class DocSalienteSerializer(serializers.ModelSerializer):
 
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
