@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Correspondencia, DocEntrante, DocSaliente
+from .models import Correspondencia, Recibida, Enviada, Interna
 from .utils import generar_documento_word
 from documento.models import Documento
 class DocumentoInline(admin.TabularInline):  # O usa StackedInline si prefieres un formato más vertical
@@ -13,8 +13,8 @@ class CorrespondenciaAdmin(admin.ModelAdmin):
     inlines = [DocumentoInline]  # Agregamos el Inline para mostrar documentos
     #exclude = ['tipo']  # Excluimos el campo 'tipo' del formulario principal
 
-@admin.register(DocSaliente)
-class DocSalienteAdmin(admin.ModelAdmin):
+@admin.register(Enviada)
+class EnviadaAdmin(admin.ModelAdmin):
     
     actions = ['accion_generar_documento_word']
 
@@ -27,8 +27,8 @@ class DocSalienteAdmin(admin.ModelAdmin):
     accion_generar_documento_word.short_description = "Generar documento Word"
 
 
-@admin.register(DocEntrante)
-class DocEntranteAdmin(admin.ModelAdmin):
+@admin.register(Recibida)
+class RecibidaAdmin(admin.ModelAdmin):
     readonly_fields = ('nro_registro',)
     inlines = [DocumentoInline]  # Agregamos el Inline para documentos en DocEntrante
 

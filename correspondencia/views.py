@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from .serializers import CorrespondenciaListSerializer, CorrespondenciaDetailSerializer, DocEntranteSerializer, DocSalienteSerializer, DocInternoSerializer
+from .serializers import CorrespondenciaListSerializer, CorrespondenciaDetailSerializer, RecibidaSerializer, EnviadaSerializer, InternaSerializer
 from rest_framework import viewsets
-from .models import Correspondencia, DocEntrante, DocSaliente, DocInterno
+from .models import Correspondencia, Recibida, Enviada, Interna
 from gestion_documental.mixins import PaginacionYAllDataMixin
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -21,18 +21,18 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
             return CorrespondenciaDetailSerializer
         return CorrespondenciaListSerializer
     
-class DocEntranteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    serializer_class = DocEntranteSerializer
-    queryset = DocEntrante.objects.all().order_by('id_correspondencia')
+class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+    serializer_class = RecibidaSerializer
+    queryset = Recibida.objects.all().order_by('id_correspondencia')
     parser_classes = (MultiPartParser, FormParser)
 
-class DocSalienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    serializer_class = DocSalienteSerializer
-    queryset = DocSaliente.objects.all().order_by('id_correspondencia')
+class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+    serializer_class = EnviadaSerializer
+    queryset = Enviada.objects.all().order_by('id_correspondencia')
 
-class DocInternoView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    serializer_class = DocInternoSerializer
-    queryset = DocInterno.objects.all().order_by('id_correspondencia')
+class InternaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+    serializer_class = InternaSerializer
+    queryset = Interna.objects.all().order_by('id_correspondencia')
 
 @csrf_exempt
 def generar_documento(request, id):

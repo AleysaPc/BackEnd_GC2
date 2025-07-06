@@ -1,14 +1,10 @@
 from rest_framework import viewsets
-from .serializers import TipoDocumentoSerializer, DocumentoSerializer
-from .models import TipoDocumento, Documento
+from .serializers import DocumentoSerializer
+from .models import Documento
 from gestion_documental.mixins import PaginacionYAllDataMixin
 from rest_framework.parsers import MultiPartParser
 # Create your views here.
 # Tambien va la paginacion
-
-class TipoDocumentoViewSet(PaginacionYAllDataMixin,viewsets.ModelViewSet):
-    queryset = TipoDocumento.objects.all()
-    serializer_class = TipoDocumentoSerializer
 
 class DocumentoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = Documento.objects.all()

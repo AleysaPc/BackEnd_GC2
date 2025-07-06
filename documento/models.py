@@ -1,35 +1,17 @@
 from django.db import models
 import os
-from django.contrib.postgres.fields import ArrayField
-
-
-
-# Create your models here.
-class TipoDocumentoInterno(models.Model):
-    id_tipo_documento_interno = models.AutoField(primary_key=True)
-    nombre_documento_interno = models.CharField(max_length=50, unique=True)
-    descripcion = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.nombre_documento_interno
-
-class TipoDocumento(models.Model):
-    id_tipo_documento = models.AutoField(primary_key=True)
-    nombre_tipo_documento = models.CharField(max_length=50, unique=True)
-    descripcion = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.nombre_tipo_documento
-
+from pgvector.django import VectorField
 
 def ruta_archivo(instance, filename):
     tipo = instance.correspondencia.tipo if instance.correspondencia else 'otros'
-    if tipo == 'enviado':
-        return os.path.join('documentos', 'enviados', filename)
-    elif tipo == 'recibido':
-        return os.path.join('documentos', 'recibido', filename)
-    else:
-        return os.path.join('documentos', 'otros', filename)
+    try:
+        sindicato = instance.correspondencia.contacto.institucion.razon_social
+        sindicato = sindicato.replace(" ", "_").replace("/", "-")  # Limpieza de nombre
+    except AttributeError:
+        sindicato = "desconocido"
+    anio = instance.correspondencia.fecha_registro.year if instance.correspondencia and instance.correspondencia.fecha_registro else "sin_fecha"
+    return os.path.join('documentos', sindicato, tipo, str(anio), filename)
+
     
 class Documento(models.Model):
     id_documento = models.AutoField(primary_key=True)
@@ -37,16 +19,25 @@ class Documento(models.Model):
     archivo = models.FileField(upload_to=ruta_archivo, blank=True, null=True)  # Cambia la ruta según tu estructura de carpetas
     fecha_subida = models.DateTimeField(auto_now_add=True)
     correspondencia = models.ForeignKey('correspondencia.Correspondencia', on_delete=models.CASCADE, related_name='documentos') 
-    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, related_name='documentos',)
-    tipo_documento_interno = models.ForeignKey(TipoDocumentoInterno, on_delete=models.CASCADE, related_name='documentos_internos', blank=True, null=True)
-    def __str__(self):
-        return self.nombre_documento
-    
-class vectorDocumento(models.Model):
-    id_vector = models.AutoField(primary_key=True)
-    vector = ArrayField(models.FloatField(), blank=True, null=True)
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    documento = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='vectores', null=True, blank=True)
+    vector_embedding = VectorField(dimensions=384, null=True, blank=True)  # Usa 384 o 768 según tu modelo
 
     def __str__(self):
-        return f"Vector {self.id_vector} for {self.documento.nombre_documento if self.documento else 'No Document'}"
+        return self.nombre_documento
+
+class PlantillaDocumento(models.Model):
+    id_plantilla = models.AutoField(primary_key=True)
+    nombre_plantilla = models.CharField(max_length=255, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+    estructura_html = models.TextField(blank=True, null=True)  # Aquí va la plantilla Jinja2
+    tipo = models.CharField(max_length=50, choices=[
+        ('carta', 'Carta'),
+        ('comunicado', 'Comunicado'),
+        ('informe', 'Informe'),
+        ('convocatoria', 'Convocatoria'),
+        ('otro', 'Otro'),
+    ])  # Para identificar su uso general
+
+    estado = models.BooleanField(default=True)  # Activa o no
+
+    def __str__(self):
+        return self.nombre_plantilla

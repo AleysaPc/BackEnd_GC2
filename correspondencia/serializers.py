@@ -1,4 +1,4 @@
-from .models import Correspondencia, DocEntrante, DocSaliente, DocInterno
+from .models import Correspondencia, Recibida, Enviada, Interna
 from rest_framework import serializers
 from documento.serializers import DocumentoSerializer
 from contacto.serializers import ContactoSerializer 
@@ -50,17 +50,17 @@ class CorrespondenciaDetailSerializer(serializers.ModelSerializer):
                 
             ]
 
-class DocEntranteSerializer(serializers.ModelSerializer):
+class RecibidaSerializer(serializers.ModelSerializer):
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
     documentos = DocumentoSerializer(many=True)
     class Meta:
-        model = DocEntrante
+        model = Recibida
         fields = '__all__'               
 
     def create(self, validated_data):
         documentos_data = validated_data.pop('documentos')
         # Crea la correspondencia entrante
-        doc_entrante = DocEntrante.objects.create(**validated_data)
+        doc_entrante = Recibida.objects.create(**validated_data)
         
         # Crea los documentos asociados
         for doc_data in documentos_data:
@@ -70,17 +70,17 @@ class DocEntranteSerializer(serializers.ModelSerializer):
 
         
         return doc_entrante
-class DocSalienteSerializer(serializers.ModelSerializer):
+class EnviadaSerializer(serializers.ModelSerializer):
 
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
 
     class Meta:
-        model = DocSaliente
+        model = Enviada
         fields = '__all__'
 
-class DocInternoSerializer(serializers.ModelSerializer):
+class InternaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DocInterno
+        model = Interna
         fields = '__all__'
 
         

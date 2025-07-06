@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.mail import EmailMessage
 from django.conf import settings
-from .models import DocEntrante, DocSaliente
+from .models import Recibida, Enviada, Interna
 import os
 
 # Función para construir el mensaje del correo
@@ -45,7 +45,7 @@ def enviar_correo(asunto, mensaje, archivo=None):
         print(f"Error al enviar el correo: {e}")
 
 # Para el envío de correo en documentos entrantes
-@receiver(post_save, sender=DocEntrante)
+@receiver(post_save, sender=Recibida)
 def enviar_notificacion_correo(sender, instance, created, **kwargs):
     nro_registro = instance.nro_registro
     referencia = instance.referencia
@@ -68,7 +68,7 @@ def enviar_notificacion_correo(sender, instance, created, **kwargs):
         enviar_correo(f'Nuevo documento registrado: {nro_registro}', mensaje)
         
 # Para el envío de correo en documentos salientes
-@receiver(post_save, sender=DocSaliente)
+@receiver(post_save, sender=Enviada)
 def enviar_notificacion_correo(sender, instance, created, **kwargs):
     if instance.estado == "en_revision":  # Solo enviar si el estado es "en_revision"
         cite = instance.cite

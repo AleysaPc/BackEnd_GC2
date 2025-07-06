@@ -1,4 +1,4 @@
-from .views import TipoDocumentoViewSet, DocumentoViewSet
+from .views import DocumentoViewSet
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
@@ -6,7 +6,6 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 
 # Registrar los viewsets con el router
-router.register(r'tipodocumento', TipoDocumentoViewSet)
 router.register(r'documento', DocumentoViewSet)
 
 # urlpatterns para incluir las rutas del router

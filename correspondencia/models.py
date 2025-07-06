@@ -22,7 +22,7 @@ class Correspondencia(models.Model):
     def __str__(self):
         return f"{self.referencia} - {self.tipo}"
 
-class DocEntrante(Correspondencia):
+class Recibida(Correspondencia):
     nro_registro = models.CharField(max_length=50, unique=True, blank=True, null=True)
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_respuesta = models.DateTimeField(blank=True, null=True)
@@ -30,7 +30,7 @@ class DocEntrante(Correspondencia):
     def save(self, *args, **kwargs):
         if not self.nro_registro:
             with transaction.atomic():
-                ultimo = DocEntrante.objects.order_by('-id_correspondencia').first()  # Usa el campo 'id' heredado de Correspondencia
+                ultimo = Recibida.objects.order_by('-id_correspondencia').first()  # Usa el campo 'id' heredado de Correspondencia
                 
                 if ultimo and ultimo.nro_registro:
                     try:
@@ -48,7 +48,7 @@ class DocEntrante(Correspondencia):
     def __str__(self):
         return f"{self.nro_registro}"
 
-class DocSaliente(Correspondencia):
+class Enviada(Correspondencia):
     cite = models.CharField(max_length=50, blank=True, null=True)
     fecha_envio = models.DateTimeField(blank=True, null=True)
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
@@ -58,7 +58,7 @@ class DocSaliente(Correspondencia):
     def save(self, *args, **kwargs):
         if not self.cite:
             with transaction.atomic():
-                ultimo = DocSaliente.objects.order_by('-id_correspondencia').first()  # Usa el campo 'id' heredado de Correspondencia
+                ultimo = Enviada.objects.order_by('-id_correspondencia').first()  # Usa el campo 'id' heredado de Correspondencia
                 
                 if ultimo and ultimo.cite:
                     try:
@@ -76,7 +76,7 @@ class DocSaliente(Correspondencia):
     def __str__(self):
         return f"{self.cite}"
 
-class DocInterno(Correspondencia):
+class Interna(Correspondencia):
     numero = models.PositiveIntegerField(editable=False)  # Número secuencial único
     gestion = models.PositiveIntegerField(default=now().year, editable=False)  # Año de gestión
     cite = models.CharField(max_length=100, unique=True, blank=True)  # Código único del documento
@@ -84,3 +84,14 @@ class DocInterno(Correspondencia):
     
     def __str__(self):
         return f"{self.cite} "
+
+class AccionCorrespondencia(models.Model):
+    id_accion = models.AutoField(primary_key=True)
+    correspondencia = models.ForeignKey('Correspondencia', on_delete=models.CASCADE, related_name='acciones')
+    usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
+    accion = models.CharField(max_length=50)  # Derivar, Archivar, Rechazar, etc.
+    observacion = models.TextField(blank=True, null=True)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.accion} por {self.usuario} el {self.fecha}"

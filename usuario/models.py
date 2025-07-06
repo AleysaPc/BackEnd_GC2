@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
+from django.conf import settings
 
 class CustomUserManager(BaseUserManager): 
     def create_user(self, email, password=None, **extra_fields ): 
@@ -31,6 +32,16 @@ class Role(models.Model):
     def __str__(self):
         return self.name
 
+class Departamento(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    sigla = models.CharField(max_length=10, unique=True)
+    estado = models.BooleanField(default=True)  # True = Activo, False = Inactivo
+    responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.SET_NULL,null=True,blank=True,related_name='departamentos_responsables')
+
+    def __str__(self):
+        return f"{self.sigla} - {self.nombre}"
+
+
 class CustomUser(AbstractUser):
     email = models.EmailField(max_length=200, unique=True)
     birthday = models.DateField(null=True, blank=True)
@@ -38,7 +49,7 @@ class CustomUser(AbstractUser):
     institucion = models.ForeignKey('contacto.Institucion', on_delete=models.SET_NULL, null=True, blank=True)
 
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
-
+    departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, blank=True)
  
     objects = CustomUserManager()
 
@@ -50,6 +61,7 @@ class CustomUser(AbstractUser):
     
  #Notificación de que el correo fue enviado
 class Notificacion(models.Model):
+    id_notificacion = models.AutoField(primary_key=True)
     usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, related_name='notificaciones')
     mensaje = models.TextField()
     leido = models.BooleanField(default=False)

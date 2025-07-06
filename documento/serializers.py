@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Documento, TipoDocumento
+from .models import Documento
 from correspondencia.models import Correspondencia
 
 class DocumentoSerializer(serializers.ModelSerializer):
@@ -9,7 +9,3 @@ class DocumentoSerializer(serializers.ModelSerializer):
         model = Documento
         fields = '__all__'
         
-class TipoDocumentoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TipoDocumento
-        fields = '__all__'
