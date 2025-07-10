@@ -24,7 +24,9 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = RecibidaSerializer
     queryset = Recibida.objects.all().order_by('id_correspondencia')
-    parser_classes = (MultiPartParser, FormParser)
+    
+    # Esto esta por defecto en django rest framework
+    # parser_classes = (MultiPartParser, FormParser)
 
     def create(self, request, *args, **kwargs):
         print("✅ DATA RECIBIDA (request.data):", request.data)
