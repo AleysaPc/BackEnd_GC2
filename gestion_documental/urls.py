@@ -26,8 +26,4 @@ urlpatterns = [
     path('api/v1/contacto/', include('contacto.urls')),  # Include the app's URLs here
     path('api/v1/usuario/', include(('usuario.urls', 'usuario'), namespace='usuario')),
     path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
-]
-
-# Solo en desarrollo: Servir archivos de MEDIA_ROOT
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

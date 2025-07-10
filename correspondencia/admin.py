@@ -5,7 +5,7 @@ from documento.models import Documento
 class DocumentoInline(admin.TabularInline):  # O usa StackedInline si prefieres un formato más vertical
     model = Documento
     extra = 1  # Número de formularios vacíos para agregar documentos
-    fields = ['archivo','nombre_documento', 'tipo_documento', ]  # Campos a mostrar del Documento
+    fields = ['archivo','nombre_documento']  # Campos a mostrar del Documento
     fk_name = 'correspondencia'
 
 class CorrespondenciaAdmin(admin.ModelAdmin):
