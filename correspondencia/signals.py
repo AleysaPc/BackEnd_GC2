@@ -5,6 +5,7 @@ from django.conf import settings
 from .models import Recibida, Enviada, Interna
 import os
 
+
 # Función para construir el mensaje del correo
 def construir_mensaje(nro_registro, referencia, remitente, fecha_respuesta_formateada):
     if remitente:
@@ -45,27 +46,27 @@ def enviar_correo(asunto, mensaje, archivo=None):
         print(f"Error al enviar el correo: {e}")
 
 # Para el envío de correo en documentos entrantes
-@receiver(post_save, sender=Recibida)
-def enviar_notificacion_correo(sender, instance, created, **kwargs):
-    nro_registro = instance.nro_registro
-    referencia = instance.referencia
+#@receiver(post_save, sender=Recibida)
+#def enviar_notificacion_correo(sender, instance, created, **kwargs):
+ #   nro_registro = instance.nro_registro
+ #   referencia = instance.referencia
 
-    if created:  # Solo si se crea un nuevo documento
-        print("Documento creado")
+ #   if created:  # Solo si se crea un nuevo documento
+ #       print("Documento creado")
 
-    fecha_respuesta_formateada = instance.fecha_respuesta.strftime('%d/%m/%Y %H:%M') if instance.fecha_respuesta else None
-    mensaje = construir_mensaje(nro_registro, referencia, instance.contacto, fecha_respuesta_formateada)
+ #   fecha_respuesta_formateada = instance.fecha_respuesta.strftime('%d/%m/%Y %H:%M') if instance.fecha_respuesta else None
+ #   mensaje = construir_mensaje(nro_registro, referencia, instance.contacto, fecha_respuesta_formateada)
     
     # Para adjuntar el documento
-    documentos = instance.documentos.all()  # Accede a los documentos asociados a esta instancia de DocEntrante (que es una subclase de Correspondencia)
+ #   documentos = instance.documentos.all()  # Accede a los documentos asociados a esta instancia de DocEntrante (que es una subclase de Correspondencia)
 
-    if documentos.exists():
-        documento = documentos.first()  # Si hay documentos, toma el primero
-        print(f"Documento adjunto: {documento.archivo.path}")  # Esto es solo para depurar
-        enviar_correo(f'Nuevo documento registrado: {nro_registro}', mensaje, documento.archivo)
-    else:
-        print("No hay documentos asociados a la correspondencia")
-        enviar_correo(f'Nuevo documento registrado: {nro_registro}', mensaje)
+ #   if documentos.exists():
+ #       documento = documentos.first()  # Si hay documentos, toma el primero
+ #       print(f"Documento adjunto: {documento.archivo.path}")  # Esto es solo para depurar
+ #       enviar_correo(f'Nuevo documento registrado: {nro_registro}', mensaje, documento.archivo)
+ #   else:
+ #       print("No hay documentos asociados a la correspondencia")
+ #       enviar_correo(f'Nuevo documento registrado: {nro_registro}', mensaje)
         
 # Para el envío de correo en documentos salientes
 @receiver(post_save, sender=Enviada)

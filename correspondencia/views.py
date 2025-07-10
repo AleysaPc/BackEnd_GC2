@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .serializers import CorrespondenciaListSerializer, CorrespondenciaDetailSerializer, RecibidaSerializer, EnviadaSerializer, InternaSerializer
 from rest_framework import viewsets
-from .models import Correspondencia, Recibida, Enviada, Interna
+from .models import Correspondencia, Recibida, Enviada, Interna, AccionCorrespondencia
 from gestion_documental.mixins import PaginacionYAllDataMixin
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +9,8 @@ from .utils import generar_documento_word
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.utils import timezone
+import json
 
 # Create your views here.
 class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -33,8 +35,8 @@ class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
         print("📎 ARCHIVOS RECIBIDOS (request.FILES):", request.FILES)
 
         return super().create(request, *args, **kwargs)
-
-
+        
+    
 class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('id_correspondencia')
