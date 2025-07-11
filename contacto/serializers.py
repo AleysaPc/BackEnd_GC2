@@ -6,9 +6,10 @@ class InstitucionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institucion
         fields = '__all__'
+
 class ContactoSerializer(serializers.ModelSerializer):  
-    institucion = InstitucionSerializer()
     nombre_completo = serializers.SerializerMethodField()
+    nombre_institucion = serializers.CharField(source='institucion.razon_social')   
     #Esto sale en el frontend
     class Meta:
         model = Contacto
