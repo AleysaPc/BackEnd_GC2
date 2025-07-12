@@ -47,7 +47,8 @@ class CustomUser(AbstractUser):
     birthday = models.DateField(null=True, blank=True)
     username = models.CharField(max_length=200, null=True, blank=True)
     institucion = models.ForeignKey('contacto.Institucion', on_delete=models.SET_NULL, null=True, blank=True)
-
+    secund_name = models.CharField(max_length=100, null=True, blank=True)
+    secund_last_name = models.CharField(max_length=100, null=True, blank=True)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
     departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, blank=True)
  

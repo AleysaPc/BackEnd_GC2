@@ -8,6 +8,10 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = '__all__'
+class DepartamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Departamento
+        fields = '__all__'
 
 class LoginSerializer(serializers.Serializer):
     id=serializers.IntegerField(read_only=True)
@@ -25,6 +29,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     new_password = serializers.CharField(write_only=True, required=False)
     name_rol = serializers.CharField(source="role.name", read_only=True)
+    nombre_institucion = serializers.CharField(source="institucion.razon_social", read_only=True)
+    nombre_departamento = serializers.CharField(source="departamento.nombre", read_only=True)
     class Meta:
         model = CustomUser
         fields = [
@@ -33,7 +39,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'password',
             'new_password',
             'first_name',
+            'secund_name',
             'last_name',
+            'secund_last_name', 
             'is_superuser',
             'is_active',
             'date_joined',
@@ -42,6 +50,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'role',  # Asegúrate de agregar 'role' aquí
             'name_rol',
             'institucion',
+            'departamento',
+            'nombre_institucion',
+            'nombre_departamento',
         ]
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},
@@ -61,3 +72,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)  
         instance.save()
         return instance
+
+
+

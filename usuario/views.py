@@ -34,6 +34,10 @@ class LoginViewset(viewsets.ViewSet):
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
+
+class DepartamentoViewSet(viewsets.ModelViewSet):
+    queryset = Departamento.objects.all()
+    serializer_class = DepartamentoSerializer
     
 class CustomUserViewSet(PaginacionYAllDataMixin ,viewsets.ModelViewSet):
     serializer_class = CustomUserSerializer
@@ -49,3 +53,4 @@ class CustomUserViewSet(PaginacionYAllDataMixin ,viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return super().list(request, *args, **kwargs)  # Usa la paginación normal
+
