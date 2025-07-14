@@ -9,6 +9,7 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Role
         fields = '__all__'
 class DepartamentoSerializer(serializers.ModelSerializer):
+    nombre_responsable = serializers.CharField(source="responsable.username", read_only=True)
     class Meta:
         model = Departamento
         fields = '__all__'
