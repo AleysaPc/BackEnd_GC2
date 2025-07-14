@@ -41,6 +41,11 @@ class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('id_correspondencia')
 
+    def create(self, request, *args, **kwargs):
+        print("✅ DATA RECIBIDA (request.data):", request.data)
+        print("📎 ARCHIVOS RECIBIDOS (request.FILES):", request.FILES)
+
+        return super().create(request, *args, **kwargs)
 class InternaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = InternaSerializer
     queryset = Interna.objects.all().order_by('id_correspondencia')
