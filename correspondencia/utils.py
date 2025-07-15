@@ -4,12 +4,26 @@ from docx import Document
 from docx.shared import Pt
 from django.utils.timezone import now
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-
+import pdfkit
 from jinja2 import Template
 
 def renderizar_contenido_html(template_string, context):
     template = Template(template_string)
     return template.render(context)
+
+import pdfkit
+
+# Ruta absoluta al ejecutable 
+RUTA_WKHTMLTOPDF = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+
+config = pdfkit.configuration(wkhtmltopdf=RUTA_WKHTMLTOPDF)
+
+def generar_pdf_desde_html(html_content):
+    options = {
+        'enable-local-file-access': None
+    }
+    pdf = pdfkit.from_string(html_content, False, options=options, configuration=config)
+    return pdf
 
 
 def generar_documento_word(docSaliente):

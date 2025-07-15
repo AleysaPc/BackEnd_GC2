@@ -13,7 +13,7 @@ class Correspondencia(models.Model):
     fecha_registro = models.DateTimeField(auto_now_add=True)
     referencia = models.CharField(max_length=255)
     descripcion = models.TextField()
-    paginas = models.IntegerField()
+    paginas = models.IntegerField(default=1)
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
     estado = models.CharField(max_length=20, choices=TIPO_CHOICES_ESTADO)
     comentario = models.TextField(null=True, blank=True)
@@ -103,6 +103,49 @@ class CorrespondenciaElaborada(Correspondencia):
     firmado = models.BooleanField(default=False)
     fecha_envio = models.DateTimeField(null=True, blank=True)
     version = models.PositiveIntegerField(default=1)
+    fecha_elaboracion = models.DateTimeField(auto_now_add=True)
+    
+
+    def generar_contenido_html(self):
+        """Genera el contenido HTML desde la plantilla y el contexto."""
+        if self.plantilla and self.plantilla.estructura_html:
+            MESES_ES = {
+                1: "enero",
+                2: "febrero",
+                3: "marzo",
+                4: "abril",
+                5: "mayo",
+                6: "junio",
+                7: "julio",
+                8: "agosto",
+                9: "septiembre",
+                10: "octubre",
+                11: "noviembre",
+                12: "diciembre",
+            }
+
+            if self.fecha_elaboracion:
+                fecha = self.fecha_elaboracion
+                fecha_formateada = f"{fecha.day} de {MESES_ES[fecha.month]} de {fecha.year}"
+            else:
+                fecha_formateada = ""
+
+            context = {
+                "fecha_elaboracion": fecha_formateada,
+                "cite": self.cite,
+                "nombre_destinatario": self.contacto.nombre_contacto if self.contacto else "",
+                "apellido_pat_destinatario": self.contacto.apellido_pat_contacto if self.contacto else "",
+                "apellido_mat_destinatario": self.contacto.apellido_mat_contacto if self.contacto else "",
+                "titulo_profesional": self.contacto.titulo_profesional if self.contacto else "",
+                "cargo": self.contacto.cargo if self.contacto else "",
+                "referencia": self.referencia,
+                "descripcion": self.descripcion,
+                "gestion": self.gestion,
+                "elaborado_por": self.usuario.username if self.usuario else "",
+            }
+
+            self.contenido_html = renderizar_contenido_html(self.plantilla.estructura_html, context)
+
 
     def save(self, *args, **kwargs):
         if not self.numero:
@@ -117,24 +160,13 @@ class CorrespondenciaElaborada(Correspondencia):
             sigla_tipo = self.plantilla.tipo.upper() if self.plantilla else 'OTRO'
             self.cite = f"{self.sigla}/{sigla_tipo}/{self.gestion}-{self.numero:03}"
 
-        # 👇 Generar el HTML si no existe
-        if not self.contenido_html and self.plantilla and self.plantilla.estructura_html:
-            context = {
-                "referencia": self.referencia,
-                "descripcion": self.descripcion,
-                "asunto": self.referencia,  # Puedes personalizar si manejas asunto por separado
-                "nombre_destinatario": self.contacto.nombre_contacto if self.contacto else "",
-                "cite": self.cite,
-                "fecha": self.fecha_registro.strftime("%d/%m/%Y") if self.fecha_registro else "",
-                "gestion": self.gestion,
-                "prioridad": self.prioridad,
-                # Otros campos según tu plantilla
-            }
-            self.contenido_html = renderizar_contenido_html(self.plantilla.estructura_html, context)
-
+        # Guarda primero para tener disponible fecha_elaboracion
         super().save(*args, **kwargs)
 
-
+        # Si aún no hay contenido HTML, lo generamos y volvemos a guardar
+        if not self.contenido_html:
+            self.generar_contenido_html()
+            super().save(update_fields=['contenido_html'])
 
 class AccionCorrespondencia(models.Model):
     id_accion = models.AutoField(primary_key=True)

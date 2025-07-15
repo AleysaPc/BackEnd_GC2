@@ -10,8 +10,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
-import json
-from pdfkit import from_string
 
 #from rest_framework.permissions import IsAuthenticated
 
@@ -44,6 +42,15 @@ class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('id_correspondencia')
 
+    @action(detail=False, methods=['get'])
+    def search_by_cite(self, request, cite_code):
+        try:
+            document = self.queryset.get(cite_code=cite_code)
+            serializer = self.get_serializer(document)
+            return Response(serializer.data)
+        except Enviada.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
     def create(self, request, *args, **kwargs):
         print("✅ DATA RECIBIDA (request.data):", request.data)
         print("📎 ARCHIVOS RECIBIDOS (request.FILES):", request.FILES)
@@ -65,7 +72,7 @@ def generar_documento(request, id):
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import HttpResponse
-import io
+from .utils import generar_pdf_desde_html 
 
 class CorrespondenciaElaboradaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = CorrespondenciaElaborada.objects.all().order_by('-fecha_registro')
@@ -82,30 +89,35 @@ class CorrespondenciaElaboradaView(PaginacionYAllDataMixin, viewsets.ModelViewSe
         except CorrespondenciaElaborada.DoesNotExist:
             return Response({"error": "No encontrado"}, status=404)
 
-    # Nuevo método para obtener el PDF
     @action(detail=True, methods=["get"], url_path="pdf")
     def obtener_pdf(self, request, pk=None):
         try:
             correspondencia = self.get_object()
-            
-            # Aquí deberías generar el PDF desde correspondencia.contenido_html
-            # Por simplicidad, solo responderemos un PDF estático o vacío
-            
-            # Ejemplo simple: retornar un PDF vacío (necesitarás implementar la generación real)
-            #pdf_bytes = generar_pdf_desde_html(correspondencia.contenido_html)
-            
-            response = HttpResponse("", content_type='application/pdf')
+            html_content = correspondencia.contenido_html  # El contenido que quieres convertir
+
+            # ✅ Generar PDF usando wkhtmltopdf
+            pdf = generar_pdf_desde_html(html_content)
+
+            response = HttpResponse(pdf, content_type='application/pdf')
             response['Content-Disposition'] = f'inline; filename="documento_{pk}.pdf"'
             return response
-        
+
         except CorrespondenciaElaborada.DoesNotExist:
             return Response({"error": "No encontrado"}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 
+# 🔹 Buscar por CITE
+class CorrespondenciaElaboradaViewSet(viewsets.ModelViewSet):
+    queryset = CorrespondenciaElaborada.objects.all()
+    serializer_class = CorrespondenciaElaboradaSerializer
 
-#def generar_pdf_desde_html(html_content):
-    # Esta función debes implementarla para convertir HTML a PDF
-    # Puedes usar librerías como pdfkit, weasyprint, xhtml2pdf, etc.
-    # Aquí un ejemplo muy básico con pdfkit (requiere wkhtmltopdf instalado):
-    #import pdfkit
-    #pdf = pdfkit.from_string(html_content, False)
-    #return pdf
+    @action(detail=False, methods=['get'], url_path='buscar-por-cite')
+    def buscar_por_cite(self, request):
+        cite = request.query_params.get('cite', '').upper()
+        try:
+            documento = CorrespondenciaElaborada.objects.get(cite=cite, estado='aprobado')
+            serializer = self.get_serializer(documento)
+            return Response(serializer.data)
+        except CorrespondenciaElaborada.DoesNotExist:
+            return Response({'error': 'No se encontró un documento aprobado con ese CITE.'}, status=status.HTTP_404_NOT_FOUND)

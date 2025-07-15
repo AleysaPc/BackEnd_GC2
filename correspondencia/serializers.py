@@ -198,16 +198,16 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'gestion',
             'cite',
             'firmado',
-            'fecha_envio',
             'version',
+            'fecha_elaboracion',
+            'contenido_html',
+            'usuario',
+            
         ]
-        read_only_fields = ['numero', 'gestion', 'cite',]
+        read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html', 'usuario',]
 
     def create(self, validated_data):
-        paginas = validated_data.pop('paginas', None)
-        if paginas is None:
-            paginas = 1  # o el valor por defecto que quieras
-        instancia = CorrespondenciaElaborada.objects.create(paginas=paginas, **validated_data)
+        instancia = CorrespondenciaElaborada.objects.create(**validated_data)
         return instancia
 
 
