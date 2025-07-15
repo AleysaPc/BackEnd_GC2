@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'usuario',
     'contacto',
     'documento',
+    'django_filters',
 ]
 
 
@@ -85,13 +86,11 @@ WSGI_APPLICATION = 'gestion_documental.wsgi.application'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
     #"DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.openapi.AutoSchema",
-
-    # Esto esta por defecto en django rest framework
-    # 'DEFAULT_PARSER_CLASSES': [
-    #     'rest_framework.parsers.JSONParser',
-    #     'rest_framework.parsers.FormParser',
-    #     'rest_framework.parsers.MultiPartParser',
-    # ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
 }
 
 
