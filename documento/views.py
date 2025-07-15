@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .serializers import DocumentoSerializer
-from .models import Documento
+from .serializers import DocumentoSerializer, PlantillaDocumentoSerializer
+from .models import Documento, PlantillaDocumento
 from gestion_documental.mixins import PaginacionYAllDataMixin
 from rest_framework.parsers import MultiPartParser
 # Create your views here.
@@ -38,3 +38,7 @@ def upload_documento(request):
         )
 
         return Response(DocumentoSerializer(documento).data, status=status.HTTP_201_CREATED)
+
+class PlantillaDocumentoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+    queryset = PlantillaDocumento.objects.all()
+    serializer_class = PlantillaDocumentoSerializer

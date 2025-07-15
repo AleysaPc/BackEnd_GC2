@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import Correspondencia, Recibida, Enviada, Interna, AccionCorrespondencia
-from documento.serializers import DocumentoSerializer
+from .models import Correspondencia, Recibida, Enviada, AccionCorrespondencia, CorrespondenciaElaborada
+from documento.serializers import DocumentoSerializer, PlantillaDocumentoSerializer
 from contacto.serializers import ContactoSerializer
-from documento.models import Documento
+from documento.models import Documento, PlantillaDocumento
 from usuario.models import CustomUser
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -119,7 +119,12 @@ class EnviadaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Enviada
-        fields = '__all__'
+        fields = [
+            'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro',
+            'referencia', 'paginas',
+            'documentos', 'contacto', 'usuario', 'comentario', 'acciones',
+            'datos_contacto', 'usuarios', 'fecha_envio', 'fecha_recepcion', 'fecha_seguimiento', 'cite'
+        ]
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -165,8 +170,49 @@ class EnviadaSerializer(serializers.ModelSerializer):
         return doc_enviada
 
 
-# 🔹 Interna sin derivación por ahora
-class InternaSerializer(serializers.ModelSerializer):
+# 🔹 Documento Elaborado
+class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
+    plantilla = PlantillaDocumentoSerializer(read_only=True)
+    plantilla_id = serializers.PrimaryKeyRelatedField(
+        queryset=PlantillaDocumento.objects.all(),
+        source='plantilla',
+        write_only=True
+    )
+
     class Meta:
-        model = Interna
-        fields = '__all__'
+        model = CorrespondenciaElaborada
+        fields = [
+            'id_correspondencia',
+            'referencia',
+            'descripcion',
+            'prioridad',
+            'estado',
+            'comentario',
+            'contacto',
+            'usuario',
+
+            'plantilla',       # representación anidada solo lectura
+            'plantilla_id',    # para enviar id al crear/actualizar
+            'sigla',
+            'numero',
+            'gestion',
+            'cite',
+            'firmado',
+            'fecha_envio',
+            'version',
+        ]
+        read_only_fields = ['numero', 'gestion', 'cite',]
+
+    def create(self, validated_data):
+        paginas = validated_data.pop('paginas', None)
+        if paginas is None:
+            paginas = 1  # o el valor por defecto que quieras
+        instancia = CorrespondenciaElaborada.objects.create(paginas=paginas, **validated_data)
+        return instancia
+
+
+    def update(self, instance, validated_data):
+        plantilla = validated_data.pop('plantilla', None)
+        if plantilla:
+            instance.plantilla = plantilla
+        return super().update(instance, validated_data)

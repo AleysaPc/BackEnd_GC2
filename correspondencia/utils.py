@@ -5,6 +5,13 @@ from docx.shared import Pt
 from django.utils.timezone import now
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
+from jinja2 import Template
+
+def renderizar_contenido_html(template_string, context):
+    template = Template(template_string)
+    return template.render(context)
+
+
 def generar_documento_word(docSaliente):
     """Genera un documento Word a partir de un objeto DocSaliente."""
 
