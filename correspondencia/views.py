@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
-from .filters import CorrespondenciaElaboradaFilter
+from .filters import CorrespondenciaElaboradaFilter, EnviadaFilter
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -26,6 +26,8 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
         elif self.action == 'retrieve':
             return CorrespondenciaDetailSerializer
         return CorrespondenciaListSerializer
+    
+    
     
     
 class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -44,6 +46,19 @@ class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('id_correspondencia')
+
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+    filterset_class = EnviadaFilter
+    search_fields = [
+        'cite',
+    ]
+    ordering_fields = ['cite']
+
+
 
     @action(detail=False, methods=['get'])
     def search_by_cite(self, request, cite_code):
@@ -88,10 +103,8 @@ class CorrespondenciaElaboradaView(PaginacionYAllDataMixin, viewsets.ModelViewSe
     filterset_class = CorrespondenciaElaboradaFilter
     search_fields = [
         'cite',
-        'fecha_registro',
-        'estado',
     ]
-    ordering_fields = ['fecha_registro', 'cite']
+    ordering_fields = ['cite']
     
     # Tu método existente para obtener HTML
     @action(detail=True, methods=["get"], url_path="html")

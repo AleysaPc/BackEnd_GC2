@@ -169,6 +169,58 @@ class EnviadaSerializer(serializers.ModelSerializer):
 
         return doc_enviada
 
+    def update(self, instance, validated_data):
+        request = self.context.get('request')
+        documentos_data = validated_data.pop('documentos', None)
+        usuarios = validated_data.pop('usuarios', None)
+
+        # Actualizar los campos simples del modelo Enviada
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+    # 📝 Actualizar documentos asociados
+        if documentos_data is not None:
+            # Elimina los documentos anteriores asociados a esta correspondencia
+            instance.documentos.all().delete()
+
+            # Si vienen documentos por multipart/form-data
+            if request and request.FILES:
+                documentos_data = []
+                idx = 0
+                while True:
+                    nombre = request.data.get(f'documentos[{idx}][nombre_documento]')
+                    archivo = request.FILES.get(f'documentos[{idx}][archivo]')
+                    if not nombre and not archivo:
+                        break
+                    doc = {}
+                    if nombre:
+                        doc['nombre_documento'] = nombre
+                    if archivo:
+                        doc['archivo'] = archivo
+                    documentos_data.append(doc)
+                    idx += 1
+
+        # Crear nuevos documentos
+        for doc_data in documentos_data:
+            Documento.objects.create(correspondencia=instance, **doc_data)
+
+    # 🔁 Actualizar las derivaciones (acciones de correspondencia)
+        if usuarios is not None:
+            # Eliminar acciones anteriores
+            instance.acciones.all().delete()
+
+            # Crear nuevas acciones de derivación
+            for usuario_id in usuarios:
+                if CustomUser.objects.filter(id=usuario_id).exists():
+                    AccionCorrespondencia.objects.create(
+                        correspondencia=instance,
+                        usuario_id=usuario_id,
+                        accion="DERIVAR"
+                    )
+
+        return instance
+
 
 # 🔹 Documento Elaborado
 class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
