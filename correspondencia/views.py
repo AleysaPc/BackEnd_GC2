@@ -10,6 +10,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
+from .filters import CorrespondenciaElaboradaFilter
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 #from rest_framework.permissions import IsAuthenticated
 
@@ -24,6 +27,7 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
             return CorrespondenciaDetailSerializer
         return CorrespondenciaListSerializer
     
+    
 class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = RecibidaSerializer
     queryset = Recibida.objects.all().order_by('id_correspondencia')
@@ -36,8 +40,7 @@ class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
         print("📎 ARCHIVOS RECIBIDOS (request.FILES):", request.FILES)
 
         return super().create(request, *args, **kwargs)
-        
-    
+           
 class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('id_correspondencia')
@@ -77,6 +80,18 @@ from .utils import generar_pdf_desde_html
 class CorrespondenciaElaboradaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = CorrespondenciaElaborada.objects.all().order_by('-fecha_registro')
     serializer_class = CorrespondenciaElaboradaSerializer
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+    filterset_class = CorrespondenciaElaboradaFilter
+    search_fields = [
+        'cite',
+        'fecha_registro',
+        'estado',
+    ]
+    ordering_fields = ['fecha_registro', 'cite']
     
     # Tu método existente para obtener HTML
     @action(detail=True, methods=["get"], url_path="html")
@@ -107,17 +122,3 @@ class CorrespondenciaElaboradaView(PaginacionYAllDataMixin, viewsets.ModelViewSe
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
-# 🔹 Buscar por CITE
-class CorrespondenciaElaboradaViewSet(viewsets.ModelViewSet):
-    queryset = CorrespondenciaElaborada.objects.all()
-    serializer_class = CorrespondenciaElaboradaSerializer
-
-    @action(detail=False, methods=['get'], url_path='buscar-por-cite')
-    def buscar_por_cite(self, request):
-        cite = request.query_params.get('cite', '').upper()
-        try:
-            documento = CorrespondenciaElaborada.objects.get(cite=cite, estado='aprobado')
-            serializer = self.get_serializer(documento)
-            return Response(serializer.data)
-        except CorrespondenciaElaborada.DoesNotExist:
-            return Response({'error': 'No se encontró un documento aprobado con ese CITE.'}, status=status.HTTP_404_NOT_FOUND)
