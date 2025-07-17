@@ -5,7 +5,7 @@ from django.db.models import Max
 from documento.models import PlantillaDocumento
 
 class Correspondencia(models.Model):
-    TIPO_CHOICES_ESTADO = [('borrador', 'Borrador'), ('en_revision', 'En revisión'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')]
+    TIPO_CHOICES_ESTADO = [('borrador', 'Borrador'), ('en_revision', 'En revisión'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado'), ('enviado', 'Enviado')]
     TIPO_CHOICES_PRIORIDAD = [('alta', 'Alta'), ('media', 'Media'), ('baja', 'Baja')]
     TIPO_CHOICES = [('recibido', 'Recibido'), ('enviado', 'Enviado')]
     id_correspondencia = models.AutoField(primary_key=True)
@@ -55,23 +55,23 @@ class Enviada(Correspondencia):
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_seguimiento = models.DateTimeField(blank=True, null=True)
     
-    def save(self, *args, **kwargs):
-        if not self.cite:
-            with transaction.atomic():
-                ultimo = Enviada.objects.order_by('-id_correspondencia').first()  # Usa el campo 'id' heredado de Correspondencia
-                
-                if ultimo and ultimo.cite:
-                    try:
-                        numero_actual = int(ultimo.cite.rsplit('-', 1)[1])
-                    except (IndexError, ValueError):
-                        numero_actual = 0
-                else:
-                    numero_actual = 0
+    #def save(self, *args, **kwargs):
+    #    if not self.cite:
+    #        with transaction.atomic():
+    #            ultimo = Enviada.objects.order_by('-id_correspondencia').first()  # Usa el campo 'id' heredado de Correspondencia
+    #            
+    #            if ultimo and ultimo.cite:
+    #                try:
+    #                    numero_actual = int(ultimo.cite.rsplit('-', 1)[1])
+    #                except (IndexError, ValueError):
+    #                    numero_actual = 0
+    #            else:
+    #                numero_actual = 0
 
-                nuevo_numero = numero_actual + 1
-                self.cite = f"FSTL-FTA/DPTO/LP/-{nuevo_numero:03}"
+    #            nuevo_numero = numero_actual + 1
+    #            self.cite = f"FSTL-FTA/DPTO/LP/-{nuevo_numero:03}"
 
-        super().save(*args, **kwargs)
+    #    super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.cite}"
@@ -102,6 +102,8 @@ class CorrespondenciaElaborada(Correspondencia):
     contenido_html = models.TextField(blank=True, null=True)
     firmado = models.BooleanField(default=False)
     fecha_envio = models.DateTimeField(null=True, blank=True)
+    fecha_recepcion = models.DateTimeField(null=True, blank=True)
+    fecha_seguimiento = models.DateTimeField(null=True, blank=True)
     version = models.PositiveIntegerField(default=1)
     fecha_elaboracion = models.DateTimeField(auto_now_add=True)
     
@@ -157,7 +159,13 @@ class CorrespondenciaElaborada(Correspondencia):
                 self.numero = (ultimo.numero + 1) if ultimo else 1
 
         if not self.cite:
-            sigla_tipo = self.plantilla.tipo.upper() if self.plantilla else 'OTRO'
+            if self.plantilla:
+                if self.plantilla.tipo == 'nota_externa':
+                    sigla_tipo = 'NE'
+                else:
+                    sigla_tipo = self.plantilla.tipo.upper()
+            else:
+                sigla_tipo = 'OTRO'
             self.cite = f"{self.sigla}/{sigla_tipo}/{self.gestion}-{self.numero:03}"
 
         # Guarda primero para tener disponible fecha_elaboracion

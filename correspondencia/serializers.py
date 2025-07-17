@@ -224,17 +224,22 @@ class EnviadaSerializer(serializers.ModelSerializer):
 
 # 🔹 Documento Elaborado
 class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
+    documentos = DocumentoSerializer(many=True, read_only=True)
+    acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
     plantilla = PlantillaDocumentoSerializer(read_only=True)
     plantilla_id = serializers.PrimaryKeyRelatedField(
         queryset=PlantillaDocumento.objects.all(),
         source='plantilla',
-        write_only=True
+        write_only=False
     )
 
     class Meta:
         model = CorrespondenciaElaborada
         fields = [
             'id_correspondencia',
+            'fecha_envio',
+            'fecha_recepcion',
+            'fecha_seguimiento',
             'referencia',
             'descripcion',
             'prioridad',
@@ -242,7 +247,9 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'comentario',
             'contacto',
             'usuario',
-
+            'documentos',
+            'acciones',
+            'paginas',
             'plantilla',       # representación anidada solo lectura
             'plantilla_id',    # para enviar id al crear/actualizar
             'sigla',
@@ -254,17 +261,89 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'fecha_elaboracion',
             'contenido_html',
             'usuario',
-            
+           
         ]
         read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html', 'usuario',]
-
-    def create(self, validated_data):
-        instancia = CorrespondenciaElaborada.objects.create(**validated_data)
-        return instancia
-
-
     def update(self, instance, validated_data):
+        request = self.context.get('request')
+        documentos_data = validated_data.pop('documentos', None)
         plantilla = validated_data.pop('plantilla', None)
+
+    # Actualizar campos simples
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
         if plantilla:
             instance.plantilla = plantilla
-        return super().update(instance, validated_data)
+        instance.save()
+
+    # Actualizar documentos (si se enviaron)
+        if documentos_data is not None:
+        # Eliminar documentos anteriores
+            instance.documentos.all().delete()
+
+        # Leer documentos desde multipart
+        if request and request.FILES:
+            documentos_data = []
+            idx = 0
+            while True:
+                nombre = request.data.get(f'documentos[{idx}][nombre_documento]')
+                archivo = request.FILES.get(f'documentos[{idx}][archivo]')
+                if not nombre and not archivo:
+                    break
+                doc = {}
+                if nombre:
+                    doc['nombre_documento'] = nombre
+                if archivo:
+                    doc['archivo'] = archivo
+                documentos_data.append(doc)
+                idx += 1
+
+        # Crear nuevos documentos
+        for doc_data in documentos_data:
+            Documento.objects.create(correspondencia=instance, **doc_data)
+
+        return instance
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        usuarios = validated_data.pop('usuarios', [])
+        documentos_data = validated_data.pop('documentos', [])
+
+        valid_users = [
+            uid for uid in usuarios if CustomUser.objects.filter(id=uid).exists()
+        ]
+
+        # Leer archivos si se envían desde multipart (como desde el frontend)
+        if request and request.method.lower() == 'post' and request.FILES:
+            documentos_data = []
+            idx = 0
+            while True:
+                nombre = request.data.get(f'documentos[{idx}][nombre_documento]')
+                archivo = request.FILES.get(f'documentos[{idx}][archivo]')
+                if not nombre and not archivo:
+                    break
+                doc = {}
+                if nombre:
+                    doc['nombre_documento'] = nombre
+                if archivo:
+                    doc['archivo'] = archivo
+                documentos_data.append(doc)
+                idx += 1
+
+        # Crear la correspondencia
+        doc_entrante = CorrespondenciaElaborada.objects.create(**validated_data)
+
+        # Asociar documentos
+        for doc_data in documentos_data:
+            Documento.objects.create(correspondencia=doc_entrante, **doc_data)
+
+        # Derivar a múltiples usuarios
+        for usuario_id in valid_users:
+            AccionCorrespondencia.objects.create(
+                correspondencia=doc_entrante,
+                usuario_id=usuario_id,
+                accion="DERIVAR"
+            )
+
+        return doc_entrante
+
