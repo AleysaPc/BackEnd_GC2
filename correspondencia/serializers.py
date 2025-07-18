@@ -61,6 +61,8 @@ class RecibidaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recibida
         fields = '__all__'
+    
+    
 
     def create(self, validated_data):
         request = self.context.get('request')

@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
-from .filters import CorrespondenciaElaboradaFilter, EnviadaFilter
+from .filters import CorrespondenciaElaboradaFilter, EnviadaFilter, CorrespondenciaFilter
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -20,6 +20,17 @@ from django_filters.rest_framework import DjangoFilterBackend
 class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = Correspondencia.objects.all().order_by('id_correspondencia')
 
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+    filterset_class = CorrespondenciaFilter
+    search_fields = [
+        'tipo', 'referencia'
+    ]
+    ordering_fields = ['tipo', 'referencia']
+    
     def get_serializer_class(self):
         if self.action == 'list':
             return CorrespondenciaListSerializer

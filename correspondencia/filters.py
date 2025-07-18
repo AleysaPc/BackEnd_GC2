@@ -1,5 +1,12 @@
 import django_filters
-from .models import CorrespondenciaElaborada, Enviada
+from .models import Correspondencia, CorrespondenciaElaborada, Enviada
+
+class CorrespondenciaFilter(django_filters.FilterSet):
+    cite = django_filters.CharFilter(field_name="cite", lookup_expr="icontains")
+    estado = django_filters.CharFilter(field_name="estado", lookup_expr="icontains")
+    class Meta:
+        model = Correspondencia
+        fields = []
 
 class CorrespondenciaElaboradaFilter(django_filters.FilterSet):
     cite = django_filters.CharFilter(field_name="cite", lookup_expr="icontains")

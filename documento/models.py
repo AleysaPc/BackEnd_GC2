@@ -22,7 +22,7 @@ class Documento(models.Model):
     vector_embedding = VectorField(dimensions=384, null=True, blank=True)  # Usa 384 o 768 según tu modelo
 
     def __str__(self):
-        return self.nombre_documento
+        return self.archivo
 
 # documento/models.py
 
