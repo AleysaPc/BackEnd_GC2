@@ -62,8 +62,6 @@ class RecibidaSerializer(serializers.ModelSerializer):
         model = Recibida
         fields = '__all__'
     
-    
-
     def create(self, validated_data):
         request = self.context.get('request')
         usuarios = validated_data.pop('usuarios', [])
@@ -106,7 +104,55 @@ class RecibidaSerializer(serializers.ModelSerializer):
             )
 
         return doc_entrante
-
+    
+    def update(self, instance, validated_data):
+        print("🟡 Ejecutando UPDATE del serializer...")
+    
+        request = self.context.get('request')
+        documentos_data = validated_data.pop('documentos', None)
+        usuarios_data = validated_data.pop('usuarios', None)
+    
+        print("✅ validated_data (campos simples):", validated_data)
+        print("📄 documentos_data:", documentos_data)
+        print("👤 usuarios_data:", usuarios_data)
+    
+        # Actualizar campos simples de la correspondencia
+        for attr, value in validated_data.items():
+            print(f"🔄 Actualizando campo: {attr} = {value}")
+            setattr(instance, attr, value)
+        instance.save()
+    
+        # Si vienen archivos desde el frontend en formato multipart
+        if request and request.method.lower() in ['put', 'patch'] and request.FILES:
+            documentos_data = []
+            idx = 0
+            while True:
+                nombre = request.data.get(f'documentos[{idx}][nombre_documento]')
+                archivo = request.FILES.get(f'documentos[{idx}][archivo]')
+                if not nombre and not archivo:
+                    break
+                doc = {}
+                if nombre:
+                    doc['nombre_documento'] = nombre
+                if archivo:
+                    doc['archivo'] = archivo
+                documentos_data.append(doc)
+                idx += 1
+    
+        # Agregar nuevos documentos, sin borrar los anteriores
+        if documentos_data:
+            print("📥 Agregando nuevos documentos...")
+            for doc_data in documentos_data:
+                print("📄 Documento nuevo:", doc_data)
+                Documento.objects.create(correspondencia=instance, **doc_data)
+    
+        # Manejo de usuarios si fuera necesario
+        if usuarios_data is not None:
+            print("👤 Manejo de usuarios aún no implementado")
+    
+        print("✅ UPDATE completo")
+        return instance
+  
 
 # 🔹 Enviada con opción de derivación múltiple (igual que Recibida)
 class EnviadaSerializer(serializers.ModelSerializer):
