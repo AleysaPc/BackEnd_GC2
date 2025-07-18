@@ -55,23 +55,6 @@ class Enviada(Correspondencia):
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_seguimiento = models.DateTimeField(blank=True, null=True)
     
-    #def save(self, *args, **kwargs):
-    #    if not self.cite:
-    #        with transaction.atomic():
-    #            ultimo = Enviada.objects.order_by('-id_correspondencia').first()  # Usa el campo 'id' heredado de Correspondencia
-    #            
-    #            if ultimo and ultimo.cite:
-    #                try:
-    #                    numero_actual = int(ultimo.cite.rsplit('-', 1)[1])
-    #                except (IndexError, ValueError):
-    #                    numero_actual = 0
-    #            else:
-    #                numero_actual = 0
-
-    #            nuevo_numero = numero_actual + 1
-    #            self.cite = f"FSTL-FTA/DPTO/LP/-{nuevo_numero:03}"
-
-    #    super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.cite}"
@@ -106,6 +89,14 @@ class CorrespondenciaElaborada(Correspondencia):
     fecha_seguimiento = models.DateTimeField(null=True, blank=True)
     version = models.PositiveIntegerField(default=1)
     fecha_elaboracion = models.DateTimeField(auto_now_add=True)
+    respuesta_a = models.ForeignKey(
+        Recibida,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='respuestas',
+        help_text="Nota recibida a la que responde esta nota elaborada"
+    )
     
 
     def generar_contenido_html(self):

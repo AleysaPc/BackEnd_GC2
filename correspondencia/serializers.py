@@ -272,6 +272,7 @@ class EnviadaSerializer(serializers.ModelSerializer):
 
 # 🔹 Documento Elaborado
 class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
+    nro_registro_respuesta = serializers.CharField(source='respuesta_a.nro_registro', read_only=True)
     documentos = DocumentoSerializer(many=True, read_only=True)
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
     plantilla = PlantillaDocumentoSerializer(read_only=True)
@@ -298,6 +299,7 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'documentos',
             'acciones',
             'paginas',
+            'respuesta_a',
             'plantilla',       # representación anidada solo lectura
             'plantilla_id',    # para enviar id al crear/actualizar
             'sigla',
@@ -309,7 +311,7 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'fecha_elaboracion',
             'contenido_html',
             'usuario',
-           
+            'nro_registro_respuesta',
         ]
         read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html', 'usuario',]
     def update(self, instance, validated_data):
