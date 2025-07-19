@@ -25,7 +25,7 @@ from documento.models import Documento
 # 3. Función para guardar embedding usando ORM
 def guardar_embedding_db(nombre_documento, embedding):
     try:
-        doc, created = Documento.objects.get_or_create(nombre_documento=nombre_documento)
+        doc = Documento.objects.get(nombre_documento=nombre_documento)
         doc.vector_embedding = embedding.tolist()  # Asegúrate que embedding es numpy array o lista
         doc.save()
         print(f"Embedding guardado en DB para: {nombre_documento}")

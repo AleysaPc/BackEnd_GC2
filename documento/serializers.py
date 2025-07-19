@@ -15,6 +15,7 @@ class DocumentoSerializer(serializers.ModelSerializer):
             'archivo': {'required': False}, #no sirve poner
             'nombre_archivo': {'required': False},
         }
+        read_only_fields = ['vector_embedding']
         
 class PlantillaDocumentoSerializer(serializers.ModelSerializer):
     class Meta:

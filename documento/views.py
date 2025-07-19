@@ -1,43 +1,48 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser
+from rest_framework.decorators import action
 from .serializers import DocumentoSerializer, PlantillaDocumentoSerializer
 from .models import Documento, PlantillaDocumento
 from gestion_documental.mixins import PaginacionYAllDataMixin
-from rest_framework.parsers import MultiPartParser
-# Create your views here.
-# Tambien va la paginacion
+
+# OCR y embeddings
+from PIL import Image
+from documento.busquedaSemantica.ocr import extraer_texto_de_imagen, extraer_texto_de_pdf
+from documento.busquedaSemantica.clean_text import limpiar_texto_ocr
+from documento.busquedaSemantica.embeddings import generar_embedding
+
+import os
+
 
 class DocumentoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = Documento.objects.all()
     serializer_class = DocumentoSerializer
     parser_classes = [MultiPartParser]
 
-# views.py
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from .models import Documento
-from .serializers import DocumentoSerializer
+    def perform_create(self, serializer):
+        documento = serializer.save()
+        ruta = documento.archivo.path
+        ext = os.path.splitext(ruta)[1].lower()
 
-@api_view(['POST'])
-def upload_documento(request):
-    if request.method == 'POST':
-        archivo = request.FILES.get('archivo')
-        nombre_documento = request.data.get('nombre_documento')
-        tipo_documento = request.data.get('id_tipo_documento')
-        id_correspondencia = request.data.get('id_correspondencia')
+        if ext in ['.png', '.jpg', '.jpeg']:
+            imagen = Image.open(ruta)
+            texto = extraer_texto_de_imagen(imagen)
+        elif ext == '.pdf':
+            texto = extraer_texto_de_pdf(ruta)
+        else:
+            texto = ''
 
-        if not archivo or not nombre_documento or not tipo_documento or not id_correspondencia:
-            return Response({"error": "Faltan datos necesarios"}, status=status.HTTP_400_BAD_REQUEST)
+        texto_limpio = limpiar_texto_ocr(texto)
+        embedding = generar_embedding(texto_limpio)
 
-        # Aquí puedes guardar el documento en la base de datos
-        documento = Documento.objects.create(
-            archivo=archivo,
-            nombre_documento=nombre_documento,
-            tipo_documento_id=tipo_documento,
-            correspondencia_id=id_correspondencia
-        )
+        if hasattr(embedding, 'tolist'):
+            documento.vector_embedding = embedding.tolist()
+        else:
+            documento.vector_embedding = embedding
 
-        return Response(DocumentoSerializer(documento).data, status=status.HTTP_201_CREATED)
+        documento.save()
+
 
 class PlantillaDocumentoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = PlantillaDocumento.objects.all()

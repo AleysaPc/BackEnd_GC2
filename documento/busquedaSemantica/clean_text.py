@@ -1,20 +1,22 @@
 import re
-#Contendrá las funciones relacionadas con la extracción de texto usando OCR.
 
 def limpiar_texto_ocr(texto):
-    # 1. Eliminar saltos de línea y múltiples espacios
+    # 1. Eliminar marcas de página y encabezados comunes
+    texto = re.sub(r'--- página \d+ ---', '', texto, flags=re.IGNORECASE)
+
+    # 2. Eliminar saltos de línea y múltiples espacios
     texto = re.sub(r'\s+', ' ', texto)
 
-    # 2. Eliminar caracteres no deseados (como caracteres especiales mal reconocidos)
-    texto = re.sub(r'[^\w\sáéíóúñÁÉÍÓÚÑ.,;:¡!¿?()\-]', '', texto)
+    # 3. Eliminar caracteres no deseados, más amplios
+    texto = re.sub(r'[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ.,;:¡!¿?()\- ]+', '', texto)
 
-    # 3. Eliminar espacios antes de signos de puntuación
+    # 4. Eliminar espacios antes de signos de puntuación
     texto = re.sub(r'\s+([.,;:!?])', r'\1', texto)
 
-    # 4. Normalizar texto: todo en minúsculas
+    # 5. Pasar a minúsculas
     texto = texto.lower()
 
-    # 5. Eliminar espacios iniciales y finales
+    # 6. Eliminar espacios iniciales y finales
     texto = texto.strip()
 
     return texto

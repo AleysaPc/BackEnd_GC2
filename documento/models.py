@@ -1,6 +1,9 @@
 from django.db import models
 import os
 from pgvector.django import VectorField
+from .busquedaSemantica.ocr import extraer_texto_de_pdf
+from .busquedaSemantica.embeddings import generar_embedding
+from .busquedaSemantica.clean_text import limpiar_texto_ocr
 
 def ruta_archivo(instance, filename):
     tipo = instance.correspondencia.tipo if instance.correspondencia else 'otros'
@@ -20,11 +23,29 @@ class Documento(models.Model):
     fecha_subida = models.DateTimeField(auto_now_add=True)
     correspondencia = models.ForeignKey('correspondencia.Correspondencia', on_delete=models.CASCADE, related_name='documentos') 
     vector_embedding = VectorField(dimensions=384, null=True, blank=True)  # Usa 384 o 768 según tu modelo
+    contenido_extraido = models.TextField(blank=True, null=True)  # ← Texto plano del PDF
+   
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Guarda primero el archivo para tener path
 
-    def __str__(self):
-        return self.archivo
+        # Solo si hay archivo y no se ha extraído texto todavía
+        if self.archivo and not self.contenido_extraido:
+            try:
+                texto = extraer_texto_de_pdf(self.archivo.path)
+                texto_limpio = limpiar_texto_ocr(texto)
+                self.contenido_extraido = texto_limpio
 
-# documento/models.py
+                # Generar embedding a partir del texto
+                embedding = generar_embedding(texto_limpio)
+                if hasattr(embedding, 'tolist'):
+                    self.vector_embedding = embedding.tolist()
+                else:
+                    self.vector_embedding = embedding
+
+                super().save(update_fields=["contenido_extraido", "vector_embedding"])
+
+            except Exception as e:
+                print(f"Error al procesar el documento: {e}")
 
 TIPO_DOCUMENTO_CHOICES = [
     ('comunicado', 'Comunicado'),
