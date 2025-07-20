@@ -49,6 +49,7 @@ class CorrespondenciaDetailSerializer(serializers.ModelSerializer):
 
 # 🔹 Recibida con opción de derivación múltiple
 class RecibidaSerializer(serializers.ModelSerializer):
+    similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
     documentos = DocumentoSerializer(many=True, required=False)
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)

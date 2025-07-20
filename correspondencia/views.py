@@ -14,6 +14,11 @@ from .filters import CorrespondenciaElaboradaFilter, EnviadaFilter, Corresponden
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
+#Para la busqueda semantica
+from sentence_transformers import SentenceTransformer
+from pgvector.django import CosineDistance
+
+
 #from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
@@ -40,6 +45,8 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     
     
     
+
+modelo = None  # Modelo global
     
 class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = RecibidaSerializer
@@ -64,7 +71,28 @@ class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
         print("📎 ARCHIVOS RECIBIDOS (request.FILES):", request.FILES)
 
         return super().create(request, *args, **kwargs)
-           
+    
+    def get_queryset(self):
+        global modelo
+        queryset = super().get_queryset()
+
+        consulta = self.request.query_params.get('consulta_semantica')
+        print(f"Consulta semántica recibida: {consulta}")
+
+        if consulta:
+            if modelo is None:
+                from sentence_transformers import SentenceTransformer
+                modelo = SentenceTransformer('all-MiniLM-L6-v2')
+
+            embedding = modelo.encode(consulta).tolist()
+
+            queryset = queryset.filter(documentos__vector_embedding__isnull=False)
+            queryset = queryset.annotate(similitud=CosineDistance('documentos__vector_embedding', embedding)).order_by('similitud')
+
+        return queryset
+
+
+
     
 class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = EnviadaSerializer
