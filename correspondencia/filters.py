@@ -23,6 +23,7 @@ class EnviadaFilter(django_filters.FilterSet):
         fields = []
 
 class RecibidaFilter(django_filters.FilterSet):
+    nro_registro = django_filters.CharFilter(field_name="nro_registro", lookup_expr="icontains")
     referencia = django_filters.CharFilter(field_name="referencia", lookup_expr="icontains")
     contacto__nombre_contacto = django_filters.CharFilter(field_name="contacto__nombre_contacto", lookup_expr="icontains")
     contacto__apellido_pat_contacto = django_filters.CharFilter(field_name="contacto__apellido_pat_contacto", lookup_expr="icontains")

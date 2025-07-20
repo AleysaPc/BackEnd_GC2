@@ -52,7 +52,7 @@ class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     ]
     filterset_class = RecibidaFilter
     search_fields = [
-        'referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social'
+        'nro_registro','referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social'
     ]
     ordering_fields = ['referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social']
     
