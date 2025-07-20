@@ -65,6 +65,7 @@ class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
         return super().create(request, *args, **kwargs)
            
+    
 class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('id_correspondencia')
