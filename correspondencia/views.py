@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
-from .filters import CorrespondenciaElaboradaFilter, EnviadaFilter, CorrespondenciaFilter
+from .filters import CorrespondenciaElaboradaFilter, EnviadaFilter, CorrespondenciaFilter, RecibidaFilter
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -44,6 +44,17 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = RecibidaSerializer
     queryset = Recibida.objects.all().order_by('id_correspondencia')
+    
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_class = RecibidaFilter
+    search_fields = [
+        'referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social'
+    ]
+    ordering_fields = ['referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social']
     
     # Esto esta por defecto en django rest framework
     # parser_classes = (MultiPartParser, FormParser)
