@@ -157,6 +157,7 @@ class RecibidaSerializer(serializers.ModelSerializer):
 
 # 🔹 Enviada con opción de derivación múltiple (igual que Recibida)
 class EnviadaSerializer(serializers.ModelSerializer):
+    similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
     documentos = DocumentoSerializer(many=True, required=False)
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
@@ -172,7 +173,7 @@ class EnviadaSerializer(serializers.ModelSerializer):
             'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro',
             'referencia', 'paginas',
             'documentos', 'contacto', 'usuario', 'comentario', 'acciones',
-            'datos_contacto', 'usuarios', 'fecha_envio', 'fecha_recepcion', 'fecha_seguimiento', 'cite'
+            'datos_contacto', 'usuarios', 'fecha_envio', 'fecha_recepcion', 'fecha_seguimiento', 'cite', 'similitud'
         ]
 
     def create(self, validated_data):
@@ -273,6 +274,8 @@ class EnviadaSerializer(serializers.ModelSerializer):
 
 # 🔹 Documento Elaborado
 class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
+    similitud = serializers.FloatField(read_only=True)
+    datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
     nro_registro_respuesta = serializers.CharField(source='respuesta_a.nro_registro', read_only=True)
     documentos = DocumentoSerializer(many=True, read_only=True)
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
@@ -301,6 +304,8 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'acciones',
             'paginas',
             'respuesta_a',
+            'datos_contacto',
+            'similitud',
             'plantilla',       # representación anidada solo lectura
             'plantilla_id',    # para enviar id al crear/actualizar
             'sigla',

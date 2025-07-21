@@ -11,13 +11,23 @@ class CorrespondenciaFilter(django_filters.FilterSet):
 class CorrespondenciaElaboradaFilter(django_filters.FilterSet):
     cite = django_filters.CharFilter(field_name="cite", lookup_expr="icontains")
     estado = django_filters.CharFilter(field_name="estado", lookup_expr="icontains")
+    referencia = django_filters.CharFilter(field_name="referencia", lookup_expr="icontains")
+    contacto__nombre_contacto = django_filters.CharFilter(field_name="contacto__nombre_contacto", lookup_expr="icontains")
+    contacto__apellido_pat_contacto = django_filters.CharFilter(field_name="contacto__apellido_pat_contacto", lookup_expr="icontains")
+    contacto__apellido_mat_contacto = django_filters.CharFilter(field_name="contacto__apellido_mat_contacto", lookup_expr="icontains")
+    contacto__institucion__razon_social = django_filters.CharFilter(field_name="contacto__institucion__razon_social", lookup_expr="icontains")
     class Meta:
         model = CorrespondenciaElaborada
         fields = []
     
 class EnviadaFilter(django_filters.FilterSet):
     cite = django_filters.CharFilter(field_name="cite", lookup_expr="icontains")
-    estado = django_filters.CharFilter(field_name="estado", lookup_expr="icontains")
+    referencia = django_filters.CharFilter(field_name="referencia", lookup_expr="icontains")
+    contacto__nombre_contacto = django_filters.CharFilter(field_name="contacto__nombre_contacto", lookup_expr="icontains")
+    contacto__apellido_pat_contacto = django_filters.CharFilter(field_name="contacto__apellido_pat_contacto", lookup_expr="icontains")
+    contacto__apellido_mat_contacto = django_filters.CharFilter(field_name="contacto__apellido_mat_contacto", lookup_expr="icontains")
+    contacto__institucion__razon_social = django_filters.CharFilter(field_name="contacto__institucion__razon_social", lookup_expr="icontains")
+ 
     class Meta:
         model = Enviada
         fields = []
@@ -29,6 +39,7 @@ class RecibidaFilter(django_filters.FilterSet):
     contacto__apellido_pat_contacto = django_filters.CharFilter(field_name="contacto__apellido_pat_contacto", lookup_expr="icontains")
     contacto__apellido_mat_contacto = django_filters.CharFilter(field_name="contacto__apellido_mat_contacto", lookup_expr="icontains")
     contacto__institucion__razon_social = django_filters.CharFilter(field_name="contacto__institucion__razon_social", lookup_expr="icontains")
+    
  
     class Meta:
         model = Recibida

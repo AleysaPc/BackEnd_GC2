@@ -50,7 +50,7 @@ modelo = None  # Modelo global
     
 class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = RecibidaSerializer
-    queryset = Recibida.objects.all().order_by('id_correspondencia')
+    queryset = Recibida.objects.all().order_by('-fecha_registro') # Ordenar por fecha de registro en orden descendente
     
     filter_backends = [
         DjangoFilterBackend,
@@ -96,7 +96,7 @@ class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     
 class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = EnviadaSerializer
-    queryset = Enviada.objects.all().order_by('id_correspondencia')
+    queryset = Enviada.objects.all().order_by('-fecha_registro')
 
     filter_backends = [
         DjangoFilterBackend,
@@ -153,9 +153,9 @@ class CorrespondenciaElaboradaView(PaginacionYAllDataMixin, viewsets.ModelViewSe
     ]
     filterset_class = CorrespondenciaElaboradaFilter
     search_fields = [
-        'cite',
+        'cite', 'referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social'
     ]
-    ordering_fields = ['cite']
+    ordering_fields = ['cite', 'referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social']
     
     # Tu método existente para obtener HTML
     @action(detail=True, methods=["get"], url_path="html")
