@@ -4,22 +4,30 @@ from documento.serializers import DocumentoSerializer, PlantillaDocumentoSeriali
 from contacto.serializers import ContactoSerializer
 from documento.models import Documento, PlantillaDocumento
 from usuario.models import CustomUser
+from .utils import derivar_correspondencia
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'email']  # Solo los campos que quieras mostrar
 
-# 🔹 Mostrar ID del usuario al derivar
+# Serializador para AccionCorrespondencia
 class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
-    usuario = UsuarioSerializer(read_only=True)  # ← esto es clave
+    usuario = UsuarioSerializer(read_only=True)
+    usuario_destino = UsuarioSerializer(read_only=True)  # Solo lectura para la respuesta
+    usuario_destino_id = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(),
+        source='usuario_destino',
+        write_only=True,
+        required=True
+    )
 
     class Meta:
         model = AccionCorrespondencia
-        fields = ['id_accion', 'usuario', 'accion', 'fecha']
+        fields = ['id_accion', 'usuario', 'usuario_destino', 'usuario_destino_id', 'accion', 'fecha', 'comentario']
 
 # 🔹 Listado y detalle general de correspondencias
-class CorrespondenciaListSerializer(serializers.ModelSerializer):
+class CorrespondenciaSerializer(serializers.ModelSerializer):
     documentos = DocumentoSerializer(many=True)
     contacto = serializers.StringRelatedField()
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
@@ -32,22 +40,10 @@ class CorrespondenciaListSerializer(serializers.ModelSerializer):
             'documentos', 'contacto', 'usuario', 'comentario', 'acciones'
         ]
 
-
-class CorrespondenciaDetailSerializer(serializers.ModelSerializer):
-    documentos = DocumentoSerializer(many=True, read_only=True)
-    contacto = serializers.StringRelatedField()
-    acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Correspondencia
-        fields = [
-            'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro',
-            'referencia', 'paginas', 'prioridad', 'estado',
-            'documentos', 'contacto', 'usuario', 'comentario', 'acciones'
-        ]
-
-
 # 🔹 Recibida con opción de derivación múltiple
+from django.db import transaction
+from rest_framework import serializers
+
 class RecibidaSerializer(serializers.ModelSerializer):
     similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
@@ -63,16 +59,23 @@ class RecibidaSerializer(serializers.ModelSerializer):
         model = Recibida
         fields = '__all__'
     
+    @transaction.atomic  # Asegura que toda la creación sea atómica
     def create(self, validated_data):
         request = self.context.get('request')
         usuarios = validated_data.pop('usuarios', [])
         documentos_data = validated_data.pop('documentos', [])
 
+        # Validar que haya un usuario autenticado
+        usuario_actual = getattr(request, 'user', None)
+        if usuario_actual is None or usuario_actual.is_anonymous:
+            raise serializers.ValidationError("Usuario no autenticado")
+
+        # Validar que los IDs de usuarios existan en la BD
         valid_users = [
             uid for uid in usuarios if CustomUser.objects.filter(id=uid).exists()
         ]
 
-        # Leer archivos si se envían desde multipart (como desde el frontend)
+        # Leer documentos desde archivos multipart (si vienen así)
         if request and request.method.lower() == 'post' and request.FILES:
             documentos_data = []
             idx = 0
@@ -89,41 +92,44 @@ class RecibidaSerializer(serializers.ModelSerializer):
                 documentos_data.append(doc)
                 idx += 1
 
-        # Crear la correspondencia
+        # Crear la correspondencia con campos simples
         doc_entrante = Recibida.objects.create(**validated_data)
 
-        # Asociar documentos
+        # Crear documentos relacionados
         for doc_data in documentos_data:
-            Documento.objects.create(correspondencia=doc_entrante, **doc_data)
+            # Opcional: validar que archivo y nombre no estén vacíos
+            if 'nombre_documento' in doc_data or 'archivo' in doc_data:
+                Documento.objects.create(correspondencia=doc_entrante, **doc_data)
 
-        # Derivar a múltiples usuarios
-        for usuario_id in valid_users:
-            AccionCorrespondencia.objects.create(
-                correspondencia=doc_entrante,
-                usuario_id=usuario_id,
-                accion="DERIVAR"
-            )
-
+        #usar función para derivar
+        derivar_correspondencia(doc_entrante, usuario_actual, valid_users)
+        
         return doc_entrante
     
+    @transaction.atomic  # Asegura que la actualización sea atómica
     def update(self, instance, validated_data):
         print("🟡 Ejecutando UPDATE del serializer...")
-    
+
         request = self.context.get('request')
         documentos_data = validated_data.pop('documentos', None)
         usuarios_data = validated_data.pop('usuarios', None)
-    
+
+        # Validar usuario autenticado
+        usuario_actual = getattr(request, 'user', None)
+        if usuario_actual is None or usuario_actual.is_anonymous:
+            raise serializers.ValidationError("Usuario no autenticado")
+
         print("✅ validated_data (campos simples):", validated_data)
         print("📄 documentos_data:", documentos_data)
         print("👤 usuarios_data:", usuarios_data)
-    
-        # Actualizar campos simples de la correspondencia
+
+        # Actualizar campos simples del objeto Recibida
         for attr, value in validated_data.items():
             print(f"🔄 Actualizando campo: {attr} = {value}")
             setattr(instance, attr, value)
         instance.save()
-    
-        # Si vienen archivos desde el frontend en formato multipart
+
+        # Leer nuevos documentos enviados por multipart/form-data
         if request and request.method.lower() in ['put', 'patch'] and request.FILES:
             documentos_data = []
             idx = 0
@@ -139,21 +145,21 @@ class RecibidaSerializer(serializers.ModelSerializer):
                     doc['archivo'] = archivo
                 documentos_data.append(doc)
                 idx += 1
-    
-        # Agregar nuevos documentos, sin borrar los anteriores
+
+        # Agregar nuevos documentos (sin eliminar los existentes)
         if documentos_data:
             print("📥 Agregando nuevos documentos...")
             for doc_data in documentos_data:
-                print("📄 Documento nuevo:", doc_data)
-                Documento.objects.create(correspondencia=instance, **doc_data)
-    
-        # Manejo de usuarios si fuera necesario
+                if 'nombre_documento' in doc_data or 'archivo' in doc_data:
+                    print("📄 Documento nuevo:", doc_data)
+                    Documento.objects.create(correspondencia=instance, **doc_data)
+
+        #Actualizar derivaciones usando función ubicada en utils.py
         if usuarios_data is not None:
-            print("👤 Manejo de usuarios aún no implementado")
-    
-        print("✅ UPDATE completo")
+            derivar_correspondencia(instance, usuario_actual, usuarios_data)
         return instance
   
+
 
 # 🔹 Enviada con opción de derivación múltiple (igual que Recibida)
 class EnviadaSerializer(serializers.ModelSerializer):

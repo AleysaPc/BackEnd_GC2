@@ -46,7 +46,7 @@ class AccionCorrespondenciaForm(forms.ModelForm):
 
     class Meta:
         model = AccionCorrespondencia
-        fields = ['correspondencia', 'accion', 'observacion', 'usuarios']
+        fields = ['correspondencia', 'accion', 'comentario', 'usuarios']
 
     def save(self, commit=True):
         instancia = super().save(commit=False)
@@ -62,7 +62,7 @@ class AccionCorrespondenciaForm(forms.ModelForm):
                 AccionCorrespondencia.objects.create(
                     correspondencia=instancia.correspondencia,
                     accion=instancia.accion,
-                    observacion=instancia.observacion,
+                    comentario=instancia.comentario,
                     usuario=usuario
                 )
         return instancia
@@ -71,10 +71,10 @@ class AccionCorrespondenciaAdmin(admin.ModelAdmin):
     form = AccionCorrespondenciaForm
     list_display = ['id_accion', 'correspondencia', 'accion', 'usuario', 'fecha']
     list_filter = ['accion', 'fecha']
-    search_fields = ['correspondencia__descripcion', 'usuario__username']
+    search_fields = ['correspondencia__descripcion', 'usuario__username', 'comentario']
 
     # 👇 Esto es lo más importante para que el campo personalizado 'usuarios' aparezca
-    fields = ['correspondencia', 'accion', 'observacion', 'usuarios']
+    fields = ['correspondencia', 'accion', 'comentario', 'usuarios']
 
 admin.site.register(AccionCorrespondencia, AccionCorrespondenciaAdmin)
 

@@ -168,12 +168,20 @@ class CorrespondenciaElaborada(Correspondencia):
             super().save(update_fields=['contenido_html'])
 
 class AccionCorrespondencia(models.Model):
+
+    ACCIONES = [
+        ('DERIVADO', 'Derivado'),
+        ('VISTO', 'Visto'),
+        ('OBSERVADO', 'Observado'),
+        ('APROBADO', 'Aprobado'),
+    ]
     id_accion = models.AutoField(primary_key=True)
     correspondencia = models.ForeignKey('Correspondencia', on_delete=models.CASCADE, related_name='acciones')
     usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
-    accion = models.CharField(max_length=50)  # Derivar, Archivar, Rechazar, etc.
-    observacion = models.TextField(blank=True, null=True)
+    usuario_destino = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='acciones_destino')
+    accion = models.CharField(max_length=50, choices=ACCIONES)  # Derivar, Archivar, Rechazar, etc.
+    comentario = models.TextField(blank=True, null=True)
     fecha = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.accion} por {self.usuario} el {self.fecha}"
+    class Meta:
+        ordering = ['fecha']

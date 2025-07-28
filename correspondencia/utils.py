@@ -5,6 +5,8 @@ from docx.shared import Pt
 from django.utils.timezone import now
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import pdfkit
+from usuario.models import CustomUser
+from .models import AccionCorrespondencia
 from jinja2 import Template
 
 def renderizar_contenido_html(template_string, context):
@@ -103,3 +105,24 @@ def generar_documento_word(docSaliente):
     response['Content-Disposition'] = f'attachment; filename=correspondencia_{docSaliente.cite}.docx'
 
     return response
+
+#DERIVACIÓN
+def derivar_correspondencia(correspondencia, usuario_actual, usuarios_destino):
+    if not usuarios_destino:
+        return
+
+    usuarios_validos = CustomUser.objects.filter(id__in=usuarios_destino)
+
+    for usuario in usuarios_validos:
+        # Evitar duplicados
+        if not AccionCorrespondencia.objects.filter(
+            correspondencia=correspondencia,
+            usuario_destino=usuario,
+            accion="DERIVAR"
+        ).exists():
+            AccionCorrespondencia.objects.create(
+                correspondencia=correspondencia,
+                usuario=usuario_actual,
+                usuario_destino=usuario,
+                accion="DERIVAR"
+            )
