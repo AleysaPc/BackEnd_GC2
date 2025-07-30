@@ -107,7 +107,7 @@ def generar_documento_word(docSaliente):
     return response
 
 #DERIVACIÓN
-def derivar_correspondencia(correspondencia, usuario_actual, usuarios_destino):
+def derivar_correspondencia(correspondencia, usuario_actual, usuarios_destino, comentario_derivacion):
     if not usuarios_destino:
         return
 
@@ -118,11 +118,14 @@ def derivar_correspondencia(correspondencia, usuario_actual, usuarios_destino):
         if not AccionCorrespondencia.objects.filter(
             correspondencia=correspondencia,
             usuario_destino=usuario,
-            accion="DERIVAR"
+            accion="DERIVADO",
+            comentario=comentario_derivacion
+            
         ).exists():
             AccionCorrespondencia.objects.create(
                 correspondencia=correspondencia,
                 usuario=usuario_actual,
                 usuario_destino=usuario,
-                accion="DERIVAR"
+                accion="DERIVADO",
+                comentario=comentario_derivacion
             )

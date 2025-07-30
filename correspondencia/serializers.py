@@ -14,19 +14,43 @@ class UsuarioSerializer(serializers.ModelSerializer):
 # Serializador para AccionCorrespondencia
 class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     usuario = UsuarioSerializer(read_only=True)
-    usuario_destino = UsuarioSerializer(read_only=True)  # Solo lectura para la respuesta
+    usuario_destino = UsuarioSerializer(read_only=True)
+    
+    # Alias para que el cliente envíe el comentario con este nombre
+    comentario_derivacion = serializers.CharField(write_only=True, required=False)
+    
     usuario_destino_id = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(),
         source='usuario_destino',
         write_only=True,
         required=True
     )
+    correspondencia_id = serializers.PrimaryKeyRelatedField(
+        source='correspondencia',
+        read_only=True
+    )
 
     class Meta:
         model = AccionCorrespondencia
-        fields = ['id_accion', 'usuario', 'usuario_destino', 'usuario_destino_id', 'accion', 'fecha', 'comentario']
+        fields = [
+            'id_accion', 'usuario', 'usuario_destino', 'usuario_destino_id',
+            'accion', 'fecha','correspondencia_id', 'comentario_derivacion',
+            'comentario'
+        ]
 
-# 🔹 Listado y detalle general de correspondencias
+    def create(self, validated_data):
+        comentario_derivacion = validated_data.pop('comentario_derivacion', None)
+        if comentario_derivacion is not None:
+            validated_data['comentario'] = comentario_derivacion
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        comentario_derivacion = validated_data.pop('comentario_derivacion', None)
+        if comentario_derivacion is not None:
+            validated_data['comentario'] = comentario_derivacion
+        return super().update(instance, validated_data)
+
+# Listado y detalle general de correspondencias
 class CorrespondenciaSerializer(serializers.ModelSerializer):
     documentos = DocumentoSerializer(many=True)
     contacto = serializers.StringRelatedField()
@@ -40,7 +64,7 @@ class CorrespondenciaSerializer(serializers.ModelSerializer):
             'documentos', 'contacto', 'usuario', 'comentario', 'acciones'
         ]
 
-# 🔹 Recibida con opción de derivación múltiple
+# Recibida con opción de derivación múltiple
 from django.db import transaction
 from rest_framework import serializers
 
@@ -49,6 +73,7 @@ class RecibidaSerializer(serializers.ModelSerializer):
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
     documentos = DocumentoSerializer(many=True, required=False)
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
+    comentario_derivacion = serializers.CharField(write_only=True, required=False)
     usuarios = serializers.ListField(
         child=serializers.IntegerField(),
         write_only=True,
@@ -57,14 +82,20 @@ class RecibidaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recibida
-        fields = '__all__'
+        fields = [
+            'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro',
+            'referencia', 'paginas', 'prioridad', 'estado',
+            'documentos', 'contacto', 'usuario', 'acciones',
+            'comentario_derivacion', 'usuarios', 'datos_contacto','similitud'
+        ]
     
     @transaction.atomic  # Asegura que toda la creación sea atómica
     def create(self, validated_data):
         request = self.context.get('request')
         usuarios = validated_data.pop('usuarios', [])
         documentos_data = validated_data.pop('documentos', [])
-
+        comentario_derivacion = validated_data.pop('comentario_derivacion', None)  # Extract here
+ 
         # Validar que haya un usuario autenticado
         usuario_actual = getattr(request, 'user', None)
         if usuario_actual is None or usuario_actual.is_anonymous:
@@ -92,7 +123,7 @@ class RecibidaSerializer(serializers.ModelSerializer):
                 documentos_data.append(doc)
                 idx += 1
 
-        # Crear la correspondencia con campos simples
+        # Crear la correspondencia con campos simples (sin comentario_derivacion)
         doc_entrante = Recibida.objects.create(**validated_data)
 
         # Crear documentos relacionados
@@ -102,13 +133,18 @@ class RecibidaSerializer(serializers.ModelSerializer):
                 Documento.objects.create(correspondencia=doc_entrante, **doc_data)
 
         #usar función para derivar
-        derivar_correspondencia(doc_entrante, usuario_actual, valid_users)
+        derivar_correspondencia(
+            correspondencia=doc_entrante,
+            usuario_actual=usuario_actual,
+            usuarios_destino=valid_users,
+            comentario_derivacion=comentario_derivacion
+        )
         
         return doc_entrante
     
     @transaction.atomic  # Asegura que la actualización sea atómica
     def update(self, instance, validated_data):
-        print("🟡 Ejecutando UPDATE del serializer...")
+        print(" Ejecutando UPDATE del serializer...")
 
         request = self.context.get('request')
         documentos_data = validated_data.pop('documentos', None)
@@ -119,13 +155,13 @@ class RecibidaSerializer(serializers.ModelSerializer):
         if usuario_actual is None or usuario_actual.is_anonymous:
             raise serializers.ValidationError("Usuario no autenticado")
 
-        print("✅ validated_data (campos simples):", validated_data)
-        print("📄 documentos_data:", documentos_data)
-        print("👤 usuarios_data:", usuarios_data)
+        print(" validated_data (campos simples):", validated_data)
+        print(" documentos_data:", documentos_data)
+        print(" usuarios_data:", usuarios_data)
 
         # Actualizar campos simples del objeto Recibida
         for attr, value in validated_data.items():
-            print(f"🔄 Actualizando campo: {attr} = {value}")
+            print(f" Actualizando campo: {attr} = {value}")
             setattr(instance, attr, value)
         instance.save()
 
@@ -148,20 +184,26 @@ class RecibidaSerializer(serializers.ModelSerializer):
 
         # Agregar nuevos documentos (sin eliminar los existentes)
         if documentos_data:
-            print("📥 Agregando nuevos documentos...")
+            print(" Agregando nuevos documentos...")
             for doc_data in documentos_data:
                 if 'nombre_documento' in doc_data or 'archivo' in doc_data:
-                    print("📄 Documento nuevo:", doc_data)
+                    print(" Documento nuevo:", doc_data)
                     Documento.objects.create(correspondencia=instance, **doc_data)
 
         #Actualizar derivaciones usando función ubicada en utils.py
         if usuarios_data is not None:
-            derivar_correspondencia(instance, usuario_actual, usuarios_data)
+            derivar_correspondencia(
+                correspondencia=instance,
+                usuario_actual=usuario_actual,
+                usuarios_destino=usuarios_data,
+                comentario_derivacion=validated_data.get('comentario_derivacion')  # uso correcto
+            )
+
         return instance
   
 
 
-# 🔹 Enviada con opción de derivación múltiple (igual que Recibida)
+# Enviada con opción de derivación múltiple (igual que Recibida)
 class EnviadaSerializer(serializers.ModelSerializer):
     similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
@@ -220,7 +262,7 @@ class EnviadaSerializer(serializers.ModelSerializer):
             AccionCorrespondencia.objects.create(
                 correspondencia=doc_enviada,
                 usuario_id=usuario_id,
-                accion="DERIVAR"
+                accion="DERIVADO"
             )
 
         return doc_enviada
@@ -235,7 +277,7 @@ class EnviadaSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
 
-    # 📝 Actualizar documentos asociados
+    # Actualizar documentos asociados
         if documentos_data is not None:
             # Elimina los documentos anteriores asociados a esta correspondencia
             instance.documentos.all().delete()
@@ -261,7 +303,7 @@ class EnviadaSerializer(serializers.ModelSerializer):
         for doc_data in documentos_data:
             Documento.objects.create(correspondencia=instance, **doc_data)
 
-    # 🔁 Actualizar las derivaciones (acciones de correspondencia)
+    # Actualizar las derivaciones (acciones de correspondencia)
         if usuarios is not None:
             # Eliminar acciones anteriores
             instance.acciones.all().delete()
@@ -272,13 +314,13 @@ class EnviadaSerializer(serializers.ModelSerializer):
                     AccionCorrespondencia.objects.create(
                         correspondencia=instance,
                         usuario_id=usuario_id,
-                        accion="DERIVAR"
+                        accion="DERIVADO"
                     )
 
         return instance
 
 
-# 🔹 Documento Elaborado
+# Documento Elaborado
 class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
     similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
@@ -404,8 +446,7 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             AccionCorrespondencia.objects.create(
                 correspondencia=doc_entrante,
                 usuario_id=usuario_id,
-                accion="DERIVAR"
+                accion="DERIVADO"
             )
 
         return doc_entrante
-
