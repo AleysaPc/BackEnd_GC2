@@ -5,6 +5,8 @@ from contacto.serializers import ContactoSerializer
 from documento.models import Documento, PlantillaDocumento
 from usuario.models import CustomUser
 from .utils import derivar_correspondencia
+from django.db import transaction
+from rest_framework import serializers
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,26 +17,29 @@ class UsuarioSerializer(serializers.ModelSerializer):
 class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     usuario = UsuarioSerializer(read_only=True)
     usuario_destino = UsuarioSerializer(read_only=True)
-    
-    # Alias para que el cliente envíe el comentario con este nombre
+
     comentario_derivacion = serializers.CharField(write_only=True, required=False)
-    
+
     usuario_destino_id = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(),
         source='usuario_destino',
         write_only=True,
         required=True
     )
+
+    # ✅ Campo corregido: ahora se puede escribir correspondencia_id
     correspondencia_id = serializers.PrimaryKeyRelatedField(
+        queryset=Recibida.objects.all(),
         source='correspondencia',
-        read_only=True
+        write_only=True,
+        required=True
     )
 
     class Meta:
         model = AccionCorrespondencia
         fields = [
             'id_accion', 'usuario', 'usuario_destino', 'usuario_destino_id',
-            'accion', 'fecha','correspondencia_id', 'comentario_derivacion',
+            'accion', 'fecha', 'correspondencia_id', 'comentario_derivacion',
             'comentario'
         ]
 
@@ -65,9 +70,6 @@ class CorrespondenciaSerializer(serializers.ModelSerializer):
         ]
 
 # Recibida con opción de derivación múltiple
-from django.db import transaction
-from rest_framework import serializers
-
 class RecibidaSerializer(serializers.ModelSerializer):
     similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
@@ -86,7 +88,7 @@ class RecibidaSerializer(serializers.ModelSerializer):
             'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro',
             'referencia', 'paginas', 'prioridad', 'estado',
             'documentos', 'contacto', 'usuario', 'acciones',
-            'comentario_derivacion', 'usuarios', 'datos_contacto','similitud'
+            'comentario_derivacion', 'usuarios', 'datos_contacto','similitud', 'nro_registro'
         ]
     
     @transaction.atomic  # Asegura que toda la creación sea atómica

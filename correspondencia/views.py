@@ -9,6 +9,7 @@ from .utils import generar_documento_word
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import serializers
 from django.utils import timezone
 from .filters import CorrespondenciaElaboradaFilter, EnviadaFilter, CorrespondenciaFilter, RecibidaFilter
 from rest_framework import filters
@@ -21,7 +22,7 @@ from django.http import HttpResponse
 from .utils import generar_pdf_desde_html 
 from rest_framework import viewsets
 from .models import AccionCorrespondencia
-from .serializers import AccionCorrespondenciaSerializer
+from .serializers import AccionCorrespondenciaSerializer, CorrespondenciaSerializer
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model
 #Para la busqueda semantica
@@ -33,6 +34,7 @@ from pgvector.django import CosineDistance
 
 # Create your views here.
 class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+    serializer_class = CorrespondenciaSerializer
     queryset = Correspondencia.objects.all().order_by('id_correspondencia')
 
     filter_backends = [
@@ -200,8 +202,11 @@ class AccionCorrespondenciaViewSet(viewsets.ModelViewSet):
     serializer_class = AccionCorrespondenciaSerializer
 
     def create(self, request, *args, **kwargs):
-        # Obtener los IDs de los usuarios destino
-        usuario_destino_ids = request.data.get('usuario_destino')
+        print("📥 Datos recibidos en la petición:", request.data)  # Debug
+        
+        # Obtener los IDs de los usuarios destino (compatibilidad con 'usuario_destino' y 'usuarios')
+        usuario_destino_ids = request.data.get('usuario_destino') or request.data.get('usuarios')
+        print("📋 IDs de usuarios destino:", usuario_destino_ids)  # Debug
 
         if not usuario_destino_ids:
             return Response(
@@ -224,13 +229,25 @@ class AccionCorrespondenciaViewSet(viewsets.ModelViewSet):
                 # Crear una copia de los datos para cada usuario
                 data = request.data.copy()
                 
+                # Eliminar el campo 'usuarios' si existe, ya que no es un campo del modelo
+                if 'usuarios' in data:
+                    del data['usuarios']
+                
                 # Usar el formato correcto para el serializer
                 data['usuario_destino_id'] = uid
                 
+                # Establecer un valor por defecto para 'accion' si no se proporciona
+                if 'accion' not in data:
+                    data['accion'] = 'DERIVADO'  # O el valor por defecto que prefieras
+                
                 # Crear el serializer con los datos
+                print("📝 Datos para el serializer:", data)  # Debug
                 serializer = self.get_serializer(data=data)
                 
                 try:
+                    is_valid = serializer.is_valid()
+                    if not is_valid:
+                        print("❌ Errores de validación:", serializer.errors)  # Debug
                     serializer.is_valid(raise_exception=True)
                     # Guardar la acción con el usuario actual y el usuario destino
                     accion = serializer.save(usuario=request.user)
