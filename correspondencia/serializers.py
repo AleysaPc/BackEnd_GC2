@@ -85,7 +85,7 @@ class RecibidaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recibida
         fields = [
-            'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro',
+            'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro', 'fecha_recepcion', 'fecha_respuesta',
             'referencia', 'paginas', 'prioridad', 'estado',
             'documentos', 'contacto', 'usuario', 'acciones',
             'comentario_derivacion', 'usuarios', 'datos_contacto','similitud', 'nro_registro'
