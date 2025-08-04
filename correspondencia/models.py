@@ -3,6 +3,7 @@ from django.utils.timezone import now
 from django.db import models, transaction
 from django.db.models import Max
 from documento.models import PlantillaDocumento
+from jinja2 import Template
 
 class Correspondencia(models.Model):
     TIPO_CHOICES_ESTADO = [('borrador', 'Borrador'), ('en_revision', 'En revisión'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado'), ('enviado', 'Enviado')]
@@ -12,7 +13,7 @@ class Correspondencia(models.Model):
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
     fecha_registro = models.DateTimeField(auto_now_add=True)
     referencia = models.CharField(max_length=255)
-    descripcion = models.TextField()
+    descripcion = models.TextField(null=True, blank=True)
     paginas = models.IntegerField(default=1)
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
     estado = models.CharField(max_length=20, choices=TIPO_CHOICES_ESTADO)
@@ -25,8 +26,10 @@ class Correspondencia(models.Model):
 
 class Recibida(Correspondencia):
     nro_registro = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    fecha_recepcion = models.DateTimeField(auto_now_add=True)
-    fecha_respuesta = models.DateTimeField(blank=True, null=True)
+    fecha_recepcion = models.DateField(blank=False, null=False)
+    hora_recepcion = models.TimeField(blank=False, null=False)
+    fecha_respuesta = models.DateField(blank=True, null=True)
+    hora_respuesta = models.TimeField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.nro_registro:
@@ -51,8 +54,10 @@ class Recibida(Correspondencia):
 
 class Enviada(Correspondencia):
     cite = models.CharField(max_length=50, blank=True, null=True)
-    fecha_envio = models.DateTimeField(blank=True, null=True)
-    fecha_recepcion = models.DateTimeField(blank=True, null=True)
+    fecha_envio = models.DateField(blank=True, null=True)
+    hora_envio = models.TimeField(blank=True, null=True)
+    fecha_recepcion = models.DateField(blank=True, null=True)
+    hora_recepcion = models.TimeField(blank=True, null=True)
     fecha_seguimiento = models.DateTimeField(blank=True, null=True)
     
 
@@ -61,9 +66,6 @@ class Enviada(Correspondencia):
 
 # correspondencia/models.py
 
-from django.db import models, transaction
-from django.utils.timezone import now
-from jinja2 import Template
 
 def renderizar_contenido_html(estructura_html, context):
     template = Template(estructura_html)
@@ -84,8 +86,10 @@ class CorrespondenciaElaborada(Correspondencia):
     cite = models.CharField(max_length=100, unique=True, blank=True)
     contenido_html = models.TextField(blank=True, null=True)
     firmado = models.BooleanField(default=False)
-    fecha_envio = models.DateTimeField(null=True, blank=True)
-    fecha_recepcion = models.DateTimeField(null=True, blank=True)
+    fecha_envio = models.DateField(null=True, blank=True)
+    hora_envio = models.TimeField(null=True, blank=True)
+    fecha_recepcion = models.DateField(null=True, blank=True)
+    hora_recepcion = models.TimeField(null=True, blank=True)
     fecha_seguimiento = models.DateTimeField(null=True, blank=True)
     version = models.PositiveIntegerField(default=1)
     fecha_elaboracion = models.DateTimeField(auto_now_add=True)
