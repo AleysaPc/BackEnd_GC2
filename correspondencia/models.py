@@ -107,18 +107,18 @@ class CorrespondenciaElaborada(Correspondencia):
         """Genera el contenido HTML desde la plantilla y el contexto."""
         if self.plantilla and self.plantilla.estructura_html:
             MESES_ES = {
-                1: "enero",
-                2: "febrero",
-                3: "marzo",
-                4: "abril",
-                5: "mayo",
-                6: "junio",
-                7: "julio",
-                8: "agosto",
-                9: "septiembre",
-                10: "octubre",
-                11: "noviembre",
-                12: "diciembre",
+            1: "enero",
+            2: "febrero",
+            3: "marzo",
+            4: "abril",
+            5: "mayo",
+            6: "junio",
+            7: "julio",
+            8: "agosto",
+            9: "septiembre",
+            10: "octubre",
+            11: "noviembre",
+            12: "diciembre",
             }
 
             if self.fecha_elaboracion:
@@ -127,21 +127,32 @@ class CorrespondenciaElaborada(Correspondencia):
             else:
                 fecha_formateada = ""
 
+            # Construimos el diccionario de contacto accediendo directo a los campos
+            contacto_data = {}
+            if self.contacto:
+                contacto_data = {
+                    "nombre_contacto": self.contacto.nombre_contacto or "",
+                    "apellido_pat_contacto": self.contacto.apellido_pat_contacto or "",
+                    "apellido_mat_contacto": self.contacto.apellido_mat_contacto or "",
+                    "titulo_profesional": self.contacto.titulo_profesional or "",
+                    "cargo": self.contacto.cargo or "",
+                    "email": self.contacto.email or "",
+                    "telefono": self.contacto.telefono or "",
+                    "institucion": str(self.contacto.institucion) if self.contacto.institucion else "",
+                }
+
             context = {
                 "fecha_elaboracion": fecha_formateada,
                 "cite": self.cite,
-                "nombre_destinatario": self.contacto.nombre_contacto if self.contacto else "",
-                "apellido_pat_destinatario": self.contacto.apellido_pat_contacto if self.contacto else "",
-                "apellido_mat_destinatario": self.contacto.apellido_mat_contacto if self.contacto else "",
-                "titulo_profesional": self.contacto.titulo_profesional if self.contacto else "",
-                "cargo": self.contacto.cargo if self.contacto else "",
                 "referencia": self.referencia,
                 "descripcion": self.descripcion,
                 "gestion": self.gestion,
                 "elaborado_por": self.usuario.username if self.usuario else "",
+                "contacto": contacto_data,
             }
 
             self.contenido_html = renderizar_contenido_html(self.plantilla.estructura_html, context)
+
 
 
     def save(self, *args, **kwargs):
