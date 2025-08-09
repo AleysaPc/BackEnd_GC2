@@ -8,6 +8,7 @@ from .utils import derivar_correspondencia
 from django.db import transaction
 from rest_framework import serializers
 
+
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -66,7 +67,7 @@ class CorrespondenciaSerializer(serializers.ModelSerializer):
         fields = [
             'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro',
             'referencia', 'paginas', 'prioridad', 'estado',
-            'documentos', 'contacto', 'usuario', 'comentario', 'acciones'
+            'documentos', 'contacto', 'usuario', 'acciones'
         ]
 
 # Recibida con opción de derivación múltiple
@@ -329,6 +330,12 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
     nro_registro_respuesta = serializers.CharField(source='respuesta_a.nro_registro', read_only=True)
     documentos = DocumentoSerializer(many=True, read_only=True)
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
+    comentario_derivacion = serializers.CharField(write_only=True, required=False, allow_blank=True) #allow_blank=True indica al validador que no rechace una cadena vacía fue la solución para que comentario deivación no sea obligatorio. 
+    usuarios = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False
+    )
     plantilla = PlantillaDocumentoSerializer(read_only=True)
     plantilla_id = serializers.PrimaryKeyRelatedField(
         queryset=PlantillaDocumento.objects.all(),
@@ -347,7 +354,6 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'descripcion',
             'prioridad',
             'estado',
-            'comentario',
             'contacto',
             'usuario',
             'documentos',
@@ -368,87 +374,84 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'contenido_html',
             'usuario',
             'nro_registro_respuesta',
+            'comentario_derivacion',
+            'usuarios',
         ]
         read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html', 'usuario',]
-    def update(self, instance, validated_data):
-        request = self.context.get('request')
-        documentos_data = validated_data.pop('documentos', None)
-        plantilla = validated_data.pop('plantilla', None)
 
-    # Actualizar campos simples
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        if plantilla:
-            instance.plantilla = plantilla
-        instance.save()
+    
+    def _leer_documentos_desde_request(self, request):
+        documentos_data = []
+        idx = 0
+        while True:
+            nombre = request.data.get(f'documentos[{idx}][nombre_documento]')
+            archivo = request.FILES.get(f'documentos[{idx}][archivo]')
+            if not nombre and not archivo:
+                break
+            doc = {}
+            if nombre:
+                doc['nombre_documento'] = nombre
+            if archivo:
+                doc['archivo'] = archivo
+            documentos_data.append(doc)
+            idx += 1
+        return documentos_data
 
-    # Actualizar documentos (si se enviaron)
-        if documentos_data is not None:
-        # Eliminar documentos anteriores
-            instance.documentos.all().delete()
-
-        # Leer documentos desde multipart
-        if request and request.FILES:
-            documentos_data = []
-            idx = 0
-            while True:
-                nombre = request.data.get(f'documentos[{idx}][nombre_documento]')
-                archivo = request.FILES.get(f'documentos[{idx}][archivo]')
-                if not nombre and not archivo:
-                    break
-                doc = {}
-                if nombre:
-                    doc['nombre_documento'] = nombre
-                if archivo:
-                    doc['archivo'] = archivo
-                documentos_data.append(doc)
-                idx += 1
-
-        # Crear nuevos documentos
-        for doc_data in documentos_data:
-            Documento.objects.create(correspondencia=instance, **doc_data)
-
-        return instance
-
+    @transaction.atomic
     def create(self, validated_data):
         request = self.context.get('request')
         usuarios = validated_data.pop('usuarios', [])
-        documentos_data = validated_data.pop('documentos', [])
+        comentario_derivacion = validated_data.pop('comentario_derivacion', None)
 
-        valid_users = [
-            uid for uid in usuarios if CustomUser.objects.filter(id=uid).exists()
-        ]
-
-        # Leer archivos si se envían desde multipart (como desde el frontend)
-        if request and request.method.lower() == 'post' and request.FILES:
-            documentos_data = []
-            idx = 0
-            while True:
-                nombre = request.data.get(f'documentos[{idx}][nombre_documento]')
-                archivo = request.FILES.get(f'documentos[{idx}][archivo]')
-                if not nombre and not archivo:
-                    break
-                doc = {}
-                if nombre:
-                    doc['nombre_documento'] = nombre
-                if archivo:
-                    doc['archivo'] = archivo
-                documentos_data.append(doc)
-                idx += 1
+        documentos_data = self._leer_documentos_desde_request(request)
 
         # Crear la correspondencia
-        doc_entrante = CorrespondenciaElaborada.objects.create(**validated_data)
+        doc_elaborado = CorrespondenciaElaborada.objects.create(**validated_data)
 
         # Asociar documentos
         for doc_data in documentos_data:
-            Documento.objects.create(correspondencia=doc_entrante, **doc_data)
+            Documento.objects.create(correspondencia=doc_elaborado, **doc_data)
 
-        # Derivar a múltiples usuarios
-        for usuario_id in valid_users:
-            AccionCorrespondencia.objects.create(
-                correspondencia=doc_entrante,
-                usuario_id=usuario_id,
-                accion="DERIVADO"
+        # Derivar si hay usuarios destino
+        if usuarios:
+            valid_users = [uid for uid in usuarios if CustomUser.objects.filter(id=uid).exists()]
+            derivar_correspondencia(
+                correspondencia=doc_elaborado,
+                usuario_actual=request.user,
+                usuarios_destino=valid_users,
+                comentario_derivacion=comentario_derivacion
             )
 
-        return doc_entrante
+        return doc_elaborado
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        request = self.context.get('request')
+        usuarios = validated_data.pop('usuarios', [])
+        comentario_derivacion = validated_data.pop('comentario_derivacion', None)  # ✅ sacamos antes
+
+        # Actualizar campos simples
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Eliminar documentos existentes si quieres reemplazarlos
+        instance.documentos.all().delete()
+
+        documentos_data = self._leer_documentos_desde_request(request)
+
+        # Asociar nuevos documentos
+        for doc_data in documentos_data:
+            Documento.objects.create(correspondencia=instance, **doc_data)
+
+        # Derivar si hay cambios
+        if usuarios:
+            valid_users = [uid for uid in usuarios if CustomUser.objects.filter(id=uid).exists()]
+            derivar_correspondencia(
+                correspondencia=instance,
+                usuario_actual=request.user,
+                usuarios_destino=valid_users,
+                comentario_derivacion=comentario_derivacion  # ✅ ahora seguro existe
+            )
+
+        return instance

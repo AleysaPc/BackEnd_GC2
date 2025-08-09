@@ -1,3 +1,4 @@
+from correspondencia.services.renderizado import generar_html_desde_objeto
 from django.db import models
 from django.utils.timezone import now
 from django.db import models, transaction
@@ -17,7 +18,6 @@ class Correspondencia(models.Model):
     paginas = models.IntegerField(default=1)
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
     estado = models.CharField(max_length=20, choices=TIPO_CHOICES_ESTADO)
-    comentario = models.TextField(null=True, blank=True)
     contacto = models.ForeignKey('contacto.Contacto', on_delete=models.CASCADE, blank=True, null=True)
     usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
 
@@ -101,59 +101,8 @@ class CorrespondenciaElaborada(Correspondencia):
         related_name='respuestas',
         help_text="Nota recibida a la que responde esta nota elaborada"
     )
-    
-
     def generar_contenido_html(self):
-        """Genera el contenido HTML desde la plantilla y el contexto."""
-        if self.plantilla and self.plantilla.estructura_html:
-            MESES_ES = {
-            1: "enero",
-            2: "febrero",
-            3: "marzo",
-            4: "abril",
-            5: "mayo",
-            6: "junio",
-            7: "julio",
-            8: "agosto",
-            9: "septiembre",
-            10: "octubre",
-            11: "noviembre",
-            12: "diciembre",
-            }
-
-            if self.fecha_elaboracion:
-                fecha = self.fecha_elaboracion
-                fecha_formateada = f"{fecha.day} de {MESES_ES[fecha.month]} de {fecha.year}"
-            else:
-                fecha_formateada = ""
-
-            # Construimos el diccionario de contacto accediendo directo a los campos
-            contacto_data = {}
-            if self.contacto:
-                contacto_data = {
-                    "nombre_contacto": self.contacto.nombre_contacto or "",
-                    "apellido_pat_contacto": self.contacto.apellido_pat_contacto or "",
-                    "apellido_mat_contacto": self.contacto.apellido_mat_contacto or "",
-                    "titulo_profesional": self.contacto.titulo_profesional or "",
-                    "cargo": self.contacto.cargo or "",
-                    "email": self.contacto.email or "",
-                    "telefono": self.contacto.telefono or "",
-                    "institucion": str(self.contacto.institucion) if self.contacto.institucion else "",
-                }
-
-            context = {
-                "fecha_elaboracion": fecha_formateada,
-                "cite": self.cite,
-                "referencia": self.referencia,
-                "descripcion": self.descripcion,
-                "gestion": self.gestion,
-                "elaborado_por": self.usuario.username if self.usuario else "",
-                "contacto": contacto_data,
-            }
-
-            self.contenido_html = renderizar_contenido_html(self.plantilla.estructura_html, context)
-
-
+        self.contenido_html = generar_html_desde_objeto(self)
 
     def save(self, *args, **kwargs):
         if not self.numero:
@@ -174,13 +123,12 @@ class CorrespondenciaElaborada(Correspondencia):
                 sigla_tipo = 'OTRO'
             self.cite = f"{self.sigla}/{sigla_tipo}/{self.gestion}-{self.numero:03}"
 
-        # Guarda primero para tener disponible fecha_elaboracion
+        # ✅ Generar HTML siempre, incluso si ya existe uno anterior
+        self.generar_contenido_html()
+
+        # Guardar con contenido_html actualizado
         super().save(*args, **kwargs)
 
-        # Si aún no hay contenido HTML, lo generamos y volvemos a guardar
-        if not self.contenido_html:
-            self.generar_contenido_html()
-            super().save(update_fields=['contenido_html'])
 
 class AccionCorrespondencia(models.Model):
 

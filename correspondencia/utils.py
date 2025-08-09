@@ -6,7 +6,7 @@ from django.utils.timezone import now
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import pdfkit
 from usuario.models import CustomUser
-from .models import AccionCorrespondencia
+
 from jinja2 import Template
 
 def renderizar_contenido_html(template_string, context):
@@ -108,8 +108,12 @@ def generar_documento_word(docSaliente):
 
 #DERIVACIÓN
 def derivar_correspondencia(correspondencia, usuario_actual, usuarios_destino, comentario_derivacion):
+    from .models import AccionCorrespondencia
     if not usuarios_destino:
         return
+
+    # Proporcionar una cadena vacía si comentario_derivacion es None
+    comentario_derivacion = comentario_derivacion or ""
 
     usuarios_validos = CustomUser.objects.filter(id__in=usuarios_destino)
 
@@ -120,7 +124,6 @@ def derivar_correspondencia(correspondencia, usuario_actual, usuarios_destino, c
             usuario_destino=usuario,
             accion="DERIVADO",
             comentario=comentario_derivacion
-            
         ).exists():
             AccionCorrespondencia.objects.create(
                 correspondencia=correspondencia,
