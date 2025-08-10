@@ -21,16 +21,25 @@ from rest_framework.response import Response
 from django.http import HttpResponse
 from .utils import generar_pdf_desde_html 
 from rest_framework import viewsets
-from .models import AccionCorrespondencia
+from .models import AccionCorrespondencia, Correspondencia
 from .serializers import AccionCorrespondenciaSerializer, CorrespondenciaSerializer
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model
+from .utils import generar_documento_word
 #Para la busqueda semantica
 from sentence_transformers import SentenceTransformer
 from pgvector.django import CosineDistance
+from django.http import FileResponse
 
-
-#from rest_framework.permissions import IsAuthenticated
+def generar_documento(request, doc_id):
+    correspondencia = get_object_or_404(CorrespondenciaElaborada, pk=doc_id)
+    buffer, filename = generar_documento_word(correspondencia)
+    return FileResponse(
+        buffer,
+        as_attachment=True,
+        filename=filename,
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
 
 # Create your views here.
 class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -139,16 +148,16 @@ class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
         return super().create(request, *args, **kwargs)
 
-@csrf_exempt
-def generar_documento(request, id):
-    if request.method == "POST":
-        try:
-            correspondencia = Correspondencia.objects.get(id=id)
-            response = generar_documento_word(correspondencia)  # Llamar a la función
-            return response  # Esto debería devolver un archivo
-        except Correspondencia.DoesNotExist:
-            return JsonResponse({"error": "Correspondencia no encontrada"}, status=404)
-    return JsonResponse({"error": "Método no permitido"}, status=405)
+# @csrf_exempt
+#def generar_documento(request, id):
+ #   if request.method == "POST":
+ #       try:
+ #           correspondencia = Correspondencia.objects.get(id=id)
+ #           response = generar_documento_word(correspondencia)  # Llamar a la función
+ #           return response  # Esto debería devolver un archivo
+ #       except Correspondencia.DoesNotExist:
+ #           return JsonResponse({"error": "Correspondencia no encontrada"}, status=404)
+ #   return JsonResponse({"error": "Método no permitido"}, status=405)
 
 
 class CorrespondenciaElaboradaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):

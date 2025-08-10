@@ -82,6 +82,7 @@ class RecibidaSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    usuario = UsuarioSerializer(read_only=True) #Para poder obtener los datos del usuario que registro el documento
 
     class Meta:
         model = Recibida
@@ -127,7 +128,10 @@ class RecibidaSerializer(serializers.ModelSerializer):
                 idx += 1
 
         # Crear la correspondencia con campos simples (sin comentario_derivacion)
-        doc_entrante = Recibida.objects.create(**validated_data)
+        doc_entrante = Recibida.objects.create(
+            usuario=usuario_actual,  # Asigna el usuario autenticado
+            **validated_data
+        )
 
         # Crear documentos relacionados
         for doc_data in documentos_data:
