@@ -4,6 +4,8 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from .models import Recibida, Enviada
 import os
+from .models import AccionCorrespondencia
+from usuario.models import CustomUser
 
 
 # Función para construir el mensaje del correo
@@ -97,3 +99,14 @@ def enviar_notificacion_correo(sender, instance, created, **kwargs):
                 archivo = instance.archivo_word
 
         enviar_correo(f'Nuevo documento elaborado: {cite}', mensaje, archivo)
+
+
+#Para envio de notificación
+@receiver(post_save, sender=AccionCorrespondencia)
+def crear_notificacion_al_accion(sender, instance, created, **kwargs):
+    if created and instance.usuario_destino:
+        print(f"Signal: Acción creada para usuario_destino={instance.usuario_destino} con visto={instance.visto}")
+        if instance.visto:
+            instance.visto = False
+            instance.save(update_fields=['visto'])
+            print(f"Signal: Modificado visto a False para id_accion={instance.id_accion}")

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Correspondencia, CorrespondenciaElaborada, Recibida, Enviada, AccionCorrespondencia
+from .models import Correspondencia, CorrespondenciaElaborada, Recibida, Enviada, AccionCorrespondencia   
 from .utils import generar_documento_word
 from documento.models import Documento
 class DocumentoInline(admin.TabularInline):  # O usa StackedInline si prefieres un formato más vertical
@@ -81,3 +81,4 @@ admin.site.register(AccionCorrespondencia, AccionCorrespondenciaAdmin)
 # Register your models here.
 admin.site.register(Correspondencia, CorrespondenciaAdmin)
 admin.site.register(CorrespondenciaElaborada)
+

@@ -26,6 +26,12 @@ from .serializers import AccionCorrespondenciaSerializer, CorrespondenciaSeriali
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model
 from .utils import generar_documento_word
+from rest_framework import generics, permissions
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .models import AccionCorrespondencia
+
 #Para la busqueda semantica
 from sentence_transformers import SentenceTransformer
 from pgvector.django import CosineDistance
@@ -281,3 +287,47 @@ class AccionCorrespondenciaViewSet(viewsets.ModelViewSet):
                 {'errores': errores if errores else ['No se pudo crear ninguna acción.']}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def notificaciones_pendientes(request):
+
+    acciones = AccionCorrespondencia.objects.filter(
+        usuario_destino=request.user,
+        visto=False
+    ).select_related('correspondencia').order_by('-fecha')
+
+    print(f"Query SQL: {acciones.query}")  # Debug para verificar el filtro
+
+    data = [
+        {
+            "id_accion": a.id_accion,
+            "correspondencia_id": a.correspondencia.id_correspondencia if a.correspondencia else None,
+            "documento": a.correspondencia.referencia if a.correspondencia else None,
+            "descripcion": a.correspondencia.descripcion if a.correspondencia else "",
+            "accion": a.accion,
+            "fecha": a.fecha.isoformat(),
+        }
+        for a in acciones
+    ]
+
+    return Response({
+        "count": len(data),
+        "items": data
+    })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def marcar_notificacion_vista(request, id_accion):
+    print(f"Request user id: {request.user.id}")
+    print(f"Id de acción recibido: {id_accion}")
+
+    try:
+        accion = AccionCorrespondencia.objects.get(id_accion=id_accion, usuario_destino=request.user)
+        print(f"Accion encontrada: {accion}")
+    except AccionCorrespondencia.DoesNotExist:
+        return Response({"error": "No encontrado"}, status=404)
+
+    accion.visto = True
+    accion.save(update_fields=['visto'])
+    return Response({"status": "ok"})

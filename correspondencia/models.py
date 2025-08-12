@@ -145,6 +145,8 @@ class AccionCorrespondencia(models.Model):
     accion = models.CharField(max_length=50, choices=ACCIONES)  # Derivar, Archivar, Rechazar, etc.
     comentario = models.TextField(blank=True, null=True)
     fecha = models.DateTimeField(auto_now_add=True)
+    visto = models.BooleanField(default=False) 
 
     class Meta:
         ordering = ['fecha']
+

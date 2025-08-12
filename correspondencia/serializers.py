@@ -41,7 +41,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
         fields = [
             'id_accion', 'usuario', 'usuario_destino', 'usuario_destino_id',
             'accion', 'fecha', 'correspondencia_id', 'comentario_derivacion',
-            'comentario'
+            'comentario', 'visto'
         ]
 
     def create(self, validated_data):
@@ -459,3 +459,4 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             )
 
         return instance
+
