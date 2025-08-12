@@ -296,9 +296,7 @@ def notificaciones_pendientes(request):
         usuario_destino=request.user,
         visto=False
     ).select_related('correspondencia').order_by('-fecha')
-
-    print(f"Query SQL: {acciones.query}")  # Debug para verificar el filtro
-
+    
     data = [
         {
             "id_accion": a.id_accion,
@@ -307,6 +305,7 @@ def notificaciones_pendientes(request):
             "descripcion": a.correspondencia.descripcion if a.correspondencia else "",
             "accion": a.accion,
             "fecha": a.fecha.isoformat(),
+            "documento_tipo": a.correspondencia.tipo if a.correspondencia else None,
         }
         for a in acciones
     ]

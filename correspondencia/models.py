@@ -13,7 +13,7 @@ class Correspondencia(models.Model):
     id_correspondencia = models.AutoField(primary_key=True)
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
     fecha_registro = models.DateTimeField(auto_now_add=True)
-    referencia = models.CharField(max_length=255)
+    referencia = models.CharField(max_length=255, blank=True, null=True)
     descripcion = models.TextField(null=True, blank=True)
     paginas = models.IntegerField(default=1)
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
@@ -93,6 +93,9 @@ class CorrespondenciaElaborada(Correspondencia):
     fecha_seguimiento = models.DateTimeField(null=True, blank=True)
     version = models.PositiveIntegerField(default=1)
     fecha_elaboracion = models.DateTimeField(auto_now_add=True)
+    descripcion_introduccion = models.TextField(blank=True, null=True)
+    descripcion_desarrollo = models.TextField(blank=True, null=True)
+    descripcion_conclusion = models.TextField(blank=True, null=True)
     respuesta_a = models.ForeignKey(
         Recibida,
         on_delete=models.SET_NULL,

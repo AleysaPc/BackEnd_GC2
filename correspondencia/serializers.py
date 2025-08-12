@@ -380,6 +380,9 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'nro_registro_respuesta',
             'comentario_derivacion',
             'usuarios',
+            'descripcion_introduccion',
+            'descripcion_desarrollo',
+            'descripcion_conclusion',
         ]
         read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html', 'usuario',]
 
@@ -459,4 +462,15 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             )
 
         return instance
+
+    def validate(self, data):
+        request = self.context.get('request')
+        if request and request.method == 'POST':
+            plantilla = data.get('plantilla')
+            if plantilla and plantilla.tipo == 'nota_externa' and 'contacto' not in data:
+                raise serializers.ValidationError({
+                    'contacto': 'Este campo es obligatorio para notas externas'
+                })
+        return data
+
 

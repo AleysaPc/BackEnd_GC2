@@ -17,7 +17,7 @@ MESES_ES = {
 
 def renderizar_contenido_html(template_string, context):
     template = Template(template_string)
-    return template.render(context)
+    return template.render(**context)
 
 def generar_html_desde_objeto(correspondencia_elaborada):
     if not correspondencia_elaborada.plantilla or not correspondencia_elaborada.plantilla.estructura_html:
@@ -40,14 +40,30 @@ def generar_html_desde_objeto(correspondencia_elaborada):
             "institucion": str(contacto.institucion) if contacto.institucion else "",
         }
 
-    context = {
+    tipo_doc = getattr(correspondencia_elaborada.plantilla, "tipo", "").lower()
+
+    base_context = {
         "fecha_elaboracion": fecha_formateada,
         "cite": correspondencia_elaborada.cite,
         "referencia": correspondencia_elaborada.referencia,
-        "descripcion": correspondencia_elaborada.descripcion,
-        "gestion": correspondencia_elaborada.gestion,
         "elaborado_por": correspondencia_elaborada.usuario.username if correspondencia_elaborada.usuario else "",
+        "remitente": correspondencia_elaborada.usuario.username if correspondencia_elaborada.usuario else "",
+        "destinatario": f"{contacto_data.get('nombre_contacto', '')} {contacto_data.get('apellido_pat_contacto', '')}".strip(),
         "contacto": contacto_data,
+        "tipo_documento": tipo_doc,
     }
+
+    if tipo_doc == "informe":
+        context = {
+            **base_context,
+            "descripcion_introduccion": correspondencia_elaborada.descripcion_introduccion or "",
+            "descripcion_desarrollo": correspondencia_elaborada.descripcion_desarrollo or "",
+            "descripcion_conclusion": correspondencia_elaborada.descripcion_conclusion or "",
+        }
+    else:
+        context = {
+            **base_context,
+            "descripcion": correspondencia_elaborada.descripcion or "",
+        }
 
     return renderizar_contenido_html(correspondencia_elaborada.plantilla.estructura_html, context)
