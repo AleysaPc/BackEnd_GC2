@@ -63,13 +63,41 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     ]
     ordering_fields = ['tipo', 'referencia']
     
-    #def get_serializer_class(self):
-    #    if self.action == 'list':
-    #        return CorrespondenciaSerializer
-    #    elif self.action == 'retrieve':
-    #        return CorrespondenciaSerializer
-    #    return CorrespondenciaSerializer
+    # Campo por defecto para la búsqueda semántica
+    semantic_search_field = 'documentos__vector_embedding'
     
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        # Obtener parámetros de búsqueda semántica
+        consulta = self.request.query_params.get('consulta_semantica')
+        
+        if consulta:
+            # Usar la función de búsqueda semántica
+            from .semantic_search import get_semantic_queryset
+            
+            # Obtener parámetros opcionales
+            similarity_threshold = float(self.request.query_params.get('similarity_threshold', 0.5))
+            limit = self.request.query_params.get('limit')
+            
+            # Usar el campo de búsqueda definido en la clase o el predeterminado
+            search_field = getattr(self, 'semantic_search_field', 'documentos__vector_embedding')
+            
+            queryset = get_semantic_queryset(
+                queryset=queryset,
+                consulta=consulta,
+                embedding_field=search_field,
+                similarity_threshold=similarity_threshold,
+                limit=limit
+            )
+        
+        return queryset
+
 modelo = None  # Modelo global    
 class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = RecibidaSerializer
