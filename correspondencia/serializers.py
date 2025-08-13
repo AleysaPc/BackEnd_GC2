@@ -19,7 +19,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     usuario = UsuarioSerializer(read_only=True)
     usuario_destino = UsuarioSerializer(read_only=True)
 
-    comentario_derivacion = serializers.CharField(write_only=True, required=False)
+    comentario_derivacion = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     usuario_destino_id = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(),
@@ -76,7 +76,7 @@ class RecibidaSerializer(serializers.ModelSerializer):
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
     documentos = DocumentoSerializer(many=True, required=False)
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
-    comentario_derivacion = serializers.CharField(write_only=True, required=False)
+    comentario_derivacion = serializers.CharField(write_only=True, required=False, allow_blank=True)
     usuarios = serializers.ListField(
         child=serializers.IntegerField(),
         write_only=True,
@@ -346,6 +346,8 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
         source='plantilla',
         write_only=False
     )
+    usuario = UsuarioSerializer(read_only=True) #Para poder obtener los datos del usuario que registro el documento
+
 
     class Meta:
         model = CorrespondenciaElaborada
@@ -376,7 +378,6 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'version',
             'fecha_elaboracion',
             'contenido_html',
-            'usuario',
             'nro_registro_respuesta',
             'comentario_derivacion',
             'usuarios',
@@ -384,7 +385,7 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
             'descripcion_desarrollo',
             'descripcion_conclusion',
         ]
-        read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html', 'usuario',]
+        read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html',]
 
     
     def _leer_documentos_desde_request(self, request):
@@ -412,12 +413,16 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
 
         documentos_data = self._leer_documentos_desde_request(request)
 
+        # Set the current user as the creator
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
+            validated_data['usuario'] = request.user
+
         # Crear la correspondencia
         doc_elaborado = CorrespondenciaElaborada.objects.create(**validated_data)
 
         # Asociar documentos
         for doc_data in documentos_data:
-            Documento.objects.create(correspondencia=doc_elaborado, **doc_data)
+            Documento.objects.create(correspondencia=doc_elaborado, **doc_data) 
 
         # Derivar si hay usuarios destino
         if usuarios:
@@ -435,33 +440,37 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         request = self.context.get('request')
         usuarios = validated_data.pop('usuarios', [])
-        comentario_derivacion = validated_data.pop('comentario_derivacion', None)  # ✅ sacamos antes
+        comentario_derivacion = validated_data.pop('comentario_derivacion', None)
 
         # Actualizar campos simples
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        # Eliminar documentos existentes si quieres reemplazarlos
-        instance.documentos.all().delete()
-
+        # Leer documentos enviados
         documentos_data = self._leer_documentos_desde_request(request)
 
-        # Asociar nuevos documentos
-        for doc_data in documentos_data:
-            Documento.objects.create(correspondencia=instance, **doc_data)
+        # 🔹 Solo reemplazar si realmente enviaron archivos nuevos
+        if documentos_data:
+            instance.documentos.all().delete()
+            for doc_data in documentos_data:
+                Documento.objects.create(correspondencia=instance, **doc_data)
 
         # Derivar si hay cambios
         if usuarios:
-            valid_users = [uid for uid in usuarios if CustomUser.objects.filter(id=uid).exists()]
+            valid_users = [
+                uid for uid in usuarios
+                if CustomUser.objects.filter(id=uid).exists()
+            ]
             derivar_correspondencia(
                 correspondencia=instance,
                 usuario_actual=request.user,
                 usuarios_destino=valid_users,
-                comentario_derivacion=comentario_derivacion  # ✅ ahora seguro existe
+                comentario_derivacion=comentario_derivacion
             )
 
         return instance
+
 
     def validate(self, data):
         request = self.context.get('request')
@@ -472,5 +481,3 @@ class CorrespondenciaElaboradaSerializer(serializers.ModelSerializer):
                     'contacto': 'Este campo es obligatorio para notas externas'
                 })
         return data
-
-
