@@ -71,32 +71,26 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
         context['request'] = self.request
         return context
     
+    #Busqueda semantica consulta del usuario    
     def get_queryset(self):
+        global modelo
         queryset = super().get_queryset()
-        
-        # Obtener parámetros de búsqueda semántica
+
         consulta = self.request.query_params.get('consulta_semantica')
-        
+        print(f"Consulta semántica correspondencia: {consulta}")
+
         if consulta:
-            # Usar la función de búsqueda semántica
-            from .semantic_search import get_semantic_queryset
-            
-            # Obtener parámetros opcionales
-            similarity_threshold = float(self.request.query_params.get('similarity_threshold', 0.5))
-            limit = self.request.query_params.get('limit')
-            
-            # Usar el campo de búsqueda definido en la clase o el predeterminado
-            search_field = getattr(self, 'semantic_search_field', 'documentos__vector_embedding')
-            
-            queryset = get_semantic_queryset(
-                queryset=queryset,
-                consulta=consulta,
-                embedding_field=search_field,
-                similarity_threshold=similarity_threshold,
-                limit=limit
-            )
-        
+            if modelo is None:
+                from sentence_transformers import SentenceTransformer
+                modelo = SentenceTransformer('all-MiniLM-L6-v2')
+
+            embedding = modelo.encode(consulta).tolist()
+
+            queryset = queryset.filter(documentos__vector_embedding__isnull=False)
+            queryset = queryset.annotate(similitud=CosineDistance('documentos__vector_embedding', embedding)).order_by('similitud')
+
         return queryset
+
 
 modelo = None  # Modelo global    
 class RecibidaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -182,16 +176,26 @@ class EnviadaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
         return super().create(request, *args, **kwargs)
 
-# @csrf_exempt
-#def generar_documento(request, id):
- #   if request.method == "POST":
- #       try:
- #           correspondencia = Correspondencia.objects.get(id=id)
- #           response = generar_documento_word(correspondencia)  # Llamar a la función
- #           return response  # Esto debería devolver un archivo
- #       except Correspondencia.DoesNotExist:
- #           return JsonResponse({"error": "Correspondencia no encontrada"}, status=404)
- #   return JsonResponse({"error": "Método no permitido"}, status=405)
+    #Busqueda semantica consulta del usuario    
+    def get_queryset(self):
+        global modelo
+        queryset = super().get_queryset()
+
+        consulta = self.request.query_params.get('consulta_semantica')
+        print(f"Consulta semántica recibida: {consulta}")
+
+        if consulta:
+            if modelo is None:
+                from sentence_transformers import SentenceTransformer
+                modelo = SentenceTransformer('all-MiniLM-L6-v2')
+
+            embedding = modelo.encode(consulta).tolist()
+
+            queryset = queryset.filter(documentos__vector_embedding__isnull=False)
+            queryset = queryset.annotate(similitud=CosineDistance('documentos__vector_embedding', embedding)).order_by('similitud')
+
+        return queryset
+
 
 
 class CorrespondenciaElaboradaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -204,9 +208,9 @@ class CorrespondenciaElaboradaView(PaginacionYAllDataMixin, viewsets.ModelViewSe
     ]
     filterset_class = CorrespondenciaElaboradaFilter
     search_fields = [
-        'cite', 'referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social'
+        'cite', 'referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social', 'plantilla__nombre_plantilla', 'email'
     ]
-    ordering_fields = ['cite', 'referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social']
+    ordering_fields = ['cite', 'referencia', 'contacto__nombre_contacto', 'contacto__apellido_pat_contacto', 'contacto__apellido_mat_contacto', 'contacto__institucion__razon_social', 'plantilla__nombre_plantilla', 'email']
     
     # Tu método existente para obtener HTML
     @action(detail=True, methods=["get"], url_path="html")
