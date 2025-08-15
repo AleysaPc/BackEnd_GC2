@@ -5,8 +5,10 @@ from .views import *
 
 router = DefaultRouter()
 router.register('customuser', CustomUserViewSet, basename='customuser')
-router.register('role', RoleViewSet, basename="role")
-router.register('departamento', DepartamentoViewSet, basename="departamento")
+router.register('departamentos', DepartamentoViewSet, basename="departamento")
+router.register('grupos', GroupViewSet, basename="grupo")
+router.register('permisos', PermissionViewSet, basename="permiso")
+
 login_view = LoginViewset.as_view({'post': 'create'})
 
 urlpatterns = [
