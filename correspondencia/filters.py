@@ -59,16 +59,9 @@ class EnviadaFilter(django_filters.FilterSet):
 class RecibidaFilter(django_filters.FilterSet):
     nro_registro = django_filters.CharFilter(field_name="nro_registro", lookup_expr="icontains")
     referencia = django_filters.CharFilter(field_name="referencia", lookup_expr="icontains")
-    contacto_nombre_completo = django_filters.CharFilter(method='filter_contacto_nombre_completo')
     contacto__institucion__razon_social = django_filters.CharFilter(field_name="contacto__institucion__razon_social", lookup_expr="icontains")
 
     class Meta:
         model = Recibida
         fields = []
     
-    def filter_contacto_nombre_completo(self, queryset, name, value):
-        return queryset.filter(
-            Q(contacto__nombre_contacto__icontains=value) |
-            Q(contacto__apellido_pat_contacto__icontains=value) |
-            Q(contacto__apellido_mat_contacto__icontains=value)
-        )
