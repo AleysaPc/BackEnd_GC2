@@ -8,6 +8,7 @@ from .models import AccionCorrespondencia
 from usuario.models import CustomUser
 
 
+
 # Función para construir el mensaje del correo
 def construir_mensaje(nro_registro, referencia, remitente, fecha_respuesta_formateada):
     if remitente:
@@ -29,47 +30,121 @@ def construir_mensaje(nro_registro, referencia, remitente, fecha_respuesta_forma
     
     return mensaje
 
-# Función para enviar el correo con adjunto
-def enviar_correo(asunto, mensaje, archivo=None):
+def enviar_correo(asunto, mensaje, archivos=None):
     destinatarios = ['isabella172813@gmail.com']
     email = EmailMessage(
         asunto,
         mensaje,
-        'isatest172813@gmail.com',  # Remitente
-        destinatarios,  # Lista de destinatarios
+        'isatest172813@gmail.com',  # remitente
+        destinatarios,
     )
-    
-    if archivo:
-        email.attach_file(archivo.path)
-    
+
+    if archivos:
+        for archivo in archivos:
+            try:
+                print(f"Adjuntando archivo: {archivo.name}")
+                # Si es un objeto File de Django, ya está listo para adjuntar
+                email.attach(archivo.name, archivo.read(), 'application/octet-stream')
+            except Exception as e:
+                print(f"Error al adjuntar archivo: {str(e)}")
+
     try:
         email.send(fail_silently=False)
+        print("Correo enviado correctamente.")
     except Exception as e:
-        print(f"Error al enviar el correo: {e}")
+        print("Error al enviar correo:", str(e))
 
-# Para el envío de correo en documentos entrantes
-#@receiver(post_save, sender=Recibida)
-#def enviar_notificacion_correo(sender, instance, created, **kwargs):
- #   nro_registro = instance.nro_registro
- #   referencia = instance.referencia
+#Para el envío de correo en documentos entrantes
+from django.db import transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.files import File
+import os
 
- #   if created:  # Solo si se crea un nuevo documento
- #       print("Documento creado")
+@receiver(post_save, sender=Recibida)
+def enviar_notificacion_correo(sender, instance, created, **kwargs):
+    if not created:
+        return
 
- #   fecha_respuesta_formateada = instance.fecha_respuesta.strftime('%d/%m/%Y %H:%M') if instance.fecha_respuesta else None
- #   mensaje = construir_mensaje(nro_registro, referencia, instance.contacto, fecha_respuesta_formateada)
+    # Usar transaction.on_commit para asegurar que la transacción se haya completado
+    transaction.on_commit(lambda: _procesar_notificacion(instance))
+
+def _procesar_notificacion(instance):
+    print("\n=== Inicio de notificación de correo (después de commit) ===")
+    print(f"Documento creado - ID: {instance.id_correspondencia}")
+    print(f"Número de registro: {instance.nro_registro}")
+    print(f"Referencia: {instance.referencia}")
     
-    # Para adjuntar el documento
- #   documentos = instance.documentos.all()  # Accede a los documentos asociados a esta instancia de DocEntrante (que es una subclase de Correspondencia)
+    # Forzar la recarga de la instancia para asegurar que tenemos los datos más recientes
+    from django.db import connection
+    connection.close()  # Cerrar la conexión para forzar una nueva
+    instance.refresh_from_db()
+    
+    # Obtener todos los documentos asociados
+    documentos = instance.documentos.all()
+    print(f"\nDocumentos asociados encontrados: {documentos.count()}")
+    
+    archivos_para_adjuntar = []
 
- #   if documentos.exists():
- #       documento = documentos.first()  # Si hay documentos, toma el primero
- #       print(f"Documento adjunto: {documento.archivo.path}")  # Esto es solo para depurar
- #       enviar_correo(f'Nuevo documento registrado: {nro_registro}', mensaje, documento.archivo)
- #   else:
- #       print("No hay documentos asociados a la correspondencia")
- #       enviar_correo(f'Nuevo documento registrado: {nro_registro}', mensaje)
+    for i, doc in enumerate(documentos, 1):
+        print(f"\nProcesando documento {i}:")
+        print(f"  - ID del documento: {doc.id_documento}")
+        print(f"  - Nombre del documento: {doc.nombre_documento}")
+        print(f"  - Ruta del archivo: {doc.archivo.path if doc.archivo else 'Ninguna'}")
         
+        if doc.archivo:
+            try:
+                # Verificar que el archivo existe
+                if not os.path.exists(doc.archivo.path):
+                    print(f"  ✗ El archivo no existe en: {doc.archivo.path}")
+                    continue
+                    
+                # Verificar que el archivo no esté vacío
+                if doc.archivo.size == 0:
+                    print("  ✗ El archivo está vacío")
+                    continue
+                    
+                # Intentar leer el archivo
+                with open(doc.archivo.path, 'rb') as f:
+                    file_content = f.read()
+                    print(f"  - Tamaño leído: {len(file_content)} bytes")
+                    # Usar File para crear un nuevo objeto de archivo
+                    from django.core.files import File
+                    archivos_para_adjuntar.append(File(open(doc.archivo.path, 'rb'), name=os.path.basename(doc.archivo.name)))
+                    print("  ✓ Documento listo para adjuntar")
+            except Exception as e:
+                print(f"  ✗ Error al procesar el archivo: {str(e)}")
+        else:
+            print("  ✗ No hay archivo asociado a este documento")
+
+    if archivos_para_adjuntar:
+        print(f"\nEnviando correo con {len(archivos_para_adjuntar)} archivos adjuntos")
+        mensaje = construir_mensaje(
+            instance.nro_registro, 
+            instance.referencia, 
+            instance.contacto, 
+            instance.fecha_respuesta.strftime('%d/%m/%Y %H:%M') if instance.fecha_respuesta else None
+        )
+        enviar_correo(f'Nuevo documento registrado: {instance.nro_registro}', mensaje, archivos_para_adjuntar)
+        
+        # Cerrar los archivos después de usarlos
+        for archivo in archivos_para_adjuntar:
+            try:
+                archivo.close()
+            except:
+                pass
+    else:
+        print("\nNo hay documentos válidos para adjuntar")
+        mensaje = construir_mensaje(
+            instance.nro_registro, 
+            instance.referencia, 
+            instance.contacto, 
+            instance.fecha_respuesta.strftime('%d/%m/%Y %H:%M') if instance.fecha_respuesta else None
+        )
+        enviar_correo(f'Nuevo documento registrado: {instance.nro_registro}', mensaje)
+    
+    print("=== Fin de notificación de correo ===\n")
+
 # Para el envío de correo en documentos salientes
 @receiver(post_save, sender=Enviada)
 def enviar_notificacion_correo(sender, instance, created, **kwargs):
@@ -92,13 +167,12 @@ def enviar_notificacion_correo(sender, instance, created, **kwargs):
 
         mensaje += f'Estado: {estado}\n'
 
-        archivo = None
-        if instance.archivo_word:
-            ruta_documento = os.path.join(settings.MEDIA_ROOT, instance.archivo_word.name)
-            if os.path.exists(ruta_documento):
-                archivo = instance.archivo_word
+        archivos_para_adjuntar = []
 
-        enviar_correo(f'Nuevo documento elaborado: {cite}', mensaje, archivo)
+        if instance.archivo_word:
+            archivos_para_adjuntar.append(instance.archivo_word)
+
+        enviar_correo(f'Nuevo documento elaborado: {cite}', mensaje, archivos_para_adjuntar if archivos_para_adjuntar else None)
 
 
 #Para envio de notificación

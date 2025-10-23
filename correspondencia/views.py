@@ -59,7 +59,7 @@ class CorrespondenciaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     ]
     filterset_class = CorrespondenciaFilter
     search_fields = [
-        'tipo', 'referencia'
+        'tipo', 'referencia', 'contacto__institucion__razon_social',
     ]
     ordering_fields = ['tipo', 'referencia']
     

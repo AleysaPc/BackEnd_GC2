@@ -93,13 +93,13 @@ class RecibidaSerializer(serializers.ModelSerializer):
             'comentario_derivacion', 'usuarios', 'datos_contacto','similitud', 'nro_registro'
         ]
     
-    @transaction.atomic  # Asegura que toda la creación sea atómica
+    @transaction.atomic
     def create(self, validated_data):
         request = self.context.get('request')
         usuarios = validated_data.pop('usuarios', [])
         documentos_data = validated_data.pop('documentos', [])
-        comentario_derivacion = validated_data.pop('comentario_derivacion', None)  # Extract here
- 
+        comentario_derivacion = validated_data.pop('comentario_derivacion', None)
+
         # Validar que haya un usuario autenticado
         usuario_actual = getattr(request, 'user', None)
         if usuario_actual is None or usuario_actual.is_anonymous:
@@ -127,19 +127,30 @@ class RecibidaSerializer(serializers.ModelSerializer):
                 documentos_data.append(doc)
                 idx += 1
 
-        # Crear la correspondencia con campos simples (sin comentario_derivacion)
+        # Crear la correspondencia
         doc_entrante = Recibida.objects.create(
-            usuario=usuario_actual,  # Asigna el usuario autenticado
+            usuario=usuario_actual,
             **validated_data
         )
 
         # Crear documentos relacionados
         for doc_data in documentos_data:
-            # Opcional: validar que archivo y nombre no estén vacíos
             if 'nombre_documento' in doc_data or 'archivo' in doc_data:
+                # Asegurarse de que el archivo se guarde correctamente
+                if 'archivo' in doc_data and hasattr(doc_data['archivo'], 'temporary_file_path'):
+                    # Si el archivo está en disco temporal
+                    doc_data['archivo'] = File(open(doc_data['archivo'].temporary_file_path(), 'rb'))
                 Documento.objects.create(correspondencia=doc_entrante, **doc_data)
 
-        #usar función para derivar
+        # Forzar la actualización de la instancia para asegurar que los documentos estén disponibles
+        doc_entrante.refresh_from_db()
+
+        # Verificar que los documentos se hayan guardado
+        print(f"\nDocumentos después de guardar: {doc_entrante.documentos.count()}")
+        for doc in doc_entrante.documentos.all():
+            print(f"- {doc.nombre_documento}: {doc.archivo}")
+
+        # Derivar la correspondencia
         derivar_correspondencia(
             correspondencia=doc_entrante,
             usuario_actual=usuario_actual,

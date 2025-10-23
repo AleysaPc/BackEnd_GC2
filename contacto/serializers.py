@@ -17,4 +17,4 @@ class ContactoSerializer(serializers.ModelSerializer):
 
   #Esto sale en el frontend.
     def get_nombre_completo(self, obj):
-        return f"{obj.nombre_contacto} {obj.apellido_pat_contacto} {obj.apellido_mat_contacto} - {obj.titulo_profesional} - {obj.institucion.razon_social}"
+        return f"{obj.nombre_contacto} {obj.apellido_pat_contacto} {obj.apellido_mat_contacto} - {obj.titulo_profesional} "
