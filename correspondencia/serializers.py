@@ -18,6 +18,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     usuario = UsuarioSerializer(read_only=True)
     usuario_destino = UsuarioSerializer(read_only=True)
+    tipo = serializers.CharField(source='correspondencia.tipo', read_only=True)  
 
     comentario_derivacion = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
@@ -41,7 +42,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
         fields = [
             'id_accion', 'usuario', 'usuario_destino', 'usuario_destino_id',
             'accion', 'fecha', 'correspondencia_id', 'comentario_derivacion',
-            'comentario', 'visto'
+            'comentario', 'visto', 'tipo'
         ]
 
     def create(self, validated_data):

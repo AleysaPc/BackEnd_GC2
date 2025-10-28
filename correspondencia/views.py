@@ -337,7 +337,7 @@ def notificaciones_pendientes(request):
             "descripcion": a.correspondencia.descripcion if a.correspondencia else "",
             "accion": a.accion,
             "fecha": a.fecha.isoformat(),
-            "documento_tipo": a.correspondencia.tipo if a.correspondencia else None,
+            "tipo": a.correspondencia.tipo if a.correspondencia else None,
         }
         for a in acciones
     ]
