@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import CorrespondenciaView, RecibidaView, EnviadaView, CorrespondenciaElaboradaView, AccionCorrespondenciaViewSet, generar_documento, notificaciones_pendientes, marcar_notificacion_vista
+from .views import CorrespondenciaView, RecibidaView, EnviadaView, CorrespondenciaElaboradaView, AccionCorrespondenciaViewSet, generar_documento, notificaciones_pendientes, marcar_notificacion_vista, HistorialVisualizacionViewSet
 # Create a router and register our viewset with it.
 router = DefaultRouter()
 
@@ -10,6 +10,7 @@ router.register(r'recibida', RecibidaView)
 router.register(r'enviada', EnviadaView)
 router.register(r'elaborada', CorrespondenciaElaboradaView)
 router.register(r'acciones', AccionCorrespondenciaViewSet)
+router.register(r'historial', HistorialVisualizacionViewSet)
  
 
 urlpatterns = [

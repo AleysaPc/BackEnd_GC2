@@ -20,7 +20,10 @@ class Correspondencia(models.Model):
     estado = models.CharField(max_length=20, choices=TIPO_CHOICES_ESTADO)
     contacto = models.ForeignKey('contacto.Contacto', on_delete=models.CASCADE, blank=True, null=True)
     usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
-
+    estado_actual = models.CharField(max_length=50, default='REGISTRADO',help_text="Último estado del documento (Ej: Derivado, En proceso, Archivado, Finalizado)")
+    ultima_modificacion = models.DateTimeField(auto_now=True, help_text="Fecha y hora de la última acción o modificación registrada")
+    activo = models.BooleanField(default=True)
+    
     def __str__(self):
         return f"{self.referencia} - {self.tipo}"
 
@@ -149,7 +152,39 @@ class AccionCorrespondencia(models.Model):
     comentario = models.TextField(blank=True, null=True)
     fecha = models.DateTimeField(auto_now_add=True)
     visto = models.BooleanField(default=False) 
+    estado_resultante = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         ordering = ['fecha']
+
+
+from django.db import models
+from django.conf import settings
+
+class HistorialVisualizacion(models.Model):
+    ORIGEN_CHOICES = [
+        ('notificacion', 'Desde notificación'),
+        ('detalle', 'Desde vista de detalle'),
+        ('otro', 'Otro origen'),
+    ]
+
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    correspondencia = models.ForeignKey('correspondencia.Correspondencia', on_delete=models.CASCADE)
+    accion_correspondencia = models.ForeignKey(
+        'correspondencia.AccionCorrespondencia',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='historiales'
+    )
+    fecha_visualizacion = models.DateTimeField(auto_now_add=True)
+    origen = models.CharField(max_length=50, choices=ORIGEN_CHOICES, default='detalle')
+    accion = models.CharField(max_length=100, default='Vista')
+
+    class Meta:
+        ordering = ['-fecha_visualizacion']
+
+    def __str__(self):
+        return f"{self.usuario} vio {self.correspondencia} el {self.fecha_visualizacion.strftime('%d/%m/%Y %H:%M')}"
+
 
