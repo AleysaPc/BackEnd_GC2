@@ -6,7 +6,7 @@ class Institucion (models.Model):
     razon_social = models.CharField(max_length=100)
     direccion = models.CharField(max_length=255)
     telefono = models.CharField(max_length=20)
-    fecha_fundación = models.DateField()
+    fecha_fundacion = models.DateField()
 
     def __str__(self):
         return self.razon_social

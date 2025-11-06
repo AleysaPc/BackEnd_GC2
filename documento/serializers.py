@@ -2,6 +2,7 @@
 from rest_framework import serializers
 from .models import Documento
 from correspondencia.models import Correspondencia
+from documento.models import PlantillaDocumento
 
 class DocumentoSerializer(serializers.ModelSerializer):
     
@@ -14,4 +15,10 @@ class DocumentoSerializer(serializers.ModelSerializer):
             'archivo': {'required': False}, #no sirve poner
             'nombre_archivo': {'required': False},
         }
+        read_only_fields = ['vector_embedding']
         
+class PlantillaDocumentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlantillaDocumento
+        fields = ['id_plantilla', 'nombre_plantilla', 'descripcion', 'estructura_html', 'tipo']
+        read_only_fields = ['id_plantilla']

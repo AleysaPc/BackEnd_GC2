@@ -10,7 +10,9 @@ class PaginacionYAllDataMixin:
         all_data = request.query_params.get('all_data', 'false').lower() == 'true'
 
         if all_data:
-            queryset = self.get_queryset()
+             # ✅ Aplica filtros, búsqueda y ordenamiento
+            queryset = self.filter_queryset(self.get_queryset())
+            
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 

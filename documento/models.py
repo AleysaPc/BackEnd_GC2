@@ -20,24 +20,31 @@ class Documento(models.Model):
     fecha_subida = models.DateTimeField(auto_now_add=True)
     correspondencia = models.ForeignKey('correspondencia.Correspondencia', on_delete=models.CASCADE, related_name='documentos') 
     vector_embedding = VectorField(dimensions=384, null=True, blank=True)  # Usa 384 o 768 según tu modelo
+    contenido_extraido = models.TextField(blank=True, null=True)  # ← Texto plano del PDF
+   
+    def save(self, *args, **kwargs):
+        from .busquedaSemantica.procesamiento import procesar_documento
+        super().save(*args, **kwargs)
+        if self.archivo and not self.contenido_extraido:
+            procesar_documento(self.nombre_documento, self.archivo.path)
 
-    def __str__(self):
-        return self.nombre_documento
+TIPO_DOCUMENTO_CHOICES = [
+    ('comunicado', 'Comunicado'),
+    ('convocatoria', 'Convocatoria'),
+    ('resolucion', 'Resolución'),
+    ('informe', 'Informe'),
+    ('memorando', 'Memorando'),
+    ('nota_interna', 'Nota Interna'),
+    ('nota_externa', 'Nota Externa'),
+]
 
 class PlantillaDocumento(models.Model):
     id_plantilla = models.AutoField(primary_key=True)
     nombre_plantilla = models.CharField(max_length=255, unique=True)
     descripcion = models.TextField(blank=True, null=True)
-    estructura_html = models.TextField(blank=True, null=True)  # Aquí va la plantilla Jinja2
-    tipo = models.CharField(max_length=50, choices=[
-        ('carta', 'Carta'),
-        ('comunicado', 'Comunicado'),
-        ('informe', 'Informe'),
-        ('convocatoria', 'Convocatoria'),
-        ('otro', 'Otro'),
-    ])  # Para identificar su uso general
-
-    estado = models.BooleanField(default=True)  # Activa o no
+    estructura_html = models.TextField(blank=True, null=True)  # Plantilla Jinja2
+    tipo = models.CharField(max_length=50, choices=TIPO_DOCUMENTO_CHOICES)
+    estado = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.nombre_plantilla
+        return f"{self.nombre_plantilla} ({self.get_tipo_display()})"

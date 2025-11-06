@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'usuario',
     'contacto',
     'documento',
+    'django_filters',
+    'django_extensions',
+    
 ]
 
 
@@ -85,13 +88,11 @@ WSGI_APPLICATION = 'gestion_documental.wsgi.application'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
     #"DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.openapi.AutoSchema",
-
-    # Esto esta por defecto en django rest framework
-    # 'DEFAULT_PARSER_CLASSES': [
-    #     'rest_framework.parsers.JSONParser',
-    #     'rest_framework.parsers.FormParser',
-    #     'rest_framework.parsers.MultiPartParser',
-    # ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
 }
 
 
@@ -101,8 +102,12 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'gestion_correspondencia',
+        'USER': 'postgres',
+        'PASSWORD': '123',  # tu contraseña real
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -131,11 +136,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/La_Paz'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
