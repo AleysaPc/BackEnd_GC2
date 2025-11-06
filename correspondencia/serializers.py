@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
 from django.core.files import File
-from .models import Correspondencia, Recibida, Enviada, AccionCorrespondencia, CorrespondenciaElaborada, HistorialVisualizacion
+from .models import Correspondencia, Recibida, Enviada, AccionCorrespondencia, CorrespondenciaElaborada
 from documento.models import Documento, PlantillaDocumento
 from documento.serializers import DocumentoSerializer, PlantillaDocumentoSerializer
 from usuario.models import CustomUser
@@ -212,7 +212,3 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
         read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html']
 
 
-class HistorialVisualizacionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HistorialVisualizacion
-        fields = '__all__'

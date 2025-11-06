@@ -7,7 +7,7 @@ from django.http import HttpResponse, FileResponse
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Correspondencia, Recibida, Enviada, CorrespondenciaElaborada, AccionCorrespondencia, HistorialVisualizacion
+from .models import Correspondencia, Recibida, Enviada, CorrespondenciaElaborada, AccionCorrespondencia
 from .serializers import (
     CorrespondenciaSerializer, RecibidaSerializer, EnviadaSerializer, 
     CorrespondenciaElaboradaSerializer, AccionCorrespondenciaSerializer
@@ -177,6 +177,3 @@ def marcar_notificacion_vista(request, id_accion):
     return Response({"status": "ok"})
 
 
-class HistorialVisualizacionViewSet(viewsets.ModelViewSet):
-    queryset = HistorialVisualizacion.objects.all()
-    serializer_class = HistorialVisualizacion

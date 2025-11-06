@@ -69,8 +69,8 @@ class AccionCorrespondenciaForm(forms.ModelForm):
 
 class AccionCorrespondenciaAdmin(admin.ModelAdmin):
     form = AccionCorrespondenciaForm
-    list_display = ['id_accion', 'correspondencia', 'accion', 'usuario', 'fecha']
-    list_filter = ['accion', 'fecha']
+    list_display = ['id_accion', 'correspondencia', 'accion', 'usuario_origen', 'usuario_destino', 'fecha_inicio']
+    list_filter = ['accion', 'fecha_inicio']
     search_fields = ['correspondencia__descripcion', 'usuario__username', 'comentario']
 
     # 👇 Esto es lo más importante para que el campo personalizado 'usuarios' aparezca

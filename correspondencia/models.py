@@ -139,52 +139,34 @@ class CorrespondenciaElaborada(Correspondencia):
 class AccionCorrespondencia(models.Model):
 
     ACCIONES = [
-        ('DERIVADO', 'Derivado'),
-        ('VISTO', 'Visto'),
-        ('OBSERVADO', 'Observado'),
-        ('APROBADO', 'Aprobado'),
+        ('derivado', 'Derivado'),
+        ('observado', 'Observado'),
+        ('aprobado', 'Aprobado'),
+        ('rechazado', 'Rechazado'),
+        ('devuelto', 'Devuelto'),
+        ('archivado', 'Archivado'),
+        #no coloco visto porque ya es campo en este modelo que cambia a true o false
     ]
     id_accion = models.AutoField(primary_key=True)
     correspondencia = models.ForeignKey('Correspondencia', on_delete=models.CASCADE, related_name='acciones')
-    usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
-    usuario_destino = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='acciones_destino')
+    usuario_origen = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='acciones_origen')
+    usuario_destino = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='acciones_destino') #Es usuario destino
     accion = models.CharField(max_length=50, choices=ACCIONES)  # Derivar, Archivar, Rechazar, etc.
     comentario = models.TextField(blank=True, null=True)
-    fecha = models.DateTimeField(auto_now_add=True)
-    visto = models.BooleanField(default=False) 
+    fecha_inicio = models.DateTimeField(auto_now_add=True) #Cuando el documento fue registrado, derivado o creado
+    fecha_modificación = models.DateTimeField(auto_now=True)
+    visto = models.BooleanField(default=False)
+    fecha_visto = models.DateTimeField(null=True, blank=True)
     estado_resultante = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        ordering = ['fecha']
-
-
-from django.db import models
-from django.conf import settings
-
-class HistorialVisualizacion(models.Model):
-    ORIGEN_CHOICES = [
-        ('notificacion', 'Desde notificación'),
-        ('detalle', 'Desde vista de detalle'),
-        ('otro', 'Otro origen'),
-    ]
-
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    correspondencia = models.ForeignKey('correspondencia.Correspondencia', on_delete=models.CASCADE)
-    accion_correspondencia = models.ForeignKey(
-        'correspondencia.AccionCorrespondencia',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='historiales'
-    )
-    fecha_visualizacion = models.DateTimeField(auto_now_add=True)
-    origen = models.CharField(max_length=50, choices=ORIGEN_CHOICES, default='detalle')
-    accion = models.CharField(max_length=100, default='Vista')
-
-    class Meta:
-        ordering = ['-fecha_visualizacion']
+        ordering = ['-fecha_inicio']
 
     def __str__(self):
-        return f"{self.usuario} vio {self.correspondencia} el {self.fecha_visualizacion.strftime('%d/%m/%Y %H:%M')}"
+        return f"{self.accion.upper()} - {self.correspondencia} ({self.usuario_origen} → {self.usuario_destino})"
 
-
+    def marcar_como_visto(self):
+        if not self.visto:
+            self.visto = True
+            self.fecha_visto = timezone.now()
+            self.save(update_fields=['visto', 'fecha_visto'])
