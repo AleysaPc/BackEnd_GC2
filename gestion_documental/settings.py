@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'contacto',
     'documento',
     'django_filters',
-    'django_extensions',
     
 ]
 

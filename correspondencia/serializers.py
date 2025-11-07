@@ -18,10 +18,12 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
 
 class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
-    usuario = UsuarioSerializer(read_only=True)
+    
+    #Usuarios
+    usuario_origen = UsuarioSerializer(read_only=True)
     usuario_destino = UsuarioSerializer(read_only=True)
-    tipo = serializers.CharField(source='correspondencia.tipo', read_only=True)
-    comentario_derivacion = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    
+    #Relaciones con ID
     usuario_destino_id = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(),
         source='usuario_destino',
@@ -34,27 +36,54 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
         write_only=True,
         required=True
     )
-
+    
+    #Extras
+    tipo = serializers.CharField(source='correspondencia.tipo', read_only=True)
+    comentario_derivacion = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    
     class Meta:
         model = AccionCorrespondencia
         fields = [
-            'id_accion', 'usuario', 'usuario_destino', 'usuario_destino_id',
-            'accion', 'fecha', 'correspondencia_id', 'comentario_derivacion',
-            'comentario', 'visto', 'tipo'
+            'id_accion', 'usuario_origen', 'usuario_destino', 'usuario_destino_id',
+            'accion', 'fecha_inicio', 'fecha_modificacion', 'fecha_visto', 'visto', 'estado_resultante', 'correspondencia_id', 'comentario_derivacion',
+            'comentario', 'tipo'
         ]
 
+    #Limpieza del campo comnetario derivación
     def _handle_comentario_derivacion(self, validated_data):
         comentario = validated_data.pop('comentario_derivacion', None)
         if comentario is not None:
             validated_data['comentario'] = comentario
         return validated_data
 
+    #Crear nueva acción (registro de evento) request=pedido
     def create(self, validated_data):
-        return super().create(self._handle_comentario_derivacion(validated_data))
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            validated_data['usuario_origen'] = request.user
+        
+        validated_data = self._handle_comentario_derivacion(validated_data)
+        
+        #Cada create es un nuevo evento (derivación, aprobración rechazo, etc)
+        accion = AccionCorrespondencia.objects.create(**validated_data)
+        
+        #Estado reusltante automatico
+        if not accion.estado_resultante:
+            accion.estado_resultante = accion.accion.upper()
+            accion.save(update_fields=['estado_resultante'])
 
+        return accion
+
+    #Actualizar acción (por ejemplo, marcar como vista)
     def update(self, instance, validated_data):
-        return super().update(instance, self._handle_comentario_derivacion(validated_data))
+        validated_data = self._handle_comentario_derivacion(validated_data)
+        
+        #Si pasa de no visto a visto, registrar fecha_visto
+        if 'visto' in validated_data and validated_data['visto'] and not instance.visto:
+            validated_data['fecha_visto'] = timezone.now()
 
+        return super().update(instance, validated_data)
+        
 # Listado y detalle general de correspondencias
 class CorrespondenciaSerializer(serializers.ModelSerializer):
     documentos = DocumentoSerializer(many=True)

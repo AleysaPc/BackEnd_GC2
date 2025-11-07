@@ -131,13 +131,19 @@ class CorrespondenciaElaboradaView(BaseViewSet):
 class AccionCorrespondenciaViewSet(viewsets.ModelViewSet):
     queryset = AccionCorrespondencia.objects.all()
     serializer_class = AccionCorrespondenciaSerializer
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
+        """
+        Crea una o varias acciones de correspondencia (ej. derivaciones).
+        Mantiene compatibilidad con tu función crear_objetos_multiple().
+        """
+    
         acciones, errores = crear_objetos_multiple(
             self.get_serializer_class(),
             request,
             usuario=request.user,
-            extra_fields={'accion': 'DERIVADO'}
+            extra_fields={'accion': 'derivado'}
         )
         if acciones:
             return Response({'acciones': acciones, 'errores': errores}, status=status.HTTP_201_CREATED)
@@ -150,20 +156,33 @@ class AccionCorrespondenciaViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def notificaciones_pendientes(request):
-    acciones = AccionCorrespondencia.objects.filter(
-        usuario_destino=request.user, visto=False
-    ).select_related('correspondencia').order_by('-fecha')
+    """
+    Retorna las acciones no vistas por el usuario actual.
+    """
+    """Conjunto de consultas"""
+    acciones = (
+        AccionCorrespondencia.objects
+        .filter(usuario_destino=request.user, visto=False)
+        .select_related('correspondencia')
+        .order_by('-fecha_inicio')
+    )
+    
     
     data = [
-        {
+       {
             "id_accion": a.id_accion,
-            "correspondencia_id": a.correspondencia.id_correspondencia if a.correspondencia else None,
-            "documento": a.correspondencia.referencia if a.correspondencia else None,
-            "descripcion": a.correspondencia.descripcion if a.correspondencia else "",
+            "correspondencia_id": getattr(a.correspondencia, "id_correspondencia", None),
+            "documento": getattr(a.correspondencia, "referencia", None),
+            "descripcion": getattr(a.correspondencia, "descripcion", ""),
             "accion": a.accion,
-            "fecha": a.fecha.isoformat(),
-            "tipo": a.correspondencia.tipo if a.correspondencia else None,
-        } for a in acciones
+            "fecha": a.fecha_inicio.isoformat() if a.fecha_inicio else None,
+            "tipo": getattr(a.correspondencia, "tipo", None),
+        }
+        for a in acciones
+
+    #getattr Evita errores si la relación es None
+    #a.id_accion siempre existe acceso directo
+    
     ]
     return Response({"count": len(data), "items": data})
 
@@ -171,9 +190,19 @@ def notificaciones_pendientes(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def marcar_notificacion_vista(request, id_accion):
-    accion = AccionCorrespondencia.objects.get(id_accion=id_accion, usuario_destino=request.user)
-    accion.visto = True
-    accion.save(update_fields=['visto'])
-    return Response({"status": "ok"})
+    """
+    Marca una notificación como vista y registra fecha_visto.
+    """
+    try :
+      accion = AccionCorrespondencia.objects.get(id_accion=id_accion, usuario_destino=request.user)
+    except AccionCorrespondencia.DoesNotExist:
+      return Response({"error": "Notificación no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+
+    if not accion.visto:
+      accion.visto = True
+      accion.fecha_visto = timezone.now()
+      accion.save(update_fields=['visto', 'fecha_visto'])
+      return Response({"status": "ok"})
+    return Response({"error": "Notificación ya vista"}, status=status.HTTP_400_BAD_REQUEST)
 
 
