@@ -16,8 +16,35 @@ from .filters import CorrespondenciaFilter, RecibidaFilter, EnviadaFilter, Corre
 from gestion_documental.mixins import PaginacionYAllDataMixin
 from .utils import generar_documento_word, generar_pdf_desde_html
 from .services.services import consulta_semantica, crear_objetos_multiple
+from django.utils import timezone
+from django.utils.timezone import now
+
+
 
 User = get_user_model()
+from rest_framework import viewsets
+from django.utils import timezone
+
+class AuditableModelViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet base adaptable: asigna usuario según el modelo.
+    """
+    def perform_create(self, serializer):
+        if hasattr(serializer.Meta.model, 'usuario_origen'):
+            serializer.save(usuario_origen=self.request.user)
+        elif hasattr(serializer.Meta.model, 'usuario'):
+            serializer.save(usuario=self.request.user)
+        else:
+            serializer.save()
+
+    def perform_update(self, serializer):
+        data = {}
+        if hasattr(serializer.Meta.model, 'ultima_modificacion'):
+            data['ultima_modificacion'] = self.request.user
+        if hasattr(serializer.Meta.model, 'fecha_modificacion'):
+            data['fecha_modificacion'] = timezone.now()
+        serializer.save(**data)
+
 
 
 # ===========================
@@ -65,15 +92,15 @@ def generar_documento(request, doc_id):
 # ===========================
 # ViewSets
 # ===========================
-class CorrespondenciaView(BaseViewSet):
+class CorrespondenciaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = CorrespondenciaSerializer
-    queryset = Correspondencia.objects.all().order_by('id_correspondencia')
+    queryset = Correspondencia.objects.all()
     filterset_class = CorrespondenciaFilter
     search_fields = ['tipo', 'referencia', 'contacto__institucion__razon_social']
     ordering_fields = ['tipo', 'referencia']
 
 
-class RecibidaView(BaseViewSet):
+class RecibidaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = RecibidaSerializer
     queryset = Recibida.objects.all().order_by('-fecha_registro')
     filterset_class = RecibidaFilter
@@ -90,7 +117,7 @@ class RecibidaView(BaseViewSet):
         return super().create(request, *args, **kwargs)
 
 
-class EnviadaView(BaseViewSet):
+class EnviadaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('-fecha_registro')
     filterset_class = EnviadaFilter
@@ -103,7 +130,7 @@ class EnviadaView(BaseViewSet):
         return super().create(request, *args, **kwargs)
 
 
-class CorrespondenciaElaboradaView(BaseViewSet):
+class CorrespondenciaElaboradaView(BaseViewSet, AuditableModelViewSet):
     queryset = CorrespondenciaElaborada.objects.all().order_by('-fecha_registro')
     serializer_class = CorrespondenciaElaboradaSerializer
     filterset_class = CorrespondenciaElaboradaFilter
@@ -170,7 +197,7 @@ def notificaciones_pendientes(request):
     
     data = [
        {
-            "id_accion": a.id_accion,
+            "id": a.id,
             "correspondencia_id": getattr(a.correspondencia, "id_correspondencia", None),
             "documento": getattr(a.correspondencia, "referencia", None),
             "descripcion": getattr(a.correspondencia, "descripcion", ""),
@@ -181,7 +208,7 @@ def notificaciones_pendientes(request):
         for a in acciones
 
     #getattr Evita errores si la relación es None
-    #a.id_accion siempre existe acceso directo
+    #a.id siempre existe acceso directo
     
     ]
     return Response({"count": len(data), "items": data})
@@ -189,12 +216,12 @@ def notificaciones_pendientes(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def marcar_notificacion_vista(request, id_accion):
+def marcar_notificacion_vista(request, id):
     """
     Marca una notificación como vista y registra fecha_visto.
     """
     try :
-      accion = AccionCorrespondencia.objects.get(id_accion=id_accion, usuario_destino=request.user)
+      accion = AccionCorrespondencia.objects.get(id=id, usuario_destino=request.user)
     except AccionCorrespondencia.DoesNotExist:
       return Response({"error": "Notificación no encontrada"}, status=status.HTTP_404_NOT_FOUND)
 

@@ -44,7 +44,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccionCorrespondencia
         fields = [
-            'id_accion', 'usuario_origen', 'usuario_destino', 'usuario_destino_id',
+            'id', 'usuario_origen', 'usuario_destino', 'usuario_destino_id',
             'accion', 'fecha_inicio', 'fecha_modificacion', 'fecha_visto', 'visto', 'estado_resultante', 'correspondencia_id', 'comentario_derivacion',
             'comentario', 'tipo'
         ]
@@ -141,8 +141,8 @@ class CorrespondenciaSerializerBase(serializers.ModelSerializer):
         documentos_data = validated_data.pop('documentos', [])
         comentario_derivacion = validated_data.pop('comentario_derivacion', None)
 
-        usuario_actual = getattr(request, 'user', None)
-        if not usuario_actual or usuario_actual.is_anonymous:
+        usuario = getattr(request, 'user', None)
+        if not usuario or usuario.is_anonymous:
             raise serializers.ValidationError("Usuario no autenticado")
 
         valid_users = [uid for uid in usuarios if CustomUser.objects.filter(id=uid).exists()]
@@ -151,7 +151,7 @@ class CorrespondenciaSerializerBase(serializers.ModelSerializer):
         if instance is None:
             # Crear correspondencia
             if 'usuario' in self.Meta.model._meta.fields_map:
-                validated_data['usuario'] = usuario_actual
+                validated_data['usuario'] = usuario
             instance = self.Meta.model.objects.create(**validated_data)
         else:
             # Actualizar correspondencia
@@ -169,8 +169,8 @@ class CorrespondenciaSerializerBase(serializers.ModelSerializer):
         if valid_users:
             derivar_correspondencia(
                 correspondencia=instance,
-                usuario_actual=usuario_actual,
-                usuarios_destino=valid_users,
+                usuario_origen=usuario,
+                usuario_destino=valid_users,
                 comentario_derivacion=comentario_derivacion
             )
 

@@ -189,4 +189,4 @@ def crear_notificacion_al_accion(sender, instance, created, **kwargs):
         if instance.visto:
             instance.visto = False
             instance.save(update_fields=['visto'])
-            print(f"Signal: Modificado visto a False para id_accion={instance.id_accion}")
+            print(f"Signal: Modificado visto a False para id={instance.id}")

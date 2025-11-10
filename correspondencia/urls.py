@@ -21,8 +21,9 @@ router.register(r'acciones', AccionCorrespondenciaViewSet, basename='acciones')
 urlpatterns = [
     path('', include(router.urls)),
     #Generación de documentos
+        #NOMBRE QUE APARECERA EN LA URL
     path('generar_documento/<int:doc_id>/', generar_documento, name='generar_documento'),
     #Notificaciones
     path('notificacion/pendiente/', notificaciones_pendientes, name='notificaciones_pendientes'),
-    path('notificacion/vista/<int:id_accion>/', marcar_notificacion_vista, name='marcar_notificacion_vista'),
+    path('notificacion/vista/<int:id>/', marcar_notificacion_vista, name='marcar_notificacion_vista'),
 ]

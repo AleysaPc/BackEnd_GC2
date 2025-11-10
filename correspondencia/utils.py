@@ -84,15 +84,15 @@ def generar_documento_word(correspondenciaElaborada):
     return buffer, filename
 
 #DERIVACIÓN
-def derivar_correspondencia(correspondencia, usuario_actual, usuarios_destino, comentario_derivacion):
+def derivar_correspondencia(correspondencia, usuario_origen, usuario_destino, comentario_derivacion):
     from .models import AccionCorrespondencia
-    if not usuarios_destino:
+    if not usuario_destino:
         return
 
     # Proporcionar una cadena vacía si comentario_derivacion es None
     comentario_derivacion = comentario_derivacion or ""
 
-    usuarios_validos = CustomUser.objects.filter(id__in=usuarios_destino)
+    usuarios_validos = CustomUser.objects.filter(id__in=usuario_destino)
 
     for usuario in usuarios_validos:
         # Evitar duplicados
@@ -104,7 +104,7 @@ def derivar_correspondencia(correspondencia, usuario_actual, usuarios_destino, c
         ).exists():
             AccionCorrespondencia.objects.create(
                 correspondencia=correspondencia,
-                usuario=usuario_actual,
+                usuario_origen=usuario_origen,
                 usuario_destino=usuario,
                 accion="DERIVADO",
                 comentario=comentario_derivacion

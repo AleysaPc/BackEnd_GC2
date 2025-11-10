@@ -1,9 +1,7 @@
-from correspondencia.services.renderizado import generar_html_desde_objeto
 from django.db import models
 from django.utils.timezone import now
 from django.db import models, transaction
 from django.db.models import Max
-from documento.models import PlantillaDocumento
 from jinja2 import Template
 
 class Correspondencia(models.Model):
@@ -24,6 +22,9 @@ class Correspondencia(models.Model):
     ultima_modificacion = models.DateTimeField(auto_now=True, help_text="Fecha y hora de la última acción o modificación registrada")
     activo = models.BooleanField(default=True)
     
+    class Meta:
+        ordering = ['-fecha_registro']
+        
     def __str__(self):
         return f"{self.referencia} - {self.tipo}"
 
@@ -76,8 +77,8 @@ def renderizar_contenido_html(estructura_html, context):
 
 class CorrespondenciaElaborada(Correspondencia):
     plantilla = models.ForeignKey(
-        PlantillaDocumento,
-        on_delete=models.PROTECT,
+        'documento.PlantillaDocumento',  # Usando notación de cadena para la referencia
+        on_delete=models.SET_NULL,
         related_name='correspondencias',
         null=True,
         blank=True,
@@ -108,6 +109,7 @@ class CorrespondenciaElaborada(Correspondencia):
         help_text="Nota recibida a la que responde esta nota elaborada"
     )
     def generar_contenido_html(self):
+        from correspondencia.services.renderizado import generar_html_desde_objeto
         self.contenido_html = generar_html_desde_objeto(self)
 
     def save(self, *args, **kwargs):
@@ -147,14 +149,13 @@ class AccionCorrespondencia(models.Model):
         ('archivado', 'Archivado'),
         #no coloco visto porque ya es campo en este modelo que cambia a true o false
     ]
-    id_accion = models.AutoField(primary_key=True)
     correspondencia = models.ForeignKey('Correspondencia', on_delete=models.CASCADE, related_name='acciones')
     usuario_origen = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='acciones_origen')
     usuario_destino = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True, related_name='acciones_destino') #Es usuario destino
     accion = models.CharField(max_length=50, choices=ACCIONES)  # Derivar, Archivar, Rechazar, etc.
     comentario = models.TextField(blank=True, null=True)
     fecha_inicio = models.DateTimeField(auto_now_add=True) #Cuando el documento fue registrado, derivado o creado
-    fecha_modificación = models.DateTimeField(auto_now=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
     visto = models.BooleanField(default=False)
     fecha_visto = models.DateTimeField(null=True, blank=True)
     estado_resultante = models.CharField(max_length=50, blank=True, null=True)
