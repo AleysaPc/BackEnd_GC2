@@ -158,23 +158,32 @@ class CorrespondenciaElaboradaView(BaseViewSet, AuditableModelViewSet):
 class AccionCorrespondenciaViewSet(viewsets.ModelViewSet):
     queryset = AccionCorrespondencia.objects.all()
     serializer_class = AccionCorrespondenciaSerializer
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         """
-        Crea una o varias acciones de correspondencia (ej. derivaciones).
-        Mantiene compatibilidad con tu función crear_objetos_multiple().
+        Crea una o varias acciones de correspondencia (ej. derivaciones)
+        usando directamente el serializer para asegurar que usuario_origen
+        se guarde correctamente.
         """
-    
-        acciones, errores = crear_objetos_multiple(
-            self.get_serializer_class(),
-            request,
-            usuario=request.user,
-            extra_fields={'accion': 'derivado'}
+        print("📥 request.data:", request.data)
+        # Creamos el serializer pasando el request en el context
+        serializer = self.get_serializer(
+            data=request.data,
+            context={'request': request}  # Esto permite acceder a request.user dentro del serializer
         )
-        if acciones:
-            return Response({'acciones': acciones, 'errores': errores}, status=status.HTTP_201_CREATED)
-        return Response({'errores': errores}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validamos los datos
+        serializer.is_valid(raise_exception=True)
+
+        # Guardamos la acción; el serializer se encarga de:
+        # - Asignar usuario_origen = request.user
+        # - Procesar comentario_derivacion → comentario
+        # - Guardar usuario_destino si se envió desde el front
+        accion = serializer.save()
+
+        # Retornamos la acción creada
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 # ===========================
