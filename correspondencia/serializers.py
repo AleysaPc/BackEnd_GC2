@@ -26,34 +26,50 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     usuario_origen = UsuarioSerializer(read_only=True)
     usuario_destino = UsuarioSerializer(read_only=True) 
 
+    #IDs que llegan desde el frontend
     usuario_origen_id = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(),
         source='usuario_origen',
+        write_only=True,
         required=False
     )
     usuario_destino_id = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(),
         source='usuario_destino',
-        required=True
+        required=True,
+        write_only=True,
+        many=True
     )
-    correspondencia = serializers.PrimaryKeyRelatedField(
-        queryset=Correspondencia.objects.all(),
-        write_only=True
-    )
+    #correspondencia = serializers.PrimaryKeyRelatedField(
+    #    queryset=Correspondencia.objects.all(),
+    #    write_only=True
+    #)
     
     #Correspondencia Devuelve un objeto
-    correspondencia_id = serializers.PrimaryKeyRelatedField(read_only=True) #source=fuente
-    tipo = serializers.CharField(source='correspondencia.tipo', read_only=True)
+    correspondencia_id = serializers.PrimaryKeyRelatedField(
+        queryset=Correspondencia.objects.all(),
+        write_only=True) #source=fuente
+    
+    #tipo = serializers.CharField(source='correspondencia.tipo', read_only=True)
     
     class Meta:
         model = AccionCorrespondencia
         fields = [
-            'id', 'correspondencia_id','usuario_origen_id', 'usuario_destino_id', 'usuario_origen', 'usuario_destino',
-            'comentario_derivacion',
-            'correspondencia', 'accion', 'fecha_inicio', 'fecha_modificacion', 'fecha_visto', 'visto', 'estado_resultante', 'comentario', 'tipo'
+            'id', 'correspondencia','correspondencia_id','usuario_origen_id', 'usuario_destino_id', 'usuario_origen', 'usuario_destino',
+            'accion','comentario_derivacion','comentario','fecha_inicio','fecha_modificacion','visto', 'fecha_visto','estado_resultante',
+        ]
+        read_only_fields = [
+            'id',
+            'fecha_inicio',
+            'fecha_modificacion',
+            'visto',
+            'fecha_visto',
+            'estado_resultante',
+            'correspondencia',
+            'usuario_origen',
+            'usuario_destino',
         ]
 
-    # Extrae comentario_derivación de los datos validos, si se envio lo 
     # coloca en el campo comentario, el comentario se guarda en el campo correcto sin afectar al serializador
     def _handle_comentario_derivacion(self, validated_data):
         comentario = validated_data.pop('comentario_derivacion', None)
@@ -65,54 +81,30 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get('request')
 
-        # 1️⃣ Usuario origen desde request.user
-        if request and hasattr(request, 'user'):
+        # usuario_origen = usuario logueado
+        if request and request.user:
             validated_data['usuario_origen'] = request.user
 
-        # --- Manejo robusto del usuario destino ---
-        # DRF puede entregar la instancia en 'usuario_destino' (por source=...)
-        usuario_destino = validated_data.pop('usuario_destino', None)
-        # o, si por alguna razón viene como PK, también lo manejamos:
-        usuario_destino_id = validated_data.pop('usuario_destino_id', None)
-
-        if usuario_destino is None and usuario_destino_id:
-            # Obtener instancia desde PK (por seguridad, usar filter para evitar excepción)
-            usuario_destino = CustomUser.objects.filter(pk=usuario_destino_id).first()
-
-        if usuario_destino:
-            validated_data['usuario_destino'] = usuario_destino
-        # ------------------------------------------------
-
-        # 3️⃣ Acción por defecto
-        if 'accion' not in validated_data or not validated_data['accion']:
-            validated_data['accion'] = 'DERIVADO'
-
-        # 4️⃣ Comentario derivación
+        # comentario_derivacion → comentario
         validated_data = self._handle_comentario_derivacion(validated_data)
 
-        # 5️⃣ Crear la acción
-        accion = AccionCorrespondencia.objects.create(**validated_data)
-        accion.refresh_from_db()
+        # lista de usuarios destino
+        usuarios_destino = validated_data.pop('usuario_destino')
 
-        # 6️⃣ Estado automático
-        if not accion.estado_resultante:
-            accion.estado_resultante = accion.accion.upper()
-            accion.save(update_fields=['estado_resultante'])
+        # obtener correspondencia_id y convertir en objeto Correspondencia
+        correspondencia = validated_data.pop('correspondencia_id')
 
-        # 7️⃣ Lógica de derivación automática
-        # usar la instancia real de usuario_destino si hace falta
-        if (usuario_destino or usuario_destino_id) and accion.correspondencia:
-            derivar_correspondencia(
-                correspondencia=accion.correspondencia,
-                usuario_origen=accion.usuario_origen,
-                usuario_destino=[usuario_destino.id] if usuario_destino and not isinstance(usuario_destino, list) else usuario_destino_id,
-                comentario_derivacion=accion.comentario
-            )
+        acciones_creadas = []
 
-        return accion
+        for usuario in usuarios_destino:
+            data = validated_data.copy()
+            data['usuario_destino'] = usuario
+            data['correspondencia'] = correspondencia  # <--- asignar objeto correcto
+            accion = AccionCorrespondencia.objects.create(**data)
+            acciones_creadas.append(accion)
+    
 
-
-
+        return acciones_creadas[0]
 
     #Actualizar acción (por ejemplo, marcar como vista)
     def update(self, instance, validated_data):

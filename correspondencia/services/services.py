@@ -28,17 +28,17 @@ def crear_objetos_multiple(serializer_class, request, usuario=None, extra_fields
     `extra_fields` es un dict con datos adicionales que quieres inyectar.
     """
     extra_fields = extra_fields or {}
-    usuario_destino_ids = request.data.get('usuario_destino') or request.data.get('usuarios')
-    if not usuario_destino_ids:
+    usuario_destino_id = request.data.get('usuario_destino') or request.data.get('usuarios')
+    if not usuario_destino_id:
         return [], [{'error': 'Debe especificar al menos un usuario destino.'}]
 
-    if not isinstance(usuario_destino_ids, list):
-        usuario_destino_ids = [usuario_destino_ids]
+    if not isinstance(usuario_destino_id, list):
+        usuario_destino_id = [usuario_destino_id]
 
     acciones_creadas = []
     errores = []
 
-    for uid in usuario_destino_ids:
+    for uid in usuario_destino_id:
         data = request.data.copy()
         data.update(extra_fields)
         data['usuario_destino_id'] = uid

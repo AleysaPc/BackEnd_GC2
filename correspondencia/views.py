@@ -160,32 +160,8 @@ class AccionCorrespondenciaViewSet(viewsets.ModelViewSet):
     serializer_class = AccionCorrespondenciaSerializer
     #permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
-        """
-        Crea una o varias acciones de correspondencia (ej. derivaciones)
-        usando directamente el serializer para asegurar que usuario_origen
-        se guarde correctamente.
-        """
-        print("📥 request.data:", request.data)
-        # Creamos el serializer pasando el request en el context
-        serializer = self.get_serializer(
-            data=request.data,
-            context={'request': request}  # Esto permite acceder a request.user dentro del serializer
-        )
-
-        # Validamos los datos
-        serializer.is_valid(raise_exception=True)
-
-        # Guardamos la acción; el serializer se encarga de:
-        # - Asignar usuario_origen = request.user
-        # - Procesar comentario_derivacion → comentario
-        # - Guardar usuario_destino si se envió desde el front
-        accion = serializer.save()
-
-        # Retornamos la acción creada
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
+    def perform_create(self, serializer):
+        serializer.save(usuario_origen=self.request.user)
 # ===========================
 # Notificaciones
 # ===========================
