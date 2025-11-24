@@ -50,6 +50,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     nombre_departamento = serializers.CharField(source="departamento.nombre", read_only=True)
     nombre_institucion = serializers.CharField(source="institucion.razon_social", read_only=True)
     rol = serializers.SerializerMethodField()
+    sigla = serializers.CharField(source="departamento.sigla", read_only=True)
 
     class Meta:
         model = CustomUser
@@ -69,6 +70,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'username',
             'departamento',
             'nombre_departamento',
+            'sigla',
             'institucion',
             'nombre_institucion',
             'rol',

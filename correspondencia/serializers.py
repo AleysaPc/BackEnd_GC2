@@ -5,16 +5,17 @@ from .models import Correspondencia, Recibida, Enviada, AccionCorrespondencia, C
 from documento.models import Documento, PlantillaDocumento
 from documento.serializers import DocumentoSerializer, PlantillaDocumentoSerializer
 from usuario.models import CustomUser
+from usuario.serializers import CustomUserSerializer
 from .utils import derivar_correspondencia
 
 
 # ---------------------------
 # Serializadores auxiliares
 # ---------------------------
-class UsuarioSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['id', 'email']
+class UsuarioSerializer(CustomUserSerializer):
+    class Meta(CustomUserSerializer.Meta):
+        fields = ['id', 'email', 'departamento', 'nombre_departamento', 'sigla']
+
 
 class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
 
@@ -39,12 +40,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
         required=True,
         write_only=True,
         many=True
-    )
-    #correspondencia = serializers.PrimaryKeyRelatedField(
-    #    queryset=Correspondencia.objects.all(),
-    #    write_only=True
-    #)
-    
+    )   
     #Correspondencia Devuelve un objeto
     correspondencia_id = serializers.PrimaryKeyRelatedField(
         queryset=Correspondencia.objects.all(),
