@@ -64,6 +64,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
             'correspondencia',
             'usuario_origen',
             'usuario_destino',
+            'es_en_respuesta',
         ]
 
     # coloca en el campo comentario, el comentario se guarda en el campo correcto sin afectar al serializador
