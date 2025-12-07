@@ -171,3 +171,25 @@ class AccionCorrespondencia(models.Model):
             self.visto = True
             self.fecha_visto = timezone.now()
             self.save(update_fields=['visto', 'fecha_visto'])
+            
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Primero guardamos la acción
+
+        correspondencia = self.correspondencia
+
+        # 🔹 Reglas para sincronizar estado cuando la acción es aprobada
+        if self.accion == "aprobado":
+            correspondencia.estado = "aprobado"
+            correspondencia.estado_actual = "APROBADO"
+            correspondencia.save(update_fields=["estado", "estado_actual"])
+
+        # 🔹 Otras acciones que también quieran actualizar el estado
+        elif self.accion == "derivado":
+            correspondencia.estado_actual = "DERIVADO"
+            correspondencia.save(update_fields=["estado_actual"])
+
+        elif self.accion == "observado":
+            correspondencia.estado_actual = "OBSERVADO"
+            correspondencia.save(update_fields=["estado_actual"])
+
+        # Puedes agregar más reglas según sea necesario

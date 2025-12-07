@@ -248,8 +248,8 @@ def notificaciones_pendientes(request):
        {
             "id": a.id,
             "correspondencia_id": getattr(a.correspondencia, "id_correspondencia", None),
-            "documento": getattr(a.correspondencia, "referencia", None),
-            "descripcion": getattr(a.correspondencia, "descripcion", ""),
+            "referencia": getattr(a.correspondencia, "referencia", None),
+            "comentario": a.comentario,
             "accion": a.accion,
             "fecha": a.fecha_inicio.isoformat() if a.fecha_inicio else None,
             "tipo": getattr(a.correspondencia, "tipo", None),
