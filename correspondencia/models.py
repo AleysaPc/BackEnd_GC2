@@ -108,6 +108,24 @@ class CorrespondenciaElaborada(Correspondencia):
         related_name='respuestas',
         help_text="Nota recibida a la que responde esta nota elaborada"
     )
+    estado_entrega = models.CharField(
+        max_length=30,
+        choices=[
+            ("pendiente", "Pendiente"),
+            ("entregado", "Entregado"),
+            ("no_entregado", "No entregado"),
+            ("devuelto", "Devuelto"),
+            ("rechazado", "Rechazado"),
+            ("extraviado", "Extraviado"),
+            ("direccion_incorrecta", "Dirección incorrecta"),
+            ("destinatario_incorrecto","Destinatario incorrecto")
+        ],
+        default="pendiente"
+    )
+
+    motivo_no_entrega = models.TextField(blank=True, null=True)
+    fecha_intento_entrega = models.DateTimeField(blank=True, null=True)
+    numero_intentos = models.PositiveIntegerField(default=0)
     def generar_contenido_html(self):
         from correspondencia.services.renderizado import generar_html_desde_objeto
         self.contenido_html = generar_html_desde_objeto(self)
