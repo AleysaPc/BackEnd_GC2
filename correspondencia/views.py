@@ -16,8 +16,35 @@ from .filters import CorrespondenciaFilter, RecibidaFilter, EnviadaFilter, Corre
 from gestion_documental.mixins import PaginacionYAllDataMixin
 from .utils import generar_documento_word, generar_pdf_desde_html
 from .services.services import consulta_semantica, crear_objetos_multiple
+from django.utils import timezone
+from django.utils.timezone import now
+
+
 
 User = get_user_model()
+from rest_framework import viewsets
+from django.utils import timezone
+
+class AuditableModelViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet base adaptable: asigna usuario según el modelo.
+    """
+    def perform_create(self, serializer):
+        if hasattr(serializer.Meta.model, 'usuario_origen'):
+            serializer.save(usuario_origen=self.request.user)
+        elif hasattr(serializer.Meta.model, 'usuario'):
+            serializer.save(usuario=self.request.user)
+        else:
+            serializer.save()
+
+    def perform_update(self, serializer):
+        data = {}
+        if hasattr(serializer.Meta.model, 'ultima_modificacion'):
+            data['ultima_modificacion'] = self.request.user
+        if hasattr(serializer.Meta.model, 'fecha_modificacion'):
+            data['fecha_modificacion'] = timezone.now()
+        serializer.save(**data)
+
 
 
 # ===========================
@@ -65,15 +92,15 @@ def generar_documento(request, doc_id):
 # ===========================
 # ViewSets
 # ===========================
-class CorrespondenciaView(BaseViewSet):
+class CorrespondenciaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = CorrespondenciaSerializer
-    queryset = Correspondencia.objects.all().order_by('id_correspondencia')
+    queryset = Correspondencia.objects.all()
     filterset_class = CorrespondenciaFilter
     search_fields = ['tipo', 'referencia', 'contacto__institucion__razon_social']
     ordering_fields = ['tipo', 'referencia']
 
 
-class RecibidaView(BaseViewSet):
+class RecibidaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = RecibidaSerializer
     queryset = Recibida.objects.all().order_by('-fecha_registro')
     filterset_class = RecibidaFilter
@@ -90,7 +117,7 @@ class RecibidaView(BaseViewSet):
         return super().create(request, *args, **kwargs)
 
 
-class EnviadaView(BaseViewSet):
+class EnviadaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('-fecha_registro')
     filterset_class = EnviadaFilter
@@ -103,7 +130,7 @@ class EnviadaView(BaseViewSet):
         return super().create(request, *args, **kwargs)
 
 
-class CorrespondenciaElaboradaView(BaseViewSet):
+class CorrespondenciaElaboradaView(BaseViewSet, AuditableModelViewSet):
     queryset = CorrespondenciaElaborada.objects.all().order_by('-fecha_registro')
     serializer_class = CorrespondenciaElaboradaSerializer
     filterset_class = CorrespondenciaElaboradaFilter
@@ -131,17 +158,32 @@ class CorrespondenciaElaboradaView(BaseViewSet):
 class AccionCorrespondenciaViewSet(viewsets.ModelViewSet):
     queryset = AccionCorrespondencia.objects.all()
     serializer_class = AccionCorrespondenciaSerializer
+    #permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
-        acciones, errores = crear_objetos_multiple(
-            self.get_serializer_class(),
-            request,
-            usuario=request.user,
-            extra_fields={'accion': 'DERIVADO'}
+        """
+        Crea una o varias acciones de correspondencia (ej. derivaciones)
+        usando directamente el serializer para asegurar que usuario_origen
+        se guarde correctamente.
+        """
+        print("📥 request.data:", request.data)
+        # Creamos el serializer pasando el request en el context
+        serializer = self.get_serializer(
+            data=request.data,
+            context={'request': request}  # Esto permite acceder a request.user dentro del serializer
         )
-        if acciones:
-            return Response({'acciones': acciones, 'errores': errores}, status=status.HTTP_201_CREATED)
-        return Response({'errores': errores}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validamos los datos
+        serializer.is_valid(raise_exception=True)
+
+        # Guardamos la acción; el serializer se encarga de:
+        # - Asignar usuario_origen = request.user
+        # - Procesar comentario_derivacion → comentario
+        # - Guardar usuario_destino si se envió desde el front
+        accion = serializer.save()
+
+        # Retornamos la acción creada
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 # ===========================
@@ -150,30 +192,53 @@ class AccionCorrespondenciaViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def notificaciones_pendientes(request):
-    acciones = AccionCorrespondencia.objects.filter(
-        usuario_destino=request.user, visto=False
-    ).select_related('correspondencia').order_by('-fecha')
+    """
+    Retorna las acciones no vistas por el usuario actual.
+    """
+    """Conjunto de consultas"""
+    acciones = (
+        AccionCorrespondencia.objects
+        .filter(usuario_destino=request.user, visto=False)
+        .select_related('correspondencia')
+        .order_by('-fecha_inicio')
+    )
+    
     
     data = [
-        {
-            "id_accion": a.id_accion,
-            "correspondencia_id": a.correspondencia.id_correspondencia if a.correspondencia else None,
-            "documento": a.correspondencia.referencia if a.correspondencia else None,
-            "descripcion": a.correspondencia.descripcion if a.correspondencia else "",
+       {
+            "id": a.id,
+            "correspondencia_id": getattr(a.correspondencia, "id_correspondencia", None),
+            "documento": getattr(a.correspondencia, "referencia", None),
+            "descripcion": getattr(a.correspondencia, "descripcion", ""),
             "accion": a.accion,
-            "fecha": a.fecha.isoformat(),
-            "tipo": a.correspondencia.tipo if a.correspondencia else None,
-        } for a in acciones
+            "fecha": a.fecha_inicio.isoformat() if a.fecha_inicio else None,
+            "tipo": getattr(a.correspondencia, "tipo", None),
+        }
+        for a in acciones
+
+    #getattr Evita errores si la relación es None
+    #a.id siempre existe acceso directo
+    
     ]
     return Response({"count": len(data), "items": data})
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def marcar_notificacion_vista(request, id_accion):
-    accion = AccionCorrespondencia.objects.get(id_accion=id_accion, usuario_destino=request.user)
-    accion.visto = True
-    accion.save(update_fields=['visto'])
-    return Response({"status": "ok"})
+def marcar_notificacion_vista(request, id):
+    """
+    Marca una notificación como vista y registra fecha_visto.
+    """
+    try :
+      accion = AccionCorrespondencia.objects.get(id=id, usuario_destino=request.user)
+    except AccionCorrespondencia.DoesNotExist:
+      return Response({"error": "Notificación no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+
+    if not accion.visto:
+      accion.visto = True
+      accion.fecha_visto = timezone.now()
+      accion.save(update_fields=['visto', 'fecha_visto'])
+      return Response({"status": "ok"})
+    return Response({"error": "Notificación ya vista"}, status=status.HTTP_400_BAD_REQUEST)
 
 
