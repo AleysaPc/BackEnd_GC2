@@ -229,7 +229,7 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
         model = Recibida
         fields = [
             'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro', 'fecha_recepcion', 'fecha_respuesta',
-            'hora_recepcion', 'hora_respuesta', 'referencia', 'paginas', 'prioridad', 'estado',
+            'referencia', 'paginas', 'prioridad', 'estado',
             'documentos', 'contacto', 'usuario', 'acciones',
             'comentario_derivacion', 'usuarios', 'datos_contacto','similitud', 'nro_registro'
         ]

@@ -10,7 +10,7 @@ from usuario.models import CustomUser
 
 
 # Función para construir el mensaje del correo
-def construir_mensaje(nro_registro, referencia, remitente, fecha_respuesta_formateada, hora_respuesta):
+def construir_mensaje(nro_registro, referencia, remitente, fecha_respuesta_formateada):
     if remitente:
         nombre_remitente = f"{remitente.nombre_contacto} {remitente.apellido_pat_contacto} {remitente.apellido_mat_contacto}"
         cargo_remitente = remitente.cargo
@@ -26,8 +26,8 @@ def construir_mensaje(nro_registro, referencia, remitente, fecha_respuesta_forma
     mensaje += f'Remitente: {nombre_remitente}\n'
     mensaje += f'Cargo: {cargo_remitente}\n'
     mensaje += f'Empresa: {empresa_remitente}\n'
-    if fecha_respuesta_formateada and hora_respuesta:
-        mensaje += f'Fecha límite de respuesta: {fecha_respuesta_formateada}-{hora_respuesta}\n'
+    if fecha_respuesta_formateada:
+        mensaje += f'Fecha límite de respuesta: {fecha_respuesta_formateada}\n'
     else:
         mensaje += 'Fecha límite de respuesta: No requiere respuesta\n'
 
@@ -127,8 +127,7 @@ def _procesar_notificacion(instance):
             instance.nro_registro, 
             instance.referencia, 
             instance.contacto, 
-            instance.fecha_respuesta.strftime('%d/%m/%Y') if instance.fecha_respuesta else None,
-            instance.hora_respuesta.strftime('%H:%M') if instance.hora_respuesta else None
+            instance.fecha_respuesta_formateada,
         )
         enviar_correo(f'Nuevo documento registrado: {instance.nro_registro}', mensaje, archivos_para_adjuntar)
         
@@ -144,8 +143,7 @@ def _procesar_notificacion(instance):
             instance.nro_registro, 
             instance.referencia, 
             instance.contacto, 
-            instance.fecha_respuesta.strftime('%d/%m/%Y') if instance.fecha_respuesta else None,
-            instance.hora_respuesta.strftime('%H:%M') if instance.hora_respuesta else None
+            instance.fecha_respuesta_formateada,
         )
         enviar_correo(f'Nuevo documento registrado: {instance.nro_registro}', mensaje)
     

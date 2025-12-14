@@ -30,10 +30,8 @@ class Correspondencia(models.Model):
 
 class Recibida(Correspondencia):
     nro_registro = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    fecha_recepcion = models.DateField(blank=False, null=False)
-    hora_recepcion = models.TimeField(blank=False, null=False)
-    fecha_respuesta = models.DateField(blank=True, null=True)
-    hora_respuesta = models.TimeField(blank=True, null=True)
+    fecha_recepcion = models.DateTimeField(blank=False, null=False)
+    fecha_respuesta = models.DateTimeField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.nro_registro:
@@ -58,10 +56,8 @@ class Recibida(Correspondencia):
 
 class Enviada(Correspondencia):
     cite = models.CharField(max_length=50, blank=True, null=True)
-    fecha_envio = models.DateField(blank=True, null=True)
-    hora_envio = models.TimeField(blank=True, null=True)
-    fecha_recepcion = models.DateField(blank=True, null=True)
-    hora_recepcion = models.TimeField(blank=True, null=True)
+    fecha_envio = models.DateTimeField(blank=True, null=True)
+    fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_seguimiento = models.DateTimeField(blank=True, null=True)
     
 
@@ -90,10 +86,8 @@ class CorrespondenciaElaborada(Correspondencia):
     cite = models.CharField(max_length=100, unique=True, blank=True)
     contenido_html = models.TextField(blank=True, null=True)
     firmado = models.BooleanField(default=False)
-    fecha_envio = models.DateField(null=True, blank=True)
-    hora_envio = models.TimeField(null=True, blank=True)
-    fecha_recepcion = models.DateField(null=True, blank=True)
-    hora_recepcion = models.TimeField(null=True, blank=True)
+    fecha_envio = models.DateTimeField(null=True, blank=True)
+    fecha_recepcion = models.DateTimeField(null=True, blank=True)
     fecha_seguimiento = models.DateTimeField(null=True, blank=True)
     version = models.PositiveIntegerField(default=1)
     fecha_elaboracion = models.DateTimeField(auto_now_add=True)
