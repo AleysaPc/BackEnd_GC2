@@ -12,14 +12,23 @@ class Institucion (models.Model):
         return self.razon_social
     
 class Contacto(models.Model):
+    TIPO_CONTACTO_CHOICES = [
+        ('afiliado', 'Afiliado'),
+        ('externo', 'Externo'),
+    ]
+
+    tipo_contacto = models.CharField(
+        max_length=20,
+        choices=TIPO_CONTACTO_CHOICES, null=True, blank=True,
+    )
     id_contacto = models.AutoField(primary_key=True)
     nombre_contacto = models.CharField(max_length=100)
     apellido_pat_contacto = models.CharField(max_length=100)
     apellido_mat_contacto = models.CharField(max_length=100)
     titulo_profesional = models.CharField(max_length=100, null=True, blank=True)
     cargo = models.CharField(max_length=100)
-    email = models.EmailField()
-    telefono = models.CharField(max_length=20)
+    email = models.EmailField(null=True, blank=True)
+    telefono = models.CharField(max_length=20, null=True, blank=True)
     institucion = models.ForeignKey(Institucion, on_delete=models.SET_NULL, null=True)
     
     def __str__(self):

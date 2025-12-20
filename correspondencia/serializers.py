@@ -14,7 +14,7 @@ from .utils import derivar_correspondencia
 # ---------------------------
 class UsuarioSerializer(CustomUserSerializer):
     class Meta(CustomUserSerializer.Meta):
-        fields = ['id', 'email', 'departamento', 'nombre_departamento', 'sigla']
+        fields = ['id', 'email', 'departamento', 'nombre_departamento', 'sigla','first_name', 'secund_name', 'last_name', 'secund_last_name']
 
 
 class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
@@ -134,7 +134,7 @@ class CorrespondenciaSerializer(serializers.ModelSerializer):
 class CorrespondenciaSerializerBase(serializers.ModelSerializer):
     documentos = DocumentoSerializer(many=True, required=False)
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
-    usuarios = serializers.ListField(child=serializers.IntegerField(), write_only=True, required=False)
+    usuarios = serializers.ListField(child=serializers.IntegerField(), write_only=False, required=False)
     comentario_derivacion = serializers.CharField(write_only=True, required=False, allow_blank=True)
     usuario = UsuarioSerializer(read_only=True)
 
@@ -261,6 +261,7 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
         source='plantilla',
         write_only=False
     )
+    
 
     class Meta:
         model = CorrespondenciaElaborada
@@ -271,9 +272,13 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
             'plantilla', 'plantilla_id', 'sigla', 'numero', 'gestion', 'cite', 'firmado',
             'version', 'fecha_elaboracion', 'contenido_html', 'nro_registro_respuesta',
             'comentario_derivacion', 'usuarios', 'descripcion_introduccion',
-            'descripcion_desarrollo', 'descripcion_conclusion'
+            'descripcion_desarrollo', 'descripcion_conclusion',
         ]
         read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html']
 
-
+    def create(self, validated_data):
+            if not validated_data.get('usuario'):
+                # Asignar automáticamente el usuario que hace la petición
+                validated_data['usuario'] = self.context['request'].user
+            return super().create(validated_data)
 

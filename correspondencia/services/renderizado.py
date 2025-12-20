@@ -35,7 +35,6 @@ def generar_html_desde_objeto(correspondencia_elaborada):
     contacto = correspondencia_elaborada.contacto
     contacto_data = {}
     if contacto:
-        # Diccionario de títulos
         titulo_dict = {
             "Ingeniero": "Ing.",
             "Licenciado": "Lic.",
@@ -61,29 +60,46 @@ def generar_html_desde_objeto(correspondencia_elaborada):
             "institucion": "Institución no disponible",
         }
 
+    # Construir nombre completo del usuario que elabora
+    usuario_obj = correspondencia_elaborada.usuario
+    if usuario_obj:
+        nombre_completo_usuario = " ".join(
+            filter(None, [
+                getattr(usuario_obj, "first_name", ""),
+                getattr(usuario_obj, "secund_name", ""),
+                getattr(usuario_obj, "last_name", ""),
+                getattr(usuario_obj, "secund_last_name", ""),
+            ])
+        )
+    else:
+        nombre_completo_usuario = "Usuario no disponible"
+
+
     tipo_doc = getattr(correspondencia_elaborada.plantilla, "tipo", "").lower()
 
     base_context = {
         "fecha_elaboracion": fecha_formateada,
         "cite": correspondencia_elaborada.cite,
         "referencia": correspondencia_elaborada.referencia,
-        "elaborado_por": correspondencia_elaborada.usuario.username if correspondencia_elaborada.usuario else "",
-        "remitente": correspondencia_elaborada.usuario.username if correspondencia_elaborada.usuario else "",
+        "usuario": nombre_completo_usuario,
+        "elaborado_por": nombre_completo_usuario,
+        "remitente": nombre_completo_usuario,
         "destinatario": contacto_data.get("nombre_completo", ""),
         "contacto": contacto_data,
         "tipo_documento": tipo_doc,
     }
 
-    if tipo_doc == "informe":
+    if tipo_doc in ["informe", "convocatoria"]:
         context = {
             **base_context,
             "descripcion_introduccion": correspondencia_elaborada.descripcion_introduccion or "",
             "descripcion_desarrollo": correspondencia_elaborada.descripcion_desarrollo or "",
             "descripcion_conclusion": correspondencia_elaborada.descripcion_conclusion or "",
         }
-    else:
+    else:  # memorando u otros
         context = {
             **base_context,
+            "descripcion_desarrollo": correspondencia_elaborada.descripcion_desarrollo or "",
             "descripcion": correspondencia_elaborada.descripcion or "",
         }
 
