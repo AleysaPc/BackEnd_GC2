@@ -1,3 +1,5 @@
+from cgitb import lookup
+from dataclasses import field
 import django_filters
 from django.db.models import Q
 from .models import Correspondencia, CorrespondenciaElaborada, Enviada, Recibida
@@ -27,7 +29,8 @@ class CorrespondenciaElaboradaFilter(django_filters.FilterSet):
     contacto__institucion__razon_social = django_filters.CharFilter(field_name="contacto__institucion__razon_social", lookup_expr="icontains")
     plantilla__nombre_plantilla = django_filters.CharFilter(field_name="plantilla__nombre_plantilla", lookup_expr="icontains")
     email = django_filters.CharFilter(field_name='usuario__email', lookup_expr='icontains')
-
+    ambito = django_filters.CharFilter(field_name="ambito", lookup_expr="icontains")
+    
     class Meta:
         model = CorrespondenciaElaborada
         fields = []

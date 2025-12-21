@@ -21,7 +21,7 @@ class Documento(models.Model):
     correspondencia = models.ForeignKey('correspondencia.Correspondencia', on_delete=models.CASCADE, related_name='documentos') 
     vector_embedding = VectorField(dimensions=384, null=True, blank=True)  # Usa 384 o 768 según tu modelo
     contenido_extraido = models.TextField(blank=True, null=True)  # ← Texto plano del PDF
-   
+    
     def save(self, *args, **kwargs):
         from .busquedaSemantica.procesamiento import procesar_documento
         super().save(*args, **kwargs)

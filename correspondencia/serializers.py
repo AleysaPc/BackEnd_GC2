@@ -272,7 +272,7 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
             'plantilla', 'plantilla_id', 'sigla', 'numero', 'gestion', 'cite', 'firmado',
             'version', 'fecha_elaboracion', 'contenido_html', 'nro_registro_respuesta',
             'comentario_derivacion', 'usuarios', 'descripcion_introduccion',
-            'descripcion_desarrollo', 'descripcion_conclusion',
+            'descripcion_desarrollo', 'descripcion_conclusion','ambito',
         ]
         read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html']
 

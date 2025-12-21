@@ -1,3 +1,4 @@
+from tokenize import blank_re
 from django.db import models
 from django.utils.timezone import now
 from django.db import models, transaction
@@ -72,6 +73,8 @@ def renderizar_contenido_html(estructura_html, context):
     return template.render(context)
 
 class CorrespondenciaElaborada(Correspondencia):
+    AMBITO_CHOICES = [('interno', 'Interno'), ('externo','Externo')]
+    ambito = models.CharField(max_length=20, choices=AMBITO_CHOICES, blank=True, null=True )
     plantilla = models.ForeignKey(
         'documento.PlantillaDocumento',  # Usando notación de cadena para la referencia
         on_delete=models.SET_NULL,
