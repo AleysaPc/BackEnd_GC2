@@ -18,6 +18,8 @@ from .utils import generar_documento_word, generar_pdf_desde_html
 from .services.services import consulta_semantica, crear_objetos_multiple
 from django.utils import timezone
 from django.utils.timezone import now
+from django.template.loader import render_to_string
+
 
 User = get_user_model()
 
@@ -140,10 +142,20 @@ class CorrespondenciaElaboradaView(BaseViewSet, AuditableModelViewSet):
     @action(detail=True, methods=["get"], url_path="pdf")
     def obtener_pdf(self, request, pk=None):
         correspondencia = self.get_object()
-        pdf = generar_pdf_desde_html(correspondencia.contenido_html)
+        
+        html_completo = render_to_string("Documento/base_documento.html", {
+            "contenido": correspondencia.contenido_html,
+            "url_membrete_superior": request.build_absolute_uri("/media/Membrete.PNG"),
+            "url_sello": request.build_absolute_uri("/media/Sello.PNG"),
+            "url_membrete_inferior": request.build_absolute_uri("/media/MembreteInferior.PNG"),
+        })
+        
+        pdf = generar_pdf_desde_html(html_completo)
+        
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = f'inline; filename="documento_{pk}.pdf"'
         return response
+
 
     def create(self, request, *args, **kwargs):
         respuesta_a = request.data.get("respuesta_a", None)

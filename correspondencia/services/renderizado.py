@@ -103,4 +103,19 @@ def generar_html_desde_objeto(correspondencia_elaborada):
             "descripcion": correspondencia_elaborada.descripcion or "",
         }
 
-    return renderizar_contenido_html(correspondencia_elaborada.plantilla.estructura_html, context)
+    contenido = renderizar_contenido_html(correspondencia_elaborada.plantilla.estructura_html, context)
+
+     # Ruta del documento base
+    base_template_path = Path(settings.BASE_DIR) / "documento" / "services" / "base_documento.html"
+    base_template_string = base_template_path.read_text(encoding="utf-8")
+    base_template = Template(base_template_string)
+
+    # Renderizamos el HTML completo
+    html_final = base_template.render(
+        contenido=contenido,
+        membrete_superior='http://localhost:8000/media/Membrete.PNG',
+        membrete_inferior='http://localhost:8000/media/MembreteInferior.PNG',
+    )
+
+
+    return html_final

@@ -11,10 +11,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# settings.py
+MEMBRETE_SUPERIOR_URL = '/media/Membrete.PNG'  # Ajusta según tu configuración
+MEMBRETE_INFERIOR_URL = '/media/membrete_inferior.png'  # Ajusta según tu configuración
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -145,7 +148,7 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-import os
+
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 #Define la ruta del sistema de archivos donde se almacenarán los archivos subidos.
