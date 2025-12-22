@@ -21,11 +21,43 @@ RUTA_WKHTMLTOPDF = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
 config = pdfkit.configuration(wkhtmltopdf=RUTA_WKHTMLTOPDF)
 
 def generar_pdf_desde_html(html_content):
+    # Get the base directory of your Django project
+    import os
+    from django.conf import settings
+    
+    # Build absolute paths to your header and footer
+    header_path = os.path.join(settings.BASE_DIR, 'documento', 'templates', 'Documento', 'header.html')
+    footer_path = os.path.join(settings.BASE_DIR, 'documento', 'templates', 'Documento', 'footer.html')
+
     options = {
-        'enable-local-file-access': None
+        'page-size': 'Letter',
+        'margin-top': '5cm',
+        'margin-bottom': '3cm',
+        'margin-left': '2.5cm',
+        'margin-right': '2.5cm',
+        'header-html': header_path,
+        'footer-html': footer_path,
+        'zoom': '1.0',
+        'disable-smart-shrinking': '',
+        'enable-local-file-access': '',
+        'encoding': 'UTF-8',
     }
     pdf = pdfkit.from_string(html_content, False, options=options, configuration=config)
-    return pdf
+
+
+    try:
+        pdf = pdfkit.from_string(
+            html_content,
+            False,
+            options=options,
+            configuration=config
+        )
+        return pdf
+    except Exception as e:
+        print(f"Error generating PDF: {str(e)}")
+        raise
+
+
 
 #GENERAR DOCUMENTO WORD
 

@@ -1,79 +1,89 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Documento</title>
-<style>
-/* Márgenes y página */
-@page {
-    size: letter;
-    margin: 2.5cm 2.5cm 2.5cm 3.5cm;
-}
+  <head>
+    <meta charset="UTF-8" />
+    <title>Documento</title>
+    <style>
+      /* Tipografía general */
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.4;
+        margin: 0;
+        color: #000;
+      }
 
-/* Tipografía general */
-body {
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.4;
-    margin: 0;
-    color: #000;
-}
+      /* Contenido dinámico */
+      .contenido {
+        box-sizing: border-box;
+        padding: 0 0.5cm; /* margen lateral */
+      }
 
-/* Membretes y sello */
-.membrete-superior {
-    width: 100%;
-    display: block;
-    margin-bottom: 10px;
-}
+      /* Estilos opcionales para párrafos y secciones */
+      .encabezado {
+        margin-bottom: 12px;
+      }
+      .titulo {
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .campo {
+        margin-bottom: 4px;
+        line-height: 1.2;
+      }
+      .linea-separacion {
+        border-bottom: 1px solid #000;
+        margin: 12px 0;
+      }
+      .cuerpo {
+        text-align: justify;
+        white-space: normal;
+        margin-bottom: 12px;
+      }
+      .seccion {
+        margin-bottom: 12px;
+      }
+      .saludoDespedida {
+        font-weight: bold;
+        margin-top: 16px;
+        margin-bottom: 20px;
+      }
+      .firma {
+        line-height: 1.2;
+        font-weight: bold;
+      }
 
-.sello {
-    display: block;
-    margin: 20px auto;
-    width: 150px; /* Ajusta según tu imagen */
-    height: 150px; /* Ajusta según tu imagen */
-}
+      /* Saltos de página si es necesario */
+      .page-break {
+        page-break-before: always;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Contenido dinámico -->
+    <div class="contenido">
+      {{ contenido | safe }}
 
-.membrete-inferior {
-    width: 100%;
-    display: block;
-    margin-top: 20px;
-}
-
-/* Contenido dinámico existente */
-.contenido {
-    padding: 0.5cm 2.5cm 2cm 3.5cm;
-    text-align: justify;
-}
-
-/* Estilos actuales existentes: no se modifican */
-.encabezado { margin-bottom: 12px; }
-.titulo { text-align: center; font-size: 20px; font-weight: bold; }
-.campo { margin-bottom: 4px; line-height: 1.2; }
-.linea-separacion { border-bottom: 1px solid #000; margin: 12px 0; }
-.cuerpo { text-align: justify; white-space: normal; margin-bottom: 12px; }
-.seccion { margin-bottom: 12px; }
-.saludoDespedida { font-weight: bold; margin-top: 16px; margin-bottom: 20px; }
-.firma { line-height: 1.2; font-weight: bold; }
-
-/* Saltos de página si es necesario */
-.page-break { page-break-before: always; }
-</style>
-</head>
-<body>
-
-<!-- Membrete superior -->
-<img src="{{ url_membrete_superior }}" class="membrete-superior" alt="Membrete Superior">
-
-<!-- Contenido dinámico existente -->
-<div class="contenido">
-    {{ contenido | safe }}
-</div>
-
-<!-- Sello centrado -->
-<img src="{{ url_sello }}" class="sello" alt="Sello">
-
-<!-- Membrete inferior -->
-<img src="{{ url_membrete_inferior }}" class="membrete-inferior" alt="Membrete Inferior">
-
-</body>
+      <!-- Sello solo al final, en la última página -->
+      <div style="page-break-before: always"></div>
+      <div
+        style="
+          position: fixed;
+          bottom: 2cm;
+          left: 0;
+          width: 100%;
+          text-align: center;
+          z-index: -1; /* Esto coloca el sello detrás del contenido */
+          opacity: 0.5; /* Opcional: hace el sello semitransparente */
+        "
+      >
+        <img
+          src="file:///C:/Users/Admin/Desktop/SystemGC2/BackEnd/media/Sello.PNG"
+          style="width: 150px"
+          alt="Sello"
+        />
+      </div>
+    </div>
+  </body>
 </html>
