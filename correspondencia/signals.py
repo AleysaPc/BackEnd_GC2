@@ -34,13 +34,25 @@ def construir_mensaje(nro_registro, referencia, remitente, fecha_respuesta):
     
     return mensaje
 
-def enviar_correo(asunto, mensaje, archivos=None):
-    destinatarios = ['isabella172813@gmail.com']
+def enviar_correo(asunto, mensaje, destinatarios, archivos=None):
+
+    #destinatarios = ['isabella172813@gmail.com']
+    #email = EmailMessage(
+        #mensaje,
+        #asunto,
+        #'isatest172813@gmail.com',  # remitente
+        #destinatarios,
+    #)
+
+    if not destinatarios:
+        print("No hay destinatarios")
+        return False
+    
     email = EmailMessage(
-        asunto,
-        mensaje,
-        'isatest172813@gmail.com',  # remitente
-        destinatarios,
+        subject=asunto,
+        body=mensaje,
+        from_email='isatest172813@gmail.com',
+        to=destinatarios,
     )
 
     if archivos:
@@ -79,6 +91,28 @@ def _procesar_notificacion(instance):
     print(f"Número de registro: {instance.nro_registro}")
     print(f"Referencia: {instance.referencia}")
     
+        # Ahora obtenemos los destinatarios desde AccionCorrespondencia (usuario_destino)
+    usuarios_ids = AccionCorrespondencia.objects.filter(
+        correspondencia=instance
+    ).values_list('usuario_destino__id', flat=True).distinct()
+
+    if not usuarios_ids:
+        # Si no hay acciones derivadas, usar el usuario original
+        usuarios_ids = [instance.usuario.id] if instance.usuario else []
+
+    emails = list(
+        CustomUser.objects
+        .filter(id__in=usuarios_ids)
+        .exclude(email__isnull=True)
+        .exclude(email__exact="")
+        .values_list("email", flat=True)
+    )
+
+
+    if not emails:
+        print("No hay destinatarios para enviar el correo")
+        return
+
     # Forzar la recarga de la instancia para asegurar que tenemos los datos más recientes
     from django.db import connection
     connection.close()  # Cerrar la conexión para forzar una nueva
@@ -129,8 +163,15 @@ def _procesar_notificacion(instance):
             instance.contacto, 
             instance.fecha_respuesta,
         )
-        enviar_correo(f'Nuevo documento registrado: {instance.nro_registro}', mensaje, archivos_para_adjuntar)
-        
+       # Ahora se pasan los destinatarios correctamente
+        enviar_correo(
+            asunto=f'Nuevo documento registrado: {instance.nro_registro}',
+            mensaje=mensaje,
+            destinatarios=emails,
+            archivos=archivos_para_adjuntar if archivos_para_adjuntar else None
+        )
+
+ 
         # Cerrar los archivos después de usarlos
         for archivo in archivos_para_adjuntar:
             try:
@@ -145,7 +186,12 @@ def _procesar_notificacion(instance):
             instance.contacto, 
             instance.fecha_respuesta,
         )
-        enviar_correo(f'Nuevo documento registrado: {instance.nro_registro}', mensaje)
+        enviar_correo(
+            asunto=f'Nuevo documento registrado: {instance.nro_registro}',
+            mensaje=mensaje,
+            destinatarios=emails
+        )
+
     
     print("=== Fin de notificación de correo ===\n")
 

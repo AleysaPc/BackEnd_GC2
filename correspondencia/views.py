@@ -19,6 +19,9 @@ from .services.services import consulta_semantica, crear_objetos_multiple
 from django.utils import timezone
 from django.utils.timezone import now
 from django.template.loader import render_to_string
+# Importa tu modelo de usuario personalizado
+from usuario.models import CustomUser
+from .signals import enviar_correo, construir_mensaje
 
 
 User = get_user_model()
@@ -102,9 +105,21 @@ class RecibidaView(BaseViewSet, AuditableModelViewSet):
     ordering_fields = search_fields
 
     def create(self, request, *args, **kwargs):
-        print("📥 DATA RECIBIDA:", request.data)
-        print("📎 ARCHIVOS:", request.FILES)
-        return super().create(request, *args, **kwargs)
+        # 1️⃣ Guardar la correspondencia usando el serializer
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        correspondencia = serializer.save()
+
+        # 2️⃣ Guardar los usuarios seleccionados (IDs)
+        usuarios_ids = request.data.get("usuarios", [])
+        if usuarios_ids:
+            # Convertir a enteros por si vienen como strings
+            usuarios_ids = [int(u) for u in usuarios_ids]
+            correspondencia.save()
+
+        # 3️⃣ Retornar la respuesta normal del serializer
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class EnviadaView(BaseViewSet, AuditableModelViewSet):
