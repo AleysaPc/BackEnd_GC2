@@ -138,7 +138,7 @@ class CorrespondenciaElaborada(Correspondencia):
                 ultimo = CorrespondenciaElaborada.objects.filter(
                     gestion=self.gestion,
                     plantilla=self.plantilla,
-                    ambito=self.ambito  # <- Aquí se diferencia interno vs externo
+                    ambito=self.ambito  # Se sigue diferenciando interno vs externo
                 ).order_by('-numero').first()
 
                 # Si hay un documento previo, sumamos 1; si no, comenzamos en 1
@@ -147,23 +147,15 @@ class CorrespondenciaElaborada(Correspondencia):
         # --- Generación del CITE ---
         if not self.cite:
             if self.plantilla:
-                # Para nota externa usamos sigla especial 'NE'
-                if self.plantilla.tipo == 'nota_externa':
-                    sigla_tipo = 'NE'
-                else:
-                    sigla_tipo = self.plantilla.tipo.upper()
+                sigla_tipo = self.plantilla.tipo.upper()  # Solo 'NOTA', 'COMUNICADO', etc.
             else:
                 sigla_tipo = 'OTRO'
 
-            # Agregamos un sufijo I/E según el ambito
-            ambito_sufijo = ''
-            if self.ambito == 'interno':
-                ambito_sufijo = '-I'
-            elif self.ambito == 'externo':
-                ambito_sufijo = '-E'
+            # Agregamos un sufijo I/E según el ámbito
+            ambito_sufijo = '-I' if self.ambito == 'interno' else '-E' if self.ambito == 'externo' else ''
 
             # Generamos el CITE completo
-            # Ej: FSTL-FTA/COMUNICADO-I/2025-001
+            # Ej: FSTL-FTA/NOTA-I/2025-001
             self.cite = f"{self.sigla}/{sigla_tipo}{ambito_sufijo}/{self.gestion}-{self.numero:03}"
 
         # --- Generar contenido HTML ---
@@ -172,6 +164,7 @@ class CorrespondenciaElaborada(Correspondencia):
 
         # --- Guardar instancia ---
         super().save(*args, **kwargs)
+
 
 class AccionCorrespondencia(models.Model):
 

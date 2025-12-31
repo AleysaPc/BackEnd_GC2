@@ -34,8 +34,7 @@ TIPO_DOCUMENTO_CHOICES = [
     ('resolucion', 'Resolución'),
     ('informe', 'Informe'),
     ('memorando', 'Memorando'),
-    ('nota_interna', 'Nota Interna'),
-    ('nota_externa', 'Nota Externa'),
+    ('nota', 'Nota'),
 ]
 
 class PlantillaDocumento(models.Model):
