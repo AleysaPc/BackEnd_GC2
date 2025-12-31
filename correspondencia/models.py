@@ -123,35 +123,55 @@ class CorrespondenciaElaborada(Correspondencia):
     motivo_no_entrega = models.TextField(blank=True, null=True)
     fecha_intento_entrega = models.DateTimeField(blank=True, null=True)
     numero_intentos = models.PositiveIntegerField(default=0)
+    destino_interno = models.ForeignKey('usuario.CustomUser', on_delete=models.SET_NULL, blank=True, null=True)
+
     def generar_contenido_html(self):
         from correspondencia.services.renderizado import generar_html_desde_objeto
         self.contenido_html = generar_html_desde_objeto(self)
 
     def save(self, *args, **kwargs):
+        # --- Numeración ---
+        # Solo calculamos el número si no existe (para evitar sobreescribir)
         if not self.numero:
-            with transaction.atomic():
+            with transaction.atomic():  # Asegura que el cálculo sea atómico
+                # Filtramos por plantilla + gestión + ambito (interno/externo)
                 ultimo = CorrespondenciaElaborada.objects.filter(
                     gestion=self.gestion,
-                    plantilla=self.plantilla
+                    plantilla=self.plantilla,
+                    ambito=self.ambito  # <- Aquí se diferencia interno vs externo
                 ).order_by('-numero').first()
+
+                # Si hay un documento previo, sumamos 1; si no, comenzamos en 1
                 self.numero = (ultimo.numero + 1) if ultimo else 1
 
+        # --- Generación del CITE ---
         if not self.cite:
             if self.plantilla:
+                # Para nota externa usamos sigla especial 'NE'
                 if self.plantilla.tipo == 'nota_externa':
                     sigla_tipo = 'NE'
                 else:
                     sigla_tipo = self.plantilla.tipo.upper()
             else:
                 sigla_tipo = 'OTRO'
-            self.cite = f"{self.sigla}/{sigla_tipo}/{self.gestion}-{self.numero:03}"
 
-        # ✅ Generar HTML siempre, incluso si ya existe uno anterior
+            # Agregamos un sufijo I/E según el ambito
+            ambito_sufijo = ''
+            if self.ambito == 'interno':
+                ambito_sufijo = '-I'
+            elif self.ambito == 'externo':
+                ambito_sufijo = '-E'
+
+            # Generamos el CITE completo
+            # Ej: FSTL-FTA/COMUNICADO-I/2025-001
+            self.cite = f"{self.sigla}/{sigla_tipo}{ambito_sufijo}/{self.gestion}-{self.numero:03}"
+
+        # --- Generar contenido HTML ---
+        # Siempre se genera el HTML actualizado, incluso si ya existe uno
         self.generar_contenido_html()
 
-        # Guardar con contenido_html actualizado
+        # --- Guardar instancia ---
         super().save(*args, **kwargs)
-
 
 class AccionCorrespondencia(models.Model):
 

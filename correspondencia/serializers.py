@@ -261,7 +261,13 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
         source='plantilla',
         write_only=False
     )
-    
+    destino_interno_info = UsuarioSerializer(source='destino_interno', read_only=True)
+    destino_interno = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(),
+        required=False,
+        allow_null=True
+    )
+
 
     class Meta:
         model = CorrespondenciaElaborada
@@ -272,7 +278,7 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
             'plantilla', 'plantilla_id', 'sigla', 'numero', 'gestion', 'cite', 'firmado',
             'version', 'fecha_elaboracion', 'contenido_html', 'nro_registro_respuesta',
             'comentario_derivacion', 'usuarios', 'descripcion_introduccion',
-            'descripcion_desarrollo', 'descripcion_conclusion','ambito',
+            'descripcion_desarrollo', 'descripcion_conclusion','ambito', 'destino_interno', 'destino_interno_info'
         ]
         read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html']
 
