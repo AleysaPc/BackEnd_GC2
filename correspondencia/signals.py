@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save 
+from django.db.models.signals import post_save  #Despuesta de guardar un modelo 
 from django.dispatch import receiver
 from django.core.mail import EmailMessage
 from django.conf import settings
@@ -7,7 +7,9 @@ from .models import AccionCorrespondencia
 from usuario.models import CustomUser
 from .tasks import procesar_notificacion_task
 
-
+#Objetivo del archivo Detectar eventos del sistema, no ejecutar logica pesada. 
+#Si se creo una correspondencia dispara algo"
+#Signal es un evento automatico en Django. 
 
 # Función para construir el mensaje del correo
 def construir_mensaje(nro_registro, referencia, remitente, fecha_respuesta):
@@ -79,13 +81,13 @@ import os
 
 @receiver(post_save, sender=Recibida)
 def enviar_notificacion_correo(sender, instance, created, **kwargs):
-    if not created:
+    if not created: #Solo cuando se crea, no cuando se edita
         return
 
     # Usar transaction.on_commit para asegurar que la transacción se haya completado
     transaction.on_commit(
         lambda: procesar_notificacion_task.delay(instance.id_correspondencia)
-    )
+    )                                     #delay envia la tarea a Redis Celery lo ejecuta en segundo plano
 
 # Para el envío de correo en documentos salientes
 @receiver(post_save, sender=Enviada)

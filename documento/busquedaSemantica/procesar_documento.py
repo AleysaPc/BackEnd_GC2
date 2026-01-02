@@ -2,7 +2,7 @@ import os
 import django
 from PIL import Image
 import sys
-
+#################ELIMINAR ARCHIVO
 # 1. Inicializar entorno Django para usar modelos y ORM
 # Añadir la ruta del proyecto al sys.path para que Django lo encuentre
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
