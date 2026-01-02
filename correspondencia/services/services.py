@@ -14,7 +14,7 @@ def consulta_semantica(queryset, consulta, campo_embedding='documentos__vector_e
         return queryset
 
     if modelo is None:
-        modelo = SentenceTransformer('all-MiniLM-L6-v2')
+        modelo = SentenceTransformer('all-MiniLM-L6-v2') #Modelo SBERT version 2
 
     embedding = modelo.encode(consulta).tolist()
 

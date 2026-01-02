@@ -3,9 +3,9 @@ from django.dispatch import receiver
 from django.core.mail import EmailMessage
 from django.conf import settings
 from .models import Recibida, Enviada
-import os
 from .models import AccionCorrespondencia
 from usuario.models import CustomUser
+from .tasks import procesar_notificacion_task
 
 
 
@@ -83,117 +83,9 @@ def enviar_notificacion_correo(sender, instance, created, **kwargs):
         return
 
     # Usar transaction.on_commit para asegurar que la transacción se haya completado
-    transaction.on_commit(lambda: _procesar_notificacion(instance))
-
-def _procesar_notificacion(instance):
-    print("\n=== Inicio de notificación de correo (después de commit) ===")
-    print(f"Documento creado - ID: {instance.id_correspondencia}")
-    print(f"Número de registro: {instance.nro_registro}")
-    print(f"Referencia: {instance.referencia}")
-    
-        # Ahora obtenemos los destinatarios desde AccionCorrespondencia (usuario_destino)
-    usuarios_ids = AccionCorrespondencia.objects.filter(
-        correspondencia=instance
-    ).values_list('usuario_destino__id', flat=True).distinct()
-
-    if not usuarios_ids:
-        # Si no hay acciones derivadas, usar el usuario original
-        usuarios_ids = [instance.usuario.id] if instance.usuario else []
-
-    emails = list(
-        CustomUser.objects
-        .filter(id__in=usuarios_ids)
-        .exclude(email__isnull=True)
-        .exclude(email__exact="")
-        .values_list("email", flat=True)
+    transaction.on_commit(
+        lambda: procesar_notificacion_task.delay(instance.id_correspondencia)
     )
-
-
-    if not emails:
-        print("No hay destinatarios para enviar el correo")
-        return
-
-    # Forzar la recarga de la instancia para asegurar que tenemos los datos más recientes
-    from django.db import connection
-    connection.close()  # Cerrar la conexión para forzar una nueva
-    instance.refresh_from_db()
-    
-    # Obtener todos los documentos asociados
-    documentos = instance.documentos.all()
-    print(f"\nDocumentos asociados encontrados: {documentos.count()}")
-    
-    archivos_para_adjuntar = []
-
-    for i, doc in enumerate(documentos, 1):
-        print(f"\nProcesando documento {i}:")
-        print(f"  - ID del documento: {doc.id_documento}")
-        print(f"  - Nombre del documento: {doc.nombre_documento}")
-        print(f"  - Ruta del archivo: {doc.archivo.path if doc.archivo else 'Ninguna'}")
-        
-        if doc.archivo:
-            try:
-                # Verificar que el archivo existe
-                if not os.path.exists(doc.archivo.path):
-                    print(f"  ✗ El archivo no existe en: {doc.archivo.path}")
-                    continue
-                    
-                # Verificar que el archivo no esté vacío
-                if doc.archivo.size == 0:
-                    print("  ✗ El archivo está vacío")
-                    continue
-                    
-                # Intentar leer el archivo
-                with open(doc.archivo.path, 'rb') as f:
-                    file_content = f.read()
-                    print(f"  - Tamaño leído: {len(file_content)} bytes")
-                    # Usar File para crear un nuevo objeto de archivo
-                    from django.core.files import File
-                    archivos_para_adjuntar.append(File(open(doc.archivo.path, 'rb'), name=os.path.basename(doc.archivo.name)))
-                    print("  ✓ Documento listo para adjuntar")
-            except Exception as e:
-                print(f"  ✗ Error al procesar el archivo: {str(e)}")
-        else:
-            print("  ✗ No hay archivo asociado a este documento")
-
-    if archivos_para_adjuntar:
-        print(f"\nEnviando correo con {len(archivos_para_adjuntar)} archivos adjuntos")
-        mensaje = construir_mensaje(
-            instance.nro_registro, 
-            instance.referencia, 
-            instance.contacto, 
-            instance.fecha_respuesta,
-        )
-       # Ahora se pasan los destinatarios correctamente
-        enviar_correo(
-            asunto=f'Nuevo documento registrado: {instance.nro_registro}',
-            mensaje=mensaje,
-            destinatarios=emails,
-            archivos=archivos_para_adjuntar if archivos_para_adjuntar else None
-        )
-
- 
-        # Cerrar los archivos después de usarlos
-        for archivo in archivos_para_adjuntar:
-            try:
-                archivo.close()
-            except:
-                pass
-    else:
-        print("\nNo hay documentos válidos para adjuntar")
-        mensaje = construir_mensaje(
-            instance.nro_registro, 
-            instance.referencia, 
-            instance.contacto, 
-            instance.fecha_respuesta,
-        )
-        enviar_correo(
-            asunto=f'Nuevo documento registrado: {instance.nro_registro}',
-            mensaje=mensaje,
-            destinatarios=emails
-        )
-
-    
-    print("=== Fin de notificación de correo ===\n")
 
 # Para el envío de correo en documentos salientes
 @receiver(post_save, sender=Enviada)

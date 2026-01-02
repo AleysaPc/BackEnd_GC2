@@ -165,3 +165,13 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'isatest172813@gmail.com' 
 EMAIL_HOST_PASSWORD = 'actrsnjvbdevbfur'
+
+# Redis como broker de Celery - 
+# Esto le dice a Celery que use Redis corriendo en Docker en tu localhost.
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/La_Paz'  # Ajusta según tu zona horaria
