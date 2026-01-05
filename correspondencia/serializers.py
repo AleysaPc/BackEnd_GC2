@@ -14,7 +14,7 @@ from .utils import derivar_correspondencia
 # ---------------------------
 class UsuarioSerializer(CustomUserSerializer):
     class Meta(CustomUserSerializer.Meta):
-        fields = ['id', 'email', 'departamento', 'nombre_departamento', 'sigla','first_name', 'secund_name', 'last_name', 'secund_last_name']
+        fields = ['id', 'email', 'departamento', 'nombre_departamento', 'sigla','first_name', 'second_name', 'last_name', 'second_last_name']
 
 
 class AccionCorrespondenciaSerializer(serializers.ModelSerializer):

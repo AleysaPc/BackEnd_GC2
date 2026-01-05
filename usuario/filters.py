@@ -18,6 +18,6 @@ class CustomUserFilter(django_filters.FilterSet):
       return queryset.filter(
          Q(first_name__icontains=value) |
          Q(last_name__icontains=value) |
-         Q(secund_name__icontains=value) |
-         Q(secund_last_name__icontains=value)
+         Q(second_name__icontains=value) |
+         Q(second_last_name__icontains=value)
       )

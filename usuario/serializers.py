@@ -60,9 +60,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'password',
             'new_password',
             'first_name',
-            'secund_name',
+            'second_name',
             'last_name',
-            'secund_last_name', 
+            'second_last_name', 
             'is_superuser',
             'is_active',
             'date_joined',
@@ -80,6 +80,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'telefono',
             'celular',
             'cargo',
+            'imagen',
         ]
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},

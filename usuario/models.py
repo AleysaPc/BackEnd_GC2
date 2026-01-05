@@ -39,8 +39,8 @@ class CustomUser(AbstractUser):
     birthday = models.DateField(null=True, blank=True)
     username = models.CharField(max_length=200, null=True, blank=True)
     institucion = models.ForeignKey('contacto.Institucion', on_delete=models.SET_NULL, null=True, blank=True)
-    secund_name = models.CharField(max_length=100, null=True, blank=True)
-    secund_last_name = models.CharField(max_length=100, null=True, blank=True)
+    second_name = models.CharField(max_length=100, null=True, blank=True)
+    second_last_name = models.CharField(max_length=100, null=True, blank=True)
     departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, blank=True)
     lugar_nacimiento = models.CharField(max_length=100, null=True, blank=True)
     documento_identidad = models.CharField(max_length=100, null=True, blank=True)
@@ -48,7 +48,7 @@ class CustomUser(AbstractUser):
     telefono = models.CharField(max_length=100, null=True, blank=True)
     celular = models.CharField(max_length=100, null=True, blank=True)
     cargo = models.CharField(max_length=100, null=True, blank=True)
- 
+    imagen = models.ImageField(upload_to='usuarios/', null=True, blank=True)
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'

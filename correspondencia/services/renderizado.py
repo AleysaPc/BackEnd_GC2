@@ -46,9 +46,9 @@ def generar_html_desde_objeto(correspondencia_elaborada):
         nombre_completo_usuario = " ".join(
             filter(None, [ #elimina valores vacíos
                 getattr(usuario_obj, "first_name", ""),
-                getattr(usuario_obj, "secund_name", ""),
+                getattr(usuario_obj, "second_name", ""),
                 getattr(usuario_obj, "last_name", ""),
-                getattr(usuario_obj, "secund_last_name", ""),
+                getattr(usuario_obj, "second_last_name", ""),
             ])
         )
     else:
@@ -87,9 +87,9 @@ def generar_html_desde_objeto(correspondencia_elaborada):
         nombre_completo = " ".join(
             filter(None, [
                 getattr(usuario_destino, "first_name", ""),
-                getattr(usuario_destino, "secund_name", ""),
+                getattr(usuario_destino, "second_name", ""),
                 getattr(usuario_destino, "last_name", ""),
-                getattr(usuario_destino, "secund_last_name", ""),
+                getattr(usuario_destino, "second_last_name", ""),
             ])
         )
         destinatario_data = {
