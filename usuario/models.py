@@ -48,6 +48,7 @@ class CustomUser(AbstractUser):
     telefono = models.CharField(max_length=100, null=True, blank=True)
     celular = models.CharField(max_length=100, null=True, blank=True)
     cargo = models.CharField(max_length=100, null=True, blank=True)
+    imagen = models.ImageField(upload_to='usuarios/', null=True, blank=True)
  
     objects = CustomUserManager()
 
@@ -57,11 +58,18 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return f"{self.email}"
     
+# ===========================
+# FUNCIONALIDAD DE RECUPERACION DE CONTRASEÑA
+# ===========================
 @receiver(reset_password_token_created)
 def password_reset_token_created(reset_password_token, *args, **kwargs):
     sitelink = "http://localhost:5173/"
     token = "{}".format(reset_password_token.key)
     full_link = sitelink + "password-reset/" + token
+
+    # frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    # token = reset_password_token.key
+    # full_link = f"{frontend_url}/password-reset/{token}"
 
     context = {
         'full_link': full_link,
@@ -74,7 +82,8 @@ def password_reset_token_created(reset_password_token, *args, **kwargs):
     msg = EmailMultiAlternatives(
         subject=f"Request for resetting password for {reset_password_token.user.email}", 
         body=plain_message,
-        from_email="sender@example.com", 
+        from_email="sender@example.com",
+        # from_email=os.getenv("EMAIL_HOST_USER"), produccion
         to=[reset_password_token.user.email]
     )
 
