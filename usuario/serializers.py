@@ -1,17 +1,26 @@
-from rest_framework import serializers
+from rest_framework import serializers #si
+from .models import * #si
+from django.contrib.auth import get_user_model #si
+from contacto.models import Institucion #no
+import re
+from django.contrib.auth.models import Group
+from django.db import transaction
 
-from .models import * 
-from django.contrib.auth import get_user_model 
-from contacto.models import Institucion
+User = get_user_model() #Obtiene el modelo del usuario 
 
-User = get_user_model()
-
-class PermissionSerializer(serializers.ModelSerializer):
+class PermissionSerializer(serializers.ModelSerializer): #serializador para el modelo de permiso
     class Meta:
         model = Permission
         fields = ['id', 'name', 'codename', 'content_type']
 
-class GroupSerializer(serializers.ModelSerializer):
+class RolSerializer(serializers.ModelSerializer):
+    permissions = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(), many=True)
+
+    class Meta:
+        model = Group
+        fields =  ['id', 'name', 'permissions']
+
+class GroupSerializer(serializers.ModelSerializer): #serializador para el modelo de grupo
     permissions = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(), many=True)
     #description = serializers.CharField(source="name")
 
@@ -22,7 +31,7 @@ class GroupSerializer(serializers.ModelSerializer):
 class DepartamentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Departamento
-        fields = '__all__'
+        fields = '__all__' #Nolo tiene definido
 
 class LoginSerializer(serializers.Serializer):
     id=serializers.IntegerField(read_only=True)
@@ -36,8 +45,7 @@ class LoginSerializer(serializers.Serializer):
         return obj.first_name + " " + obj.last_name
 
     def get_rol(self, obj):
-        group = obj.groups.first()
-        return group.name if group else None
+        return [group.name for group in obj.groups.all()]
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -49,7 +57,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     new_password = serializers.CharField(write_only=True, required=False)
     nombre_departamento = serializers.CharField(source="departamento.nombre", read_only=True)
     nombre_institucion = serializers.CharField(source="institucion.razon_social", read_only=True)
-    rol = serializers.SerializerMethodField()
+    roles = serializers.SerializerMethodField()
     sigla = serializers.CharField(source="departamento.sigla", read_only=True)
 
     class Meta:
@@ -73,7 +81,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'sigla',
             'institucion',
             'nombre_institucion',
-            'rol',
+            'roles',
             'lugar_nacimiento',
             'documento_identidad',
             'direccion',
@@ -86,39 +94,76 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True, 'required': False},
             'new_password': {'write_only': True, 'required': False},
         }
+    
+    #Validaciones
+    def validate_email(self, value):
+        #Verifica si o tro usuario ya tiene ese email
+        user = self.instance
+        if User.objects.filter(email=value).exclude(id=getattr(user,'id', None)).exists():
+            raise serializers.ValidationError("Este correo electrónico ya está en uso")
+        return value
+    
+    def validate_username(self, value):
+        if value is None:
+            return value
+        v = value.strip()
+        #Permitir letras, números, punto, guion, guion bajo; 3-30 chars
+        if not re.match(r'^[A-Za-z0-9._-]{3,30}$', v):
+            raise serializers.ValidationError(
+                 "El nombre de usuario sólo puede contener letras, números, ., _ y -, entre 3 y 30 caracteres."
+            )
+        return v
+    
+    def validate_password(self, value):
+        regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$'
+        if not re.match(regex, value):
+            raise serializers.ValidationError(
+                "La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial."
+            )
+        return value
+    
+    def validate_new_password(self, value):
+        regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$'
+        if not re.match(regex, value):
+            raise serializers.ValidationError(
+                "La nueva contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial."
+            )
+        return value
 
-    def get_rol(self, obj):
-        group = obj.groups.first()
-        return group.name if group else None
+    #Obtener roles
+    def get_roles(self, obj):
+        return [{"id": g.id, "name": g.name} for g in obj.groups.all()] 
 
     def create(self, validated_data):
-        print("Datos recibidos en el serializer:")
-        print(f"initial_data: {self.initial_data}")
-        print(f"validated_data: {validated_data}")
-        rol_id = self.initial_data.get("rol")
-        # Buscar en ambos lugares: initial_data y validated_data
-        institucion_id = self.initial_data.get("institucion") or validated_data.pop("institucion", None)
+        # Extraemos campos que no pertenecen directamente al modelo
+        roles_id = validated_data.pop("roles", [])
+        institucion = validated_data.pop("institucion", None)
         password = validated_data.pop("password", None)
-        
-        user = CustomUser(**validated_data)
-        if password:
-            user.set_password(password)
-        
-        if institucion_id:
-            try:
-                institucion = Institucion.objects.get(id_institucion=institucion_id)
+
+        # Creamos el usuario dentro de una transacción
+        with transaction.atomic():
+            user = CustomUser(**validated_data)
+
+            # Encriptar contraseña correctamente
+            if password:
+                user.set_password(password)
+
+            # Asignar institución si existe
+            if institucion:
                 user.institucion = institucion
-            except (Institucion.DoesNotExist, ValueError):
-                raise serializers.ValidationError({"institucion": "La institucion especificada no existe."})
 
-        user.save()
+            user.save()
 
-        if rol_id:
-            try:
-                group = Group.objects.get(id=rol_id)
-                user.groups.set([group])
-            except Group.DoesNotExist:
-                raise serializers.ValidationError({"rol": "El grupo especificado no existe."})
+            # Asignar roles (grupos)
+            if roles_id:
+                groups = Group.objects.filter(id__in=roles_id)
+
+                if len(groups) != len(roles_id):
+                    raise serializers.ValidationError({
+                        "roles": "Uno o más roles no existen."
+                    })
+
+                user.groups.set(groups)
 
         return user
 
@@ -127,16 +172,22 @@ class CustomUserSerializer(serializers.ModelSerializer):
         new_password = validated_data.pop('new_password', None)
         if new_password:
             instance.set_password(new_password)
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)  
         instance.save()
 
-        rol_id = self.initial_data.get("rol")
-        if rol_id:
-            try:
-                group = Group.objects.get(id=rol_id)
-                instance.groups.set([group])
-            except Group.DoesNotExist:
-                raise serializers.ValidationError({"rol": "El grupo especificado no existe."})
+        # Extraer solo IDs de los roles
+        roles_data = self.initial_data.get("roles", [])
+        roles_ids = [r["id"] for r in roles_data if "id" in r]
+
+        try:
+            if roles_ids:
+                groups = Group.objects.filter(id__in=roles_ids)
+                if not groups.exists():
+                    raise serializers.ValidationError({"roles": "Ningún grupo válido fue encontrado."})
+                instance.groups.set(groups)
+        except Exception as e:
+            raise serializers.ValidationError({"roles": f"Error actualizando roles: {str(e)}"})
 
         return instance
