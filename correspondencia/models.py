@@ -55,6 +55,14 @@ class Recibida(Correspondencia):
     def __str__(self):
         return f"{self.nro_registro}"
 
+class PreSelloRecibida(models.Model):
+    pre_nro_registro = models.CharField(max_length=20, unique=True)
+    usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
+    fecha_generacion = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.pre_nro_registro
+        
 class Enviada(Correspondencia):
     cite = models.CharField(max_length=50, blank=True, null=True)
     fecha_envio = models.DateTimeField(blank=True, null=True)

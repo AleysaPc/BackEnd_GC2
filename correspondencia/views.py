@@ -7,10 +7,10 @@ from django.http import HttpResponse, FileResponse
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Correspondencia, Recibida, Enviada, CorrespondenciaElaborada, AccionCorrespondencia
+from .models import Correspondencia, Recibida, Enviada, CorrespondenciaElaborada, AccionCorrespondencia, PreSelloRecibida
 from .serializers import (
     CorrespondenciaSerializer, RecibidaSerializer, EnviadaSerializer, 
-    CorrespondenciaElaboradaSerializer, AccionCorrespondenciaSerializer
+    CorrespondenciaElaboradaSerializer, AccionCorrespondenciaSerializer, PreSelloSerializer
 )
 from .filters import CorrespondenciaFilter, RecibidaFilter, EnviadaFilter, CorrespondenciaElaboradaFilter
 from gestion_documental.mixins import PaginacionYAllDataMixin
@@ -92,6 +92,9 @@ class CorrespondenciaView(BaseViewSet, AuditableModelViewSet):
     search_fields = ['tipo', 'referencia', 'contacto__institucion__razon_social']
     ordering_fields = ['tipo', 'referencia']
 
+class PreSelloRecibidaView(BaseViewSet, AuditableModelViewSet):
+    serializer_class = PreSelloSerializer
+    queryset = PreSelloRecibida.objects.all()
 
 class RecibidaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = RecibidaSerializer
@@ -121,6 +124,78 @@ class RecibidaView(BaseViewSet, AuditableModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def proximo_nro_registro(request):
+    """
+    Devuelve el próximo nro_registro disponible según la lógica de la clase Recibida.
+    No crea ningún registro en la base de datos.
+    """
+    # Tomamos la última correspondencia recibida
+    ultimo = Recibida.objects.order_by('-id_correspondencia').first()
+
+    if ultimo and ultimo.nro_registro:
+        try:
+            # Tomamos el número después del guion: Reg-001 → 001
+            numero_actual = int(ultimo.nro_registro.split('-')[1])
+        except (IndexError, ValueError):
+            numero_actual = 0
+    else:
+        numero_actual = 0
+
+    nuevo_numero = numero_actual + 1
+    nro_registro_temporal = f"Reg-{nuevo_numero:03}"
+
+    return Response({"proximo_nro_registro": nro_registro_temporal})
+
+from django.db import transaction
+from .models import PreSelloRecibida
+from .serializers import PreSelloSerializer
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generar_pre_sello(request):
+    """
+    Genera un pre-sello único para mostrar en PDF.
+    Cada click genera un nuevo número correlativo, sin crear el registro oficial.
+    """
+    try:
+        with transaction.atomic():
+            # Obtener el último número oficial
+            ultimo_oficial = Recibida.objects.order_by('-id_correspondencia').first()
+            if ultimo_oficial and ultimo_oficial.nro_registro:
+                try:
+                    numero_actual = int(ultimo_oficial.nro_registro.split('-')[1])
+                except (IndexError, ValueError):
+                    numero_actual = 0
+            else:
+                numero_actual = 0
+
+            # Obtener el último pre-sello temporal
+            ultimo_pre = PreSelloRecibida.objects.order_by('-id').first()
+            if ultimo_pre:
+                try:
+                    numero_actual = max(numero_actual, int(ultimo_pre.pre_nro_registro.split('-')[1]))
+                except (IndexError, ValueError):
+                    pass
+
+            nuevo_numero = numero_actual + 1
+            pre_nro = f"Reg-{nuevo_numero:03}"
+
+            pre_sello = PreSelloRecibida.objects.create(
+                pre_nro_registro=pre_nro,
+                usuario=request.user
+            )
+
+        serializer = PreSelloSerializer(pre_sello)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response(
+            {"error": f"No se pudo generar el pre-sello: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 class EnviadaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = EnviadaSerializer

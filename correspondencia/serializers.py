@@ -1,7 +1,8 @@
+from dataclasses import field
 from rest_framework import serializers
 from django.db import transaction
 from django.core.files import File
-from .models import Correspondencia, Recibida, Enviada, AccionCorrespondencia, CorrespondenciaElaborada
+from .models import Correspondencia, PreSelloRecibida, Recibida, Enviada, AccionCorrespondencia, CorrespondenciaElaborada
 from documento.models import Documento, PlantillaDocumento
 from documento.serializers import DocumentoSerializer, PlantillaDocumentoSerializer
 from usuario.models import CustomUser
@@ -233,6 +234,14 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
             'documentos', 'contacto', 'usuario', 'acciones',
             'comentario_derivacion', 'usuarios', 'datos_contacto','similitud', 'nro_registro'
         ]
+        extra_kwargs = {
+            'fecha_recepcion': {'required': False},
+        }
+
+class PreSelloSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PreSelloRecibida
+        fields = '__all__'
 
 
 class EnviadaSerializer(CorrespondenciaSerializerBase):
