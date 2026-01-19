@@ -8,7 +8,8 @@ from gestion_documental.mixins import PaginacionYAllDataMixin
 
 # OCR y embeddings
 from PIL import Image
-from documento.busquedaSemantica.procesamiento import procesar_documento
+from documento.tasks import ocr_task, limpiar_task, embeddings_task, guardar_task
+from celery import chain
 
 import os
 
@@ -20,8 +21,9 @@ class DocumentoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         documento = serializer.save()
+        # Usar la versión asíncrona
+        from documento.busquedaSemantica.procesar_documento import procesar_documento
         procesar_documento(documento.nombre_documento, documento.archivo.path)
-
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response

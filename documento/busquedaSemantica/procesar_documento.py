@@ -1,83 +1,53 @@
 import os
-import django
-from PIL import Image
-import sys
-#################ELIMINAR ARCHIVO
-# 1. Inicializar entorno Django para usar modelos y ORM
-# Añadir la ruta del proyecto al sys.path para que Django lo encuentre
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
-sys.path.append(project_root)
+from celery import chain
+from documento.tasks import ocr_task, limpiar_task, embeddings_task, guardar_task
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gestion_documental.settings")
-try:
-    django.setup()
-except Exception as e:
-    print("Error al configurar Django:", e)
-    print("Python path:", sys.path)
-    raise
-
-# 2. Importar funciones y modelos ahora que Django está listo
-from ocr import extraer_texto_de_imagen, extraer_texto_de_pdf
-from clean_text import limpiar_texto_ocr
-from embeddings import generar_embedding
-from documento.models import Documento
-
-# 3. Función para guardar embedding usando ORM
-def guardar_embedding_db(nombre_documento, embedding):
-    try:
-        doc = Documento.objects.get(nombre_documento=nombre_documento)
-        doc.vector_embedding = embedding.tolist()  # Asegúrate que embedding es numpy array o lista
-        doc.save()
-        print(f"Embedding guardado en DB para: {nombre_documento}")
-    except Exception as e:
-        print(f"Error guardando embedding: {e}")
-
-# 4. Función para procesar un documento
-def procesar_documento(nombre_documento, ruta_archivo):
-    ext = os.path.splitext(ruta_archivo)[1].lower()
-    if ext in ['.png', '.jpg', '.jpeg']:
-        imagen = Image.open(ruta_archivo)
-        texto_extraido = extraer_texto_de_imagen(imagen)
-    elif ext == '.pdf':
-        texto_extraido = extraer_texto_de_pdf(ruta_archivo)
-    else:
-        print(f"Formato no soportado para OCR: {ext}")
-        return
-
-    texto_limpio = limpiar_texto_ocr(texto_extraido)
-    embedding = generar_embedding(texto_limpio)
-
-    print(f"Embedding generado para {nombre_documento}")
-    guardar_embedding_db(nombre_documento, embedding)
-
-# 5. Función principal que recorre la carpeta y procesa documentos
-def main():
-    # Subir tres niveles desde el directorio actual para llegar a la raíz del proyecto
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    carpeta_documentos = os.path.join(base_dir, "media", "documentos")
-    print(f"Buscando documentos en: {carpeta_documentos}")
-
-    if not os.path.exists(carpeta_documentos):
-        print(f"Error: La carpeta '{carpeta_documentos}' no existe.")
-        return
+def procesar_documento(nombre_documento: str, ruta_archivo: str, async_processing: bool = True) -> None:
+    """
+    Procesa un documento de forma síncrona o asíncrona usando Celery.
     
-    # Contador de archivos encontrados
-    archivos_encontrados = 0
-    
-    for root, dirs, files in os.walk(carpeta_documentos):
-        for nombre_archivo in files:
-            if nombre_archivo.lower().endswith(('.png', '.jpg', '.jpeg', '.pdf')):
-                ruta_completa = os.path.join(root, nombre_archivo)
-                print(f"Procesando: {ruta_completa}")
-                archivos_encontrados += 1
-                procesar_documento(nombre_archivo, ruta_completa)
-            else:
-                print(f"Archivo ignorado (extensión no soportada): {nombre_archivo}")
-                
-    if archivos_encontrados == 0:
-        print("No se encontraron archivos para procesar (buscando .png, .jpg, .jpeg, .pdf)")
+    Args:
+        nombre_documento: Nombre del documento a procesar
+        ruta_archivo: Ruta completa al archivo a procesar
+        async_processing: Si es True, usa Celery para procesamiento asíncrono
+    """
+    if async_processing:
+        # Versión asíncrona usando Celery
+        chain(
+            ocr_task.s(nombre_documento, ruta_archivo),
+            limpiar_task.s(),
+            embeddings_task.s(),
+            guardar_task.s()
+        ).apply_async()
     else:
-        print(f"Total de archivos encontrados: {archivos_encontrados}")
+        # Versión síncrona (solo para pruebas o casos especiales)
+        from documento.models import Documento
+        from documento.busquedaSemantica.ocr import extraer_texto_de_imagen, extraer_texto_de_pdf
+        from documento.busquedaSemantica.clean_text import limpiar_texto_ocr
+        from documento.busquedaSemantica.embeddings import generar_embedding
+        from PIL import Image
+        
+        # 1️⃣ OCR
+        ext = os.path.splitext(ruta_archivo)[1].lower()
+        if ext in (".png", ".jpg", ".jpeg"):
+            imagen = Image.open(ruta_archivo)
+            texto = extraer_texto_de_imagen(imagen)
+        elif ext == ".pdf":
+            texto = extraer_texto_de_pdf(ruta_archivo)
+        else:
+            raise ValueError(f"Formato no soportado: {ext}")
 
-if __name__ == "__main__":
-    main()
+        # 2️⃣ Limpieza
+        texto_limpio = limpiar_texto_ocr(texto)
+        
+        # 3️⃣ Generar embeddings (versión simple sin chunks)
+        embedding = generar_embedding(texto_limpio)
+        
+        # 4️⃣ Guardar en BD
+        doc = Documento.objects.filter(nombre_documento=nombre_documento).first()
+        if not doc:
+            raise ValueError(f"Documento '{nombre_documento}' no encontrado en BD")
+            
+        doc.contenido_extraido = texto_limpio
+        doc.vector_embedding = embedding.tolist() if hasattr(embedding, "tolist") else embedding
+        doc.save(update_fields=["contenido_extraido", "vector_embedding"])
