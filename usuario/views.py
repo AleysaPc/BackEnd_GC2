@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, mixins, generics
 from .serializers import * 
 from .models import * 
 from rest_framework.response import Response 
@@ -11,22 +11,6 @@ from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 User = get_user_model()
-
-class GroupViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    """
-    CRUD completo para Grupos y asignación de permisos
-    """
-    queryset = Group.objects.all().order_by('id')
-    serializer_class = GroupSerializer
-    # permission_classes = [permissions.IsAuthenticated] # Así cualquiera puede ver
-
-class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    Listar y detallar permisos disponibles
-    """
-    queryset = Permission.objects.all()
-    serializer_class = PermissionSerializer
-    # permission_classes = [permissions.IsAuthenticated]
 
 class LoginViewset(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
@@ -50,15 +34,60 @@ class LoginViewset(viewsets.ViewSet):
             return Response(serializer.errors, status=400)
 
 
-class DepartamentoViewSet(viewsets.ModelViewSet):
-    queryset = Departamento.objects.all()
-    serializer_class = DepartamentoSerializer
-    
-class CustomUserViewSet(PaginacionYAllDataMixin ,viewsets.ModelViewSet):
+# -------------------------------
+# CRUD SIN LISTADO
+# -------------------------------
+class UsuarioViewSet(
+    mixins.RetrieveModelMixin,   # GET por id
+    mixins.CreateModelMixin,     # POST
+    mixins.UpdateModelMixin,     # PUT / PATCH
+    mixins.DestroyModelMixin,    # DELETE
+    viewsets.GenericViewSet
+):
     serializer_class = CustomUserSerializer
-    permission_classes = [permissions.AllowAny]
-    queryset = CustomUser.objects.all().order_by('-date_joined')  # Ordena por id_producto en lugar de id
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = CustomUser.objects.all()
 
+class PermisoViewSet(
+    mixins.RetrieveModelMixin,   # GET por id
+    mixins.CreateModelMixin,     # POST
+    mixins.UpdateModelMixin,     # PUT / PATCH
+    mixins.DestroyModelMixin,    # DELETE
+    viewsets.GenericViewSet
+):
+    serializer_class = PermissionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Permission.objects.all()
+
+class RolViewSet(
+    mixins.RetrieveModelMixin,   # GET por id
+    mixins.CreateModelMixin,     # POST
+    mixins.UpdateModelMixin,     # PUT / PATCH
+    mixins.DestroyModelMixin,    # DELETE
+    viewsets.GenericViewSet
+):
+    serializer_class = RolSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Group.objects.all()
+
+class DepartamentoViewSet(
+    mixins.RetrieveModelMixin,   # GET por id
+    mixins.CreateModelMixin,     # POST
+    mixins.UpdateModelMixin,     # PUT / PATCH
+    mixins.DestroyModelMixin,    # DELETE
+    viewsets.GenericViewSet
+):
+    serializer_class = DepartamentoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Departamento.objects.all()
+
+# -------------------------------
+# LISTADOS
+# -------------------------------
+class UsuarioListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = UsuarioListSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+    queryset = CustomUser.objects.all().order_by('-date_joined')
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -70,3 +99,37 @@ class CustomUserViewSet(PaginacionYAllDataMixin ,viewsets.ModelViewSet):
     ]
     ordering_fields = ['first_name', 'last_name', 'second_name', 'second_last_name', 'username', 'email', 'institucion__razon_social']
     
+class PermisoListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = PermissionSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+    queryset = Permission.objects.all().order_by('-id')
+
+class RolListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = RolListSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        return Group.objects.only("id", "name").order_by("name")
+
+class RolSelectDualViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = RolSelectDualSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        return Group.objects.only("id", "name").order_by("name")
+
+class DepartamentoListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = DepartamentoListSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+    queryset = Departamento.objects.all().order_by('-id')
+
+class PermisoListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = PermisosListSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+    queryset = Permission.objects.only("id", "name").order_by("name")
+
+# -------------------------------
+# SELECTS
+# -------------------------------
+class DepartamentoSelectViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = DepartamentoSelectSerializer
+    def get_queryset(self):
+        return Departamento.objects.only("id", "nombre").order_by('nombre')

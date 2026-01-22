@@ -20,13 +20,6 @@ class RolSerializer(serializers.ModelSerializer):
         model = Group
         fields =  ['id', 'name', 'permissions']
 
-class GroupSerializer(serializers.ModelSerializer): #serializador para el modelo de grupo
-    permissions = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(), many=True)
-    #description = serializers.CharField(source="name")
-
-    class Meta:
-        model = Group
-        fields = ['id', 'name', 'permissions']
 
 class DepartamentoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -134,37 +127,29 @@ class CustomUserSerializer(serializers.ModelSerializer):
     def get_roles(self, obj):
         return [{"id": g.id, "name": g.name} for g in obj.groups.all()] 
 
+
     def create(self, validated_data):
-        # Extraemos campos que no pertenecen directamente al modelo
-        roles_id = validated_data.pop("roles", [])
+        # 🔴 CAMBIO: leer roles desde initial_data
+        roles_data = self.initial_data.get("roles", [])
+        roles_ids = [
+            r.get("id") for r in roles_data
+            if isinstance(r, dict) and r.get("id")
+        ]
+
         institucion = validated_data.pop("institucion", None)
         password = validated_data.pop("password", None)
 
-        # Creamos el usuario dentro de una transacción
         with transaction.atomic():
             user = CustomUser(**validated_data)
 
-            # Encriptar contraseña correctamente
             if password:
                 user.set_password(password)
 
-            # Asignar institución si existe
             if institucion:
                 user.institucion = institucion
 
             user.save()
-
-            # Asignar roles (grupos)
-            if roles_id:
-                groups = Group.objects.filter(id__in=roles_id)
-
-                if len(groups) != len(roles_id):
-                    raise serializers.ValidationError({
-                        "roles": "Uno o más roles no existen."
-                    })
-
-                user.groups.set(groups)
-
+            
         return user
 
 
@@ -186,8 +171,64 @@ class CustomUserSerializer(serializers.ModelSerializer):
                 groups = Group.objects.filter(id__in=roles_ids)
                 if not groups.exists():
                     raise serializers.ValidationError({"roles": "Ningún grupo válido fue encontrado."})
+
                 instance.groups.set(groups)
+
         except Exception as e:
             raise serializers.ValidationError({"roles": f"Error actualizando roles: {str(e)}"})
 
         return instance
+#--------------------
+#LISTAS
+#--------------------
+
+class UsuarioListSerializer(serializers.ModelSerializer):
+    roles=serializers.SerializerMethodField()
+    nombre_departamento = serializers.CharField(source='departamento.nombre', read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = [
+            'id',
+            'first_name',
+            'second_name',
+            'last_name',
+            'second_last_name',
+            'roles',
+            'nombre_departamento',
+            'is_active'
+        ]
+    
+    #Para obtener los roles del usuario
+    def get_roles(self, obj):
+        # Usamos _prefetched_groups si está cargado, si no, caemos a groups.all()
+        groups = getattr(obj, "_prefetched_groups", obj.groups.all())
+        return [g.name for g in groups]
+
+class DepartamentoListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Departamento
+        fields = ['id', 'nombre', 'sigla', 'estado']
+
+class RolListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name']
+
+class PermisosListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = ['id', 'name', 'codename']
+
+# -------------------------------
+# SELECTS
+# -------------------------------
+class DepartamentoSelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Departamento
+        fields = ['id', 'nombre']
+
+class RolSelectDualSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name']
