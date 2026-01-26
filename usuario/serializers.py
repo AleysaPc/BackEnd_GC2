@@ -196,7 +196,8 @@ class UsuarioListSerializer(serializers.ModelSerializer):
             'second_last_name',
             'roles',
             'nombre_departamento',
-            'is_active'
+            'is_active',
+            'email',
         ]
     
     #Para obtener los roles del usuario

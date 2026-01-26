@@ -121,6 +121,7 @@ class CorrespondenciaSerializer(serializers.ModelSerializer):
     documentos = DocumentoSerializer(many=True)
     contacto = serializers.StringRelatedField()
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
+    usuario = UsuarioSerializer(read_only=True)
 
     class Meta:
         model = Correspondencia
