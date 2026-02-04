@@ -1,4 +1,5 @@
 #Renderizado.py se encarga de armar todo el HTML a partir del objeto de correspondencia.
+#Especialmente para la elaboración de documentos del FrontEND
 
 from jinja2 import Template #Se usa para renderizar plantillas HTML dinámicamente
 from django.utils.timezone import now #Obtiene la fecha y hora actual considerando la zona horaria de Django.

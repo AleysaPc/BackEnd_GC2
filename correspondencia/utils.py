@@ -1,3 +1,4 @@
+#Para la elaboraciónd e documentos word y pdf
 from io import BytesIO
 from django.http import HttpResponse
 from docx import Document
@@ -6,7 +7,6 @@ from django.utils.timezone import now
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import pdfkit
 from usuario.models import CustomUser
-
 from jinja2 import Template
 
 def renderizar_contenido_html(template_string, context):
@@ -60,60 +60,54 @@ def generar_pdf_desde_html(html_content):
 
 
 #GENERAR DOCUMENTO WORD
+from django.utils.html import strip_tags
+import html
+
+from .services.word.nota import generar_nota_word
+from .services.word.informe import generar_informe_word
+from .services.word.convocatoria import generar_convocatoria_word
+from .services.word.comunicado import generar_comunicado_word
+from .services.word.resolucion import generar_resolucion_word
+from .services.word.memorando import generar_memorando_word
+
+# Diccionario de dispatch para cada tipo de documento
+GENERADORES_WORD = {
+    "nota": generar_nota_word,
+    "informe": generar_informe_word,
+    "memorando": generar_memorando_word,
+    "convocatoria": generar_convocatoria_word,
+    "comunicado": generar_comunicado_word,
+    "resolucion": generar_resolucion_word
+}
 
 def generar_documento_word(correspondenciaElaborada):
-    doc = Document()
+    """
+    Generador principal de documentos Word.
+    Selecciona el generador según el tipo de documento.
+    Funciona aunque:
+      - No haya documentos asociados.
+      - Haya varios documentos asociados.
+    """
+    # 1️⃣ Tomar el primer documento relacionado (si existe)
+    doc_rel = correspondenciaElaborada.documentos.first()
 
-    fecha_envio_str = correspondenciaElaborada.fecha_envio.strftime('%d-%m-%Y') if correspondenciaElaborada.fecha_envio else now().strftime('%d-%m-%Y')
-    doc.add_paragraph(f"La Paz, {fecha_envio_str}")
-
-    parrafo_cite = doc.add_paragraph()
-    run_cite = parrafo_cite.add_run(f"{correspondenciaElaborada.cite}")
-    run_cite.bold = True
-
-    doc.add_paragraph("Señor:")
-
-    contacto = correspondenciaElaborada.contacto
-    if contacto:
-        titulo_dict = {
-            "Ingeniero": "Ing.",
-            "Licenciado": "Lic.",
-            "Doctor": "Dr.",
-            "Abogado": "Abog.",
-            "Profesor": "Prof.",
-            "Magister": "Mgs.",
-        }
-        titulo = titulo_dict.get(contacto.titulo_profesional, "")
-        nombre_completo = f"{titulo} {contacto.nombre_contacto or ''} {contacto.apellido_pat_contacto or ''} {contacto.apellido_mat_contacto or ''}".strip()
-        doc.add_paragraph(nombre_completo)
-        doc.add_paragraph(contacto.cargo.upper() if contacto.cargo else "")
-        doc.add_paragraph(str(contacto.institucion).upper() if contacto.institucion else "")
+    # 2️⃣ Determinar tipo de documento
+    if getattr(correspondenciaElaborada, "plantilla", None):
+        tipo = correspondenciaElaborada.plantilla.tipo
     else:
-        doc.add_paragraph("Nombre no disponible")
-        doc.add_paragraph("Apellidos no disponibles")
-        doc.add_paragraph("Cargo no disponible")
-        doc.add_paragraph("Institución no disponible")
+        tipo = getattr(doc_rel, "tipo_documento", "nota")
 
-    doc.add_paragraph("Presente.-")
+    tipo = (tipo or "nota").lower()
 
-    parrafo_ref = doc.add_paragraph()
-    parrafo_ref.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
-    run_ref = parrafo_ref.add_run(f"Ref.: {correspondenciaElaborada.referencia}")
-    run_ref.bold = True
-    run_ref.underline = True
+    # 3️⃣ Seleccionar función generadora según tipo
+    generador = GENERADORES_WORD.get(tipo)
+    if not generador:
+        raise ValueError(f"No se encontró generador Word para tipo: {tipo}")
 
-    doc.add_paragraph("De nuestra mayor consideración:")
-    doc.add_paragraph(correspondenciaElaborada.descripcion)
-    doc.add_paragraph("Sin otro particular, nos despedimos con las consideraciones más distinguidas.")
-    doc.add_paragraph("Atentamente,")
+    # 4️⃣ Llamar al generador correspondiente
+    return generador(correspondenciaElaborada)
 
-    buffer = BytesIO()
-    doc.save(buffer)
-    buffer.seek(0)
 
-    filename = f"correspondencia_{correspondenciaElaborada.cite}.docx"
-
-    return buffer, filename
 
 #DERIVACIÓN
 def derivar_correspondencia(correspondencia, usuario_origen, usuario_destino, comentario_derivacion):
