@@ -288,13 +288,18 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
             'plantilla', 'plantilla_id', 'sigla', 'numero', 'gestion', 'cite', 'firmado',
             'version', 'fecha_elaboracion', 'contenido_html', 'nro_registro_respuesta',
             'comentario_derivacion', 'usuarios', 'descripcion_introduccion',
-            'descripcion_desarrollo', 'descripcion_conclusion','ambito', 'destino_interno', 'destino_interno_info'
+            'descripcion_desarrollo', 'descripcion_conclusion','ambito', 'destino_interno', 'destino_interno_info', 'tipo',
         ]
         read_only_fields = ['numero', 'gestion', 'cite', 'contenido_html']
+        extra_kwargs = {
+            'tipo': {'required': False},
+        }
 
     def create(self, validated_data):
-            if not validated_data.get('usuario'):
-                # Asignar automáticamente el usuario que hace la petición
-                validated_data['usuario'] = self.context['request'].user
-            return super().create(validated_data)
+        if not validated_data.get('usuario'):
+            # Asignar automáticamente el usuario que hace la petición
+            validated_data['usuario'] = self.context['request'].user
+        if not validated_data.get('tipo'):
+            validated_data['tipo'] = 'enviado'
+        return super().create(validated_data)
 

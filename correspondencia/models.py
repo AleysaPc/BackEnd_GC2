@@ -6,7 +6,18 @@ from django.db.models import Max
 from jinja2 import Template
 
 class Correspondencia(models.Model):
-    TIPO_CHOICES_ESTADO = [('borrador', 'Borrador'), ('en_revision', 'En revisión'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado'), ('enviado', 'Enviado')]
+    # Estados globales del documento en un solo lugar (alineados con acciones).
+    TIPO_CHOICES_ESTADO = [
+        ('borrador', 'Borrador'),
+        ('en_revision', 'En revisión'),
+        ('aprobado', 'Aprobado'),
+        ('rechazado', 'Rechazado'),
+        ('enviado', 'Enviado'),
+        ('archivado', 'Archivado'),
+        ('derivado', 'Derivado'),
+        ('observado', 'Observado'),
+        ('devuelto', 'Devuelto'),
+    ]
     TIPO_CHOICES_PRIORIDAD = [('alta', 'Alta'), ('media', 'Media'), ('baja', 'Baja')]
     TIPO_CHOICES = [('recibido', 'Recibido'), ('enviado', 'Enviado')]
     id_correspondencia = models.AutoField(primary_key=True)
@@ -213,19 +224,18 @@ class AccionCorrespondencia(models.Model):
 
         correspondencia = self.correspondencia
 
-        # 🔹 Reglas para sincronizar estado cuando la acción es aprobada
-        if self.accion == "aprobado":
-            correspondencia.estado = "aprobado"
-            correspondencia.estado_actual = "APROBADO"
+        # Sincroniza el estado general con la última acción relevante
+        acciones_a_estado = {
+            "aprobado": "aprobado",
+            "rechazado": "rechazado",
+            "archivado": "archivado",
+            "devuelto": "devuelto",
+            "derivado": "derivado",
+            "observado": "observado",
+        }
+
+        nuevo_estado = acciones_a_estado.get(self.accion)
+        if nuevo_estado:
+            correspondencia.estado = nuevo_estado
+            correspondencia.estado_actual = nuevo_estado.upper()
             correspondencia.save(update_fields=["estado", "estado_actual"])
-
-        # 🔹 Otras acciones que también quieran actualizar el estado
-        elif self.accion == "derivado":
-            correspondencia.estado_actual = "DERIVADO"
-            correspondencia.save(update_fields=["estado_actual"])
-
-        elif self.accion == "observado":
-            correspondencia.estado_actual = "OBSERVADO"
-            correspondencia.save(update_fields=["estado_actual"])
-
-        # Puedes agregar más reglas según sea necesario
