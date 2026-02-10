@@ -217,6 +217,7 @@ class CorrespondenciaElaboradaView(BaseViewSet, AuditableModelViewSet):
     queryset = CorrespondenciaElaborada.objects.all().order_by('-fecha_registro')
     serializer_class = CorrespondenciaElaboradaSerializer
     filterset_class = CorrespondenciaElaboradaFilter
+    semantic_search_field = 'vector_embedding_html'
     search_fields = [
         'cite', 'referencia','contacto__nombre_contacto','contacto__apellido_pat_contacto',
         'contacto__apellido_mat_contacto','contacto__institucion__razon_social',

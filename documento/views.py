@@ -40,6 +40,10 @@ def buscar_documentos_semanticos(request):
     if not consulta:
         return Response({'error': 'Consulta no proporcionada'}, status=400)
 
+    global modelo
+    if modelo is None:
+        modelo = SentenceTransformer('all-MiniLM-L6-v2')
+
     embedding_consulta = modelo.encode(consulta).tolist()
 
     documentos = (

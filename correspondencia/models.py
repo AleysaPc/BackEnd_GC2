@@ -4,6 +4,40 @@ from django.utils.timezone import now
 from django.db import models, transaction
 from django.db.models import Max
 from jinja2 import Template
+import html
+import re
+from sentence_transformers import SentenceTransformer
+from pgvector.django import VectorField
+
+_sbert_model = None
+
+def _get_sbert_model():
+    global _sbert_model
+    if _sbert_model is None:
+        _sbert_model = SentenceTransformer('all-MiniLM-L6-v2')
+    return _sbert_model
+
+def _strip_html_to_text(value):
+    if not value:
+        return ""
+    # Remove tags and decode HTML entities.
+    text = re.sub(r"<[^>]+>", " ", value)
+    text = html.unescape(text)
+    # Collapse whitespace.
+    return " ".join(text.split())
+
+def _build_semantic_text(instance):
+    parts = [
+        instance.referencia,
+        instance.descripcion_introduccion,
+        instance.descripcion_desarrollo,
+        instance.descripcion_conclusion,
+    ]
+    cleaned = [_strip_html_to_text(p) for p in parts if p]
+    if cleaned:
+        return " ".join(cleaned)
+    # Fallback: use full HTML if no structured content available.
+    return _strip_html_to_text(instance.contenido_html or "")
 
 class Correspondencia(models.Model):
     # Estados globales del documento en un solo lugar (alineados con acciones).
@@ -107,6 +141,7 @@ class CorrespondenciaElaborada(Correspondencia):
     gestion = models.PositiveIntegerField(default=now().year, editable=False)
     cite = models.CharField(max_length=100, unique=True, blank=True)
     contenido_html = models.TextField(blank=True, null=True)
+    vector_embedding_html = VectorField(dimensions=384, null=True, blank=True)
     firmado = models.BooleanField(default=False)
     fecha_envio = models.DateTimeField(null=True, blank=True)
     fecha_recepcion = models.DateTimeField(null=True, blank=True)
@@ -180,6 +215,25 @@ class CorrespondenciaElaborada(Correspondencia):
         # --- Generar contenido HTML ---
         # Siempre se genera el HTML actualizado, incluso si ya existe uno
         self.generar_contenido_html()
+
+        # --- Embedding semántico desde contenido_html ---
+        # Solo recalcula si no existe o si el contenido cambió.
+        if self.contenido_html:
+            if self.pk:
+                prev = CorrespondenciaElaborada.objects.filter(pk=self.pk).values_list(
+                    "contenido_html", "vector_embedding_html"
+                ).first()
+                prev_html = prev[0] if prev else None
+                prev_embedding = prev[1] if prev else None
+                needs_update = (prev_embedding is None) or (prev_html != self.contenido_html)
+            else:
+                needs_update = True
+
+            if needs_update:
+                texto_plano = _build_semantic_text(self)
+                if texto_plano:
+                    modelo = _get_sbert_model()
+                    self.vector_embedding_html = modelo.encode(texto_plano).tolist()
 
         # --- Guardar instancia ---
         super().save(*args, **kwargs)
