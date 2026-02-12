@@ -78,6 +78,14 @@ class Recibida(Correspondencia):
     nro_registro = models.CharField(max_length=50, unique=True, blank=True, null=True)
     fecha_recepcion = models.DateTimeField(blank=False, null=False)
     fecha_respuesta = models.DateTimeField(blank=True, null=True)
+    relacionada_a = models.ForeignKey(
+        'Correspondencia',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='recibidas_relacionadas',
+        help_text="Documento previo con el que esta nota recibida se relaciona"
+    )
 
     def save(self, *args, **kwargs):
         if not self.nro_registro:
@@ -152,12 +160,12 @@ class CorrespondenciaElaborada(Correspondencia):
     descripcion_desarrollo = models.TextField(blank=True, null=True)
     descripcion_conclusion = models.TextField(blank=True, null=True)
     respuesta_a = models.ForeignKey(
-        Recibida,
+        Correspondencia,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='respuestas',
-        help_text="Nota recibida a la que responde esta nota elaborada"
+        help_text="Documento al que responde esta nota elaborada"
     )
     estado_entrega = models.CharField(
         max_length=30,
@@ -244,6 +252,7 @@ class AccionCorrespondencia(models.Model):
     ACCIONES = [
         ('derivado', 'Derivado'),
         ('observado', 'Observado'),
+        ('respondido', 'Respondido'),
         ('aprobado', 'Aprobado'),
         ('rechazado', 'Rechazado'),
         ('devuelto', 'Devuelto'),

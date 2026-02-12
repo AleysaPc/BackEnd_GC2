@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+﻿from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -108,36 +108,83 @@ class RecibidaView(BaseViewSet, AuditableModelViewSet):
     ordering_fields = search_fields
 
     def create(self, request, *args, **kwargs):
-        # 1️⃣ Guardar la correspondencia usando el serializer
+        # 1ï¸âƒ£ Guardar la correspondencia usando el serializer
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         correspondencia = serializer.save()
 
-        # 2️⃣ Guardar los usuarios seleccionados (IDs)
+        # 2ï¸âƒ£ Guardar los usuarios seleccionados (IDs)
         usuarios_ids = request.data.get("usuarios", [])
         if usuarios_ids:
             # Convertir a enteros por si vienen como strings
             usuarios_ids = [int(u) for u in usuarios_ids]
             correspondencia.save()
 
-        # 3️⃣ Retornar la respuesta normal del serializer
+        # 3ï¸âƒ£ Retornar la respuesta normal del serializer
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @action(detail=True, methods=["get"], url_path="relaciones")
+    def relaciones(self, request, pk=None):
+        recibida = self.get_object()
+
+        def _build_hijos(parent_doc):
+            hijos = CorrespondenciaElaborada.objects.filter(
+                respuesta_a=parent_doc,
+            ).order_by("fecha_registro")
+            return [
+                {
+                    "id_correspondencia": h.id_correspondencia,
+                    "tipo": h.tipo,
+                    "referencia": h.referencia,
+                    "numero": getattr(h, "cite", None),
+                    "fecha_registro": h.fecha_registro,
+                    "hijos": _build_hijos(h),
+                }
+                for h in hijos
+            ]
+
+        relacionada = recibida.relacionada_a
+        data = {
+            "actual": {
+                "id_correspondencia": recibida.id_correspondencia,
+                "tipo": recibida.tipo,
+                "referencia": recibida.referencia,
+                "numero": getattr(recibida, "nro_registro", None),
+                "fecha_registro": recibida.fecha_registro,
+            },
+            "relacionada_a": (
+                {
+                    "id_correspondencia": relacionada.id_correspondencia,
+                    "tipo": relacionada.tipo,
+                    "referencia": relacionada.referencia,
+                    "numero": getattr(relacionada, "nro_registro", None)
+                    or getattr(relacionada, "cite", None),
+                    "fecha_registro": relacionada.fecha_registro,
+                }
+                if relacionada
+                else None
+            ),
+            "respuestas": _build_hijos(recibida),
+        }
+
+        return Response(data)
+
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def proximo_nro_registro(request):
     """
-    Devuelve el próximo nro_registro disponible según la lógica de la clase Recibida.
-    No crea ningún registro en la base de datos.
+    Devuelve el prÃ³ximo nro_registro disponible segÃºn la lÃ³gica de la clase Recibida.
+    No crea ningÃºn registro en la base de datos.
     """
     # Tomamos la última correspondencia recibida
     ultimo = Recibida.objects.order_by('-id_correspondencia').first()
 
     if ultimo and ultimo.nro_registro:
         try:
-            # Tomamos el número después del guion: Reg-001 → 001
+            # Tomamos el número despúes del guion: Reg-001 001
             numero_actual = int(ultimo.nro_registro.split('-')[1])
         except (IndexError, ValueError):
             numero_actual = 0
@@ -157,12 +204,12 @@ from .serializers import PreSelloSerializer
 @permission_classes([IsAuthenticated])
 def generar_pre_sello(request):
     """
-    Genera un pre-sello único para mostrar en PDF.
-    Cada click genera un nuevo número correlativo, sin crear el registro oficial.
+    Genera un pre-sello unico para mostrar en PDF.
+    Cada click genera un nuevo unico correlativo, sin crear el registro oficial.
     """
     try:
         with transaction.atomic():
-            # Obtener el último número oficial
+            # Obtener el ultimo número oficial
             ultimo_oficial = Recibida.objects.order_by('-id_correspondencia').first()
             if ultimo_oficial and ultimo_oficial.nro_registro:
                 try:
@@ -205,8 +252,8 @@ class EnviadaView(BaseViewSet, AuditableModelViewSet):
     ordering_fields = ['cite']
 
     def create(self, request, *args, **kwargs):
-        print("📤 DATA RECIBIDA:", request.data)
-        print("📎 ARCHIVOS:", request.FILES)
+        print(" DATA RECIBIDA:", request.data)
+        print(" ARCHIVOS:", request.FILES)
         return super().create(request, *args, **kwargs)
 
 
@@ -250,59 +297,45 @@ class CorrespondenciaElaboradaView(BaseViewSet, AuditableModelViewSet):
 
     def create(self, request, *args, **kwargs):
         respuesta_a = request.data.get("respuesta_a", None)
-        destino_id = request.data.get("usuario_destino", None)  # 🔹 NUEVO: usuario al que derivar
+        destino_id = request.data.get("usuario_destino", None)
+        correspondencia_origen = None
+        usuario_destino = None
 
-        # Serializar y guardar la correspondencia
+        if respuesta_a:
+            try:
+                # El origen puede ser recibida o elaborada.
+                correspondencia_origen = Correspondencia.objects.get(
+                    id_correspondencia=respuesta_a
+                )
+            except Correspondencia.DoesNotExist:
+                return Response(
+                    {"error": "El documento origen no existe."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            usuario_destino = correspondencia_origen.usuario
+            if destino_id:
+                try:
+                    usuario_destino = User.objects.get(pk=destino_id)
+                except User.DoesNotExist:
+                    return Response(
+                        {"error": "El usuario destino no existe."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            if usuario_destino and request.user == usuario_destino:
+                return Response(
+                    {"error": "No puedes derivarte a ti mismo."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         elaborada = serializer.save()
 
-        if respuesta_a:
-            try:
-                # Obtener la correspondencia recibida
-                recibida = Recibida.objects.get(id_correspondencia=respuesta_a)
-
-                # Cambiar estado SOLO aquí
-                recibida.estado_actual = "Respondido"
-                recibida.save(update_fields=["estado_actual"])
-
-                elaborada.respuesta_a_id = respuesta_a
-                elaborada.save(update_fields=["respuesta_a_id"])
-
-                # 🔹 NUEVO: determinar usuario_destino real
-                # Determinar usuario_destino real
-                # Determinar usuario_destino
-                usuario_destino = recibida.usuario  # valor por defecto
-                if destino_id:
-                    try:
-                        usuario_destino = User.objects.get(pk=destino_id)
-                    except User.DoesNotExist:
-                        pass  # se mantiene el valor por defecto
-
-                # Evitar derivarse a sí mismo
-                if request.user == usuario_destino:
-                    return Response(
-                        {"error": "No puedes derivarte a ti mismo."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-
-                # Crear acción
-                AccionCorrespondencia.objects.create(
-                    correspondencia=recibida,
-                    usuario_origen=request.user,
-                    usuario_destino=usuario_destino,
-                    accion="respondido",
-                    comentario=f"Respuesta generada: {elaborada.cite}",
-                    estado_resultante="respondido"
-                )
-
-
-
-            except Recibida.DoesNotExist:
-                pass
-
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 # =============================================
 # Acciones (NO cambian estado por defecto)
@@ -313,24 +346,6 @@ class AccionCorrespondenciaViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         accion_creada = serializer.save()
-        correspondencia = accion_creada.correspondencia
-
-        # Caso: una Correspondencia Elaborada que ya respondió a una Recibida
-        if isinstance(correspondencia, CorrespondenciaElaborada) and correspondencia.respuesta_a:
-            recibida_original = correspondencia.respuesta_a
-
-            # Crear acción espejo
-            AccionCorrespondencia.objects.create(
-                correspondencia=recibida_original,
-                usuario_origen=accion_creada.usuario_origen,
-                usuario_destino=accion_creada.usuario_destino,
-                accion="respondido",
-                comentario=f"Respuesta generada: {correspondencia.cite}",
-                estado_resultante="respondido"
-            )
-
-            # El estado YA fue cambiado en CorrespondenciaElaboradaView.create()
-
         return accion_creada
 
 
@@ -369,7 +384,7 @@ def marcar_notificacion_vista(request, id):
     try:
         accion = AccionCorrespondencia.objects.get(id=id, usuario_destino=request.user)
     except AccionCorrespondencia.DoesNotExist:
-        return Response({"error": "Notificación no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "NotificaciÃ³n no encontrada"}, status=status.HTTP_404_NOT_FOUND)
 
     if not accion.visto:
         accion.visto = True
@@ -377,4 +392,5 @@ def marcar_notificacion_vista(request, id):
         accion.save(update_fields=['visto', 'fecha_visto'])
         return Response({"status": "ok"})
 
-    return Response({"error": "Notificación ya vista"}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"error": "NotificaciÃ³n ya vista"}, status=status.HTTP_400_BAD_REQUEST)
+

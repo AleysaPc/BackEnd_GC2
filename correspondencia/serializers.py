@@ -2,6 +2,7 @@ from dataclasses import field
 from rest_framework import serializers
 from django.db import transaction
 from django.core.files import File
+from django.utils import timezone
 from .models import Correspondencia, PreSelloRecibida, Recibida, Enviada, AccionCorrespondencia, CorrespondenciaElaborada
 from documento.models import Documento, PlantillaDocumento
 from documento.serializers import DocumentoSerializer, PlantillaDocumentoSerializer
@@ -13,6 +14,39 @@ from .utils import derivar_correspondencia
 # ---------------------------
 # Serializadores auxiliares
 # ---------------------------
+def _obtener_numero_documento(doc):
+    if not doc:
+        return None
+
+    numero_directo = getattr(doc, "nro_registro", None) or getattr(doc, "cite", None)
+    if numero_directo:
+        return numero_directo
+
+    doc_id = getattr(doc, "id_correspondencia", None)
+    if not doc_id:
+        return None
+
+    nro_recibida = Recibida.objects.filter(
+        id_correspondencia=doc_id
+    ).values_list("nro_registro", flat=True).first()
+    if nro_recibida:
+        return nro_recibida
+
+    cite_elaborada = CorrespondenciaElaborada.objects.filter(
+        id_correspondencia=doc_id
+    ).values_list("cite", flat=True).first()
+    if cite_elaborada:
+        return cite_elaborada
+
+    cite_enviada = Enviada.objects.filter(
+        id_correspondencia=doc_id
+    ).values_list("cite", flat=True).first()
+    if cite_enviada:
+        return cite_enviada
+
+    return None
+
+
 class UsuarioSerializer(CustomUserSerializer):
     class Meta(CustomUserSerializer.Meta):
         fields = ['id', 'email', 'departamento', 'nombre_departamento', 'sigla','first_name', 'second_name', 'last_name', 'second_last_name']
@@ -220,12 +254,42 @@ class CorrespondenciaSerializerBase(serializers.ModelSerializer):
         return self._crear_o_actualizar(instance=instance, validated_data=validated_data)
 
 
+class RespuestaRelacionSerializer(serializers.ModelSerializer):
+    acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
+    respuestas = serializers.SerializerMethodField()
+    numero_documento = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CorrespondenciaElaborada
+        fields = [
+            "id_correspondencia",
+            "referencia",
+            "estado",
+            "fecha_registro",
+            "cite",
+            "numero_documento",
+            "acciones",
+            "respuestas",
+        ]
+
+    def get_numero_documento(self, obj):
+        return getattr(obj, "cite", None)
+
+    def get_respuestas(self, obj):
+        hijos = CorrespondenciaElaborada.objects.filter(
+            respuesta_a=obj,
+        ).order_by("fecha_registro")
+        return RespuestaRelacionSerializer(hijos, many=True, context=self.context).data
+
+
 # ---------------------------
 # Serializadores concretos
 # ---------------------------
 class RecibidaSerializer(CorrespondenciaSerializerBase):
     similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
+    respuestas = serializers.SerializerMethodField()
+    relacionada_a_info = serializers.SerializerMethodField()
 
     class Meta:
         model = Recibida
@@ -233,10 +297,28 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
             'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro', 'fecha_recepcion', 'fecha_respuesta',
             'referencia', 'paginas', 'prioridad', 'estado',
             'documentos', 'contacto', 'usuario', 'acciones',
-            'comentario_derivacion', 'usuarios', 'datos_contacto','similitud', 'nro_registro'
+            'comentario_derivacion', 'usuarios', 'datos_contacto','similitud', 'nro_registro',
+            'respuestas', 'relacionada_a', 'relacionada_a_info',
         ]
         extra_kwargs = {
             'fecha_recepcion': {'required': False},
+        }
+
+    def get_respuestas(self, obj):
+        respuestas = CorrespondenciaElaborada.objects.filter(
+            respuesta_a=obj,
+        ).order_by("fecha_registro")
+        return RespuestaRelacionSerializer(respuestas, many=True, context=self.context).data
+
+    def get_relacionada_a_info(self, obj):
+        parent = getattr(obj, "relacionada_a", None)
+        if not parent:
+            return None
+        return {
+            "id_correspondencia": parent.id_correspondencia,
+            "tipo": parent.tipo,
+            "referencia": parent.referencia,
+            "numero": _obtener_numero_documento(parent),
         }
 
 class PreSelloSerializer(serializers.ModelSerializer):
@@ -262,7 +344,7 @@ class EnviadaSerializer(CorrespondenciaSerializerBase):
 class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
     similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
-    nro_registro_respuesta = serializers.CharField(source='respuesta_a.nro_registro', read_only=True)
+    nro_registro_respuesta = serializers.SerializerMethodField()
     documentos = DocumentoSerializer(many=True, read_only=True)
     acciones = AccionCorrespondenciaSerializer(many=True, read_only=True)
     plantilla = PlantillaDocumentoSerializer(read_only=True)
@@ -294,6 +376,12 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
         extra_kwargs = {
             'tipo': {'required': False},
         }
+
+    def get_nro_registro_respuesta(self, obj):
+        parent = getattr(obj, "respuesta_a", None)
+        if not parent:
+            return None
+        return _obtener_numero_documento(parent)
 
     def create(self, validated_data):
         if not validated_data.get('usuario'):
