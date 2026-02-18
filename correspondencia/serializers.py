@@ -52,6 +52,21 @@ class UsuarioSerializer(CustomUserSerializer):
         fields = ['id', 'email', 'departamento', 'nombre_departamento', 'sigla','first_name', 'second_name', 'last_name', 'second_last_name']
 
 
+class UsuarioMiniSerializer(serializers.ModelSerializer):
+    nombre_departamento = serializers.CharField(source="departamento.nombre", read_only=True)
+    sigla = serializers.CharField(source="departamento.sigla", read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'first_name', 'second_name', 'last_name', 'second_last_name', 'nombre_departamento', 'sigla']
+
+
+class DocumentoListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Documento
+        fields = ['id_documento', 'nombre_documento']
+
+
 class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
 
     comentario_derivacion = serializers.CharField(
@@ -147,7 +162,18 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
             validated_data['fecha_visto'] = timezone.now()
 
         return super().update(instance, validated_data)
-        
+
+
+class AccionCorrespondenciaListSerializer(serializers.ModelSerializer):
+    usuario_origen = UsuarioMiniSerializer(read_only=True)
+    usuario_destino = UsuarioMiniSerializer(read_only=True)
+
+    class Meta:
+        model = AccionCorrespondencia
+        fields = [
+            'id', 'accion', 'comentario', 'fecha_inicio', 'visto', 'fecha_visto',
+            'estado_resultante', 'usuario_origen', 'usuario_destino',
+        ]
 
 
 # Listado y detalle general de correspondencias
@@ -321,6 +347,23 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
             "numero": _obtener_numero_documento(parent),
         }
 
+
+class RecibidaListSerializer(serializers.ModelSerializer):
+    contacto = serializers.StringRelatedField()
+    usuario = UsuarioMiniSerializer(read_only=True)
+    documentos = DocumentoListSerializer(many=True, read_only=True)
+    acciones = AccionCorrespondenciaListSerializer(many=True, read_only=True)
+    datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
+
+    class Meta:
+        model = Recibida
+        fields = [
+            'id_correspondencia', 'tipo', 'referencia', 'fecha_registro', 'fecha_recepcion',
+            'prioridad', 'estado', 'nro_registro', 'contacto', 'datos_contacto',
+            'usuario', 'documentos', 'acciones',
+        ]
+
+
 class PreSelloSerializer(serializers.ModelSerializer):
     class Meta:
         model = PreSelloRecibida
@@ -338,6 +381,22 @@ class EnviadaSerializer(CorrespondenciaSerializerBase):
             'referencia', 'paginas', 'documentos', 'contacto', 'usuario', 'comentario',
             'acciones', 'datos_contacto', 'usuarios', 'fecha_envio', 'fecha_recepcion',
             'fecha_seguimiento', 'cite', 'similitud'
+        ]
+
+
+class EnviadaListSerializer(serializers.ModelSerializer):
+    contacto = serializers.StringRelatedField()
+    usuario = UsuarioMiniSerializer(read_only=True)
+    documentos = DocumentoListSerializer(many=True, read_only=True)
+    acciones = AccionCorrespondenciaListSerializer(many=True, read_only=True)
+    datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
+
+    class Meta:
+        model = Enviada
+        fields = [
+            'id_correspondencia', 'tipo', 'referencia', 'fecha_registro', 'prioridad',
+            'estado', 'cite', 'fecha_envio', 'fecha_recepcion', 'fecha_seguimiento',
+            'contacto', 'datos_contacto', 'usuario', 'documentos', 'acciones',
         ]
 
 
@@ -390,4 +449,24 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
         if not validated_data.get('tipo'):
             validated_data['tipo'] = 'enviado'
         return super().create(validated_data)
+
+
+class CorrespondenciaElaboradaListSerializer(serializers.ModelSerializer):
+    contacto = serializers.StringRelatedField()
+    usuario = UsuarioMiniSerializer(read_only=True)
+    documentos = DocumentoListSerializer(many=True, read_only=True)
+    acciones = AccionCorrespondenciaListSerializer(many=True, read_only=True)
+    plantilla = PlantillaDocumentoSerializer(read_only=True)
+    destino_interno_info = UsuarioMiniSerializer(source='destino_interno', read_only=True)
+    datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
+
+    class Meta:
+        model = CorrespondenciaElaborada
+        fields = [
+            'id_correspondencia', 'tipo', 'referencia', 'fecha_registro', 'prioridad',
+            'estado', 'cite', 'ambito', 'firmado', 'version', 'fecha_elaboracion',
+            'fecha_envio', 'fecha_recepcion', 'fecha_seguimiento',
+            'contacto', 'datos_contacto', 'usuario', 'plantilla', 'destino_interno_info',
+            'documentos', 'acciones',
+        ]
 

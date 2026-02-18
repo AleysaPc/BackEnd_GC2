@@ -9,8 +9,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Correspondencia, Recibida, Enviada, CorrespondenciaElaborada, AccionCorrespondencia, PreSelloRecibida
 from .serializers import (
-    CorrespondenciaSerializer, RecibidaSerializer, EnviadaSerializer, 
-    CorrespondenciaElaboradaSerializer, AccionCorrespondenciaSerializer, PreSelloSerializer
+    CorrespondenciaSerializer, RecibidaSerializer, RecibidaListSerializer,
+    EnviadaSerializer, EnviadaListSerializer,
+    CorrespondenciaElaboradaSerializer, CorrespondenciaElaboradaListSerializer,
+    AccionCorrespondenciaSerializer, PreSelloSerializer
 )
 from .filters import CorrespondenciaFilter, RecibidaFilter, EnviadaFilter, CorrespondenciaElaboradaFilter
 from gestion_documental.mixins import PaginacionYAllDataMixin
@@ -106,6 +108,23 @@ class RecibidaView(BaseViewSet, AuditableModelViewSet):
         'contacto__institucion__razon_social'
     ]
     ordering_fields = search_fields
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return RecibidaListSerializer
+        return RecibidaSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.select_related(
+            'contacto__institucion',
+            'usuario__departamento',
+        ).prefetch_related(
+            'documentos',
+            'acciones__usuario_origen__departamento',
+            'acciones__usuario_destino__departamento',
+        )
+        return queryset
 
     def create(self, request, *args, **kwargs):
         # 1ï¸âƒ£ Guardar la correspondencia usando el serializer
@@ -251,6 +270,23 @@ class EnviadaView(BaseViewSet, AuditableModelViewSet):
     search_fields = ['cite']
     ordering_fields = ['cite']
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return EnviadaListSerializer
+        return EnviadaSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.select_related(
+            'contacto__institucion',
+            'usuario__departamento',
+        ).prefetch_related(
+            'documentos',
+            'acciones__usuario_origen__departamento',
+            'acciones__usuario_destino__departamento',
+        )
+        return queryset
+
     def create(self, request, *args, **kwargs):
         print(" DATA RECIBIDA:", request.data)
         print(" ARCHIVOS:", request.FILES)
@@ -271,6 +307,35 @@ class CorrespondenciaElaboradaView(BaseViewSet, AuditableModelViewSet):
         'plantilla__nombre_plantilla','email'
     ]
     ordering_fields = search_fields
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return CorrespondenciaElaboradaListSerializer
+        return CorrespondenciaElaboradaSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.select_related(
+            'contacto__institucion',
+            'usuario__departamento',
+            'plantilla',
+            'destino_interno__departamento',
+        ).prefetch_related(
+            'documentos',
+            'acciones__usuario_origen__departamento',
+            'acciones__usuario_destino__departamento',
+        )
+
+        if self.action == 'list':
+            queryset = queryset.defer(
+                'contenido_html',
+                'vector_embedding_html',
+                'descripcion_introduccion',
+                'descripcion_desarrollo',
+                'descripcion_conclusion',
+            )
+
+        return queryset
 
     @action(detail=True, methods=["get"], url_path="html")
     def obtener_html(self, request, pk=None):

@@ -5,6 +5,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django_rest_passwordreset.signals import reset_password_token_created
 from django.dispatch import receiver 
 from django.template.loader import render_to_string
+from django.template.exceptions import TemplateDoesNotExist
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 from django.conf import settings
@@ -68,7 +69,17 @@ def password_reset_token_created(reset_password_token, *args, **kwargs):
         'email_adress': reset_password_token.user.email
     }
 
-    html_message = render_to_string("email.html", context=context)
+    try:
+        html_message = render_to_string("email.html", context=context)
+    except TemplateDoesNotExist:
+        # Fallback para evitar error 500 si la plantilla no se carga en runtime.
+        html_message = (
+            "<p>Hola,</p>"
+            "<p>Recibimos una solicitud para restablecer tu contraseña.</p>"
+            f"<p><a href='{full_link}'>{full_link}</a></p>"
+            "<p>Si no solicitaste este cambio, puedes ignorar este correo.</p>"
+            f"<p>Correo asociado: {reset_password_token.user.email}</p>"
+        )
     plain_message = strip_tags(html_message)
 
     msg = EmailMultiAlternatives(
