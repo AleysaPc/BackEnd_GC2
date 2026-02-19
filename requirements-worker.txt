@@ -1,0 +1,17 @@
+-r requirements-web.txt
+fsspec==2025.7.0
+huggingface-hub==0.33.4
+joblib==1.5.1
+mpmath==1.3.0
+networkx==3.5
+numpy==2.3.1
+regex==2024.11.6
+safetensors==0.5.3
+scikit-learn==1.7.1
+scipy==1.16.0
+sentence-transformers==5.0.0
+sympy==1.14.0
+threadpoolctl==3.6.0
+tokenizers==0.21.2
+torch==2.7.1
+transformers==4.53.2

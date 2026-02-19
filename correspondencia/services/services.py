@@ -1,9 +1,10 @@
 # services.py
-from sentence_transformers import SentenceTransformer
+import logging
 from pgvector.django import CosineDistance
 from rest_framework import serializers
 
 modelo = None  # Variable global para el modelo
+logger = logging.getLogger(__name__)
 
 def consulta_semantica(queryset, consulta, campo_embedding='documentos__vector_embedding'):
     """
@@ -14,7 +15,12 @@ def consulta_semantica(queryset, consulta, campo_embedding='documentos__vector_e
         return queryset
 
     if modelo is None:
-        modelo = SentenceTransformer('all-MiniLM-L6-v2') #Modelo SBERT version 2
+        try:
+            from sentence_transformers import SentenceTransformer
+            modelo = SentenceTransformer('all-MiniLM-L6-v2') #Modelo SBERT version 2
+        except Exception as exc:
+            logger.warning("Búsqueda semántica deshabilitada en este servicio: %s", exc)
+            return queryset
 
     embedding = modelo.encode(consulta).tolist()
 

@@ -10,6 +10,23 @@ def procesar_notificacion_task(self, recibida_id): #solo se pasa el id
     instance = Recibida.objects.get(id_correspondencia=recibida_id) #Celery recupera el objeto ya confirmado en DB
     procesar_notificacion(instance)
 
+
+@shared_task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 2, "countdown": 5})
+def procesar_ia_pesada_task(self, texto):
+    """
+    Tarea de ejemplo para inferencia pesada.
+    Mantiene la carga de sentence-transformers fuera del servicio web.
+    """
+    from sentence_transformers import SentenceTransformer
+
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    embedding = model.encode(texto).tolist()
+    return {
+        "ok": True,
+        "dim": len(embedding),
+        "preview": embedding[:5],
+    }
+
 #Define tareas Celery
 #Maneja reintentos
 #Llama la lógica pesada

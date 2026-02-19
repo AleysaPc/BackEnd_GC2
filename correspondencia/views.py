@@ -3,6 +3,7 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from celery.result import AsyncResult
 from django.http import HttpResponse, FileResponse
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
@@ -24,6 +25,7 @@ from django.template.loader import render_to_string
 # Importa tu modelo de usuario personalizado
 from usuario.models import CustomUser
 from .signals import enviar_correo, construir_mensaje
+from .tasks import procesar_ia_pesada_task
 
 
 User = get_user_model()
@@ -458,4 +460,29 @@ def marcar_notificacion_vista(request, id):
         return Response({"status": "ok"})
 
     return Response({"error": "NotificaciÃ³n ya vista"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def iniciar_tarea_ia(request):
+    texto = request.data.get("texto", "")
+    if not texto:
+        return Response({"error": "Debe enviar el campo 'texto'."}, status=status.HTTP_400_BAD_REQUEST)
+
+    task = procesar_ia_pesada_task.delay(texto)
+    return Response({"task_id": task.id, "status": "PENDING"}, status=status.HTTP_202_ACCEPTED)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def estado_tarea_ia(request, task_id):
+    task = AsyncResult(task_id)
+    payload = {"task_id": task.id, "status": task.status}
+
+    if task.successful():
+        payload["result"] = task.result
+    elif task.failed():
+        payload["error"] = str(task.result)
+
+    return Response(payload, status=status.HTTP_200_OK)
 
