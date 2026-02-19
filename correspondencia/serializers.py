@@ -354,13 +354,14 @@ class RecibidaListSerializer(serializers.ModelSerializer):
     documentos = DocumentoListSerializer(many=True, read_only=True)
     acciones = AccionCorrespondenciaListSerializer(many=True, read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
+    similitud = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Recibida
         fields = [
             'id_correspondencia', 'tipo', 'referencia', 'fecha_registro', 'fecha_recepcion',
             'prioridad', 'estado', 'nro_registro', 'contacto', 'datos_contacto',
-            'usuario', 'documentos', 'acciones',
+            'usuario', 'documentos', 'acciones', 'similitud',
         ]
 
 
@@ -459,6 +460,7 @@ class CorrespondenciaElaboradaListSerializer(serializers.ModelSerializer):
     plantilla = PlantillaDocumentoSerializer(read_only=True)
     destino_interno_info = UsuarioMiniSerializer(source='destino_interno', read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
+    similitud = serializers.FloatField(read_only=True)
 
     class Meta:
         model = CorrespondenciaElaborada
@@ -467,6 +469,6 @@ class CorrespondenciaElaboradaListSerializer(serializers.ModelSerializer):
             'estado', 'cite', 'ambito', 'firmado', 'version', 'fecha_elaboracion',
             'fecha_envio', 'fecha_recepcion', 'fecha_seguimiento',
             'contacto', 'datos_contacto', 'usuario', 'plantilla', 'destino_interno_info',
-            'documentos', 'acciones',
+            'documentos', 'acciones', 'similitud',
         ]
 
