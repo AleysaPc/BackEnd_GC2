@@ -8,17 +8,24 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 import pdfkit
 from usuario.models import CustomUser
 from jinja2 import Template
+import os
+import shutil
 
 def renderizar_contenido_html(template_string, context):
     template = Template(template_string)
     return template.render(context)
 
-import pdfkit
+def get_pdfkit_config():
+    #1) Permite fijar ruta por variable de entorno (Railway/local)
+    #2) Si no existe, busca "WKHTMLTOPDF_PATH" en Path del sistema
 
-# Ruta absoluta al ejecutable 
-RUTA_WKHTMLTOPDF = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
-
-config = pdfkit.configuration(wkhtmltopdf=RUTA_WKHTMLTOPDF)
+    wkhtml_path = os.getenv("WKHTMLTOPDF_PATH") or shutil.which("wkhtmltopdf")
+    if not wkhtml_path:
+        raise RuntimeError(
+            "wkhtmltopdf no está instalado o no está en Path"
+            "Instalalo o define WKHTMLTOPDF_PATH"
+        )
+    return pdfkit.configuration(wkhtmltopdf=wkhtml_path)
 
 def generar_pdf_desde_html(html_content):
     # Get the base directory of your Django project
@@ -42,22 +49,13 @@ def generar_pdf_desde_html(html_content):
         'enable-local-file-access': '',
         'encoding': 'UTF-8',
     }
-    pdf = pdfkit.from_string(html_content, False, options=options, configuration=config)
-
-
-    try:
-        pdf = pdfkit.from_string(
-            html_content,
-            False,
-            options=options,
-            configuration=config
-        )
-        return pdf
-    except Exception as e:
-        print(f"Error generating PDF: {str(e)}")
-        raise
-
-
+    config = get_pdfkit_config()
+    return pdfkit.from_string(
+        html_content,
+        False,
+        options=options,
+        configuration=config,
+    )
 
 #GENERAR DOCUMENTO WORD
 from django.utils.html import strip_tags
