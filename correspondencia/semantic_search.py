@@ -1,9 +1,5 @@
-from sentence_transformers import SentenceTransformer
+from gestion_documental.ai.model_loader import get_model
 from pgvector.django import CosineDistance
-from django.db.models import Q
-
-# Modelo global para evitar cargarlo múltiples veces
-_model = None
 
 def get_semantic_queryset(
     queryset, 
@@ -25,18 +21,14 @@ def get_semantic_queryset(
     Returns:
         QuerySet: Queryset filtrado y ordenado por similitud descendente
     """
-    global _model
     
     if not consulta or not consulta.strip():
         return queryset.none()
     
-    # Cargar el modelo si no está cargado
-    if _model is None:
-        _model = SentenceTransformer('all-MiniLM-L6-v2')
-    
     try:
         # Generar embedding para la consulta
-        embedding = _model.encode(consulta).tolist()
+        model = get_model()
+        embedding = model.encode(consulta).tolist()
         
         # Aplicar búsqueda semántica
         queryset = queryset.annotate(

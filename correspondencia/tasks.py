@@ -1,4 +1,5 @@
-from celery import shared_task 
+from celery import shared_task
+from gestion_documental.ai.model_loader import get_model
 
 #bind=True acceso a self
 #autoretry_for reintenta si falla countdown=10 espera 10 segundos entre intentos
@@ -17,9 +18,7 @@ def procesar_ia_pesada_task(self, texto):
     Tarea de ejemplo para inferencia pesada.
     Mantiene la carga de sentence-transformers fuera del servicio web.
     """
-    from sentence_transformers import SentenceTransformer
-
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+    model = get_model()  # reutiliza el singleton
     embedding = model.encode(texto).tolist()
     return {
         "ok": True,

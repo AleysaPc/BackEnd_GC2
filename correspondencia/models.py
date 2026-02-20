@@ -6,16 +6,8 @@ from django.db.models import Max
 from jinja2 import Template
 import html
 import re
-from sentence_transformers import SentenceTransformer
 from pgvector.django import VectorField
-
-_sbert_model = None
-
-def _get_sbert_model():
-    global _sbert_model
-    if _sbert_model is None:
-        _sbert_model = SentenceTransformer('all-MiniLM-L6-v2')
-    return _sbert_model
+from gestion_documental.ai.model_loader import get_model
 
 def _strip_html_to_text(value):
     if not value:
@@ -240,7 +232,7 @@ class CorrespondenciaElaborada(Correspondencia):
             if needs_update:
                 texto_plano = _build_semantic_text(self)
                 if texto_plano:
-                    modelo = _get_sbert_model()
+                    modelo = get_model()
                     self.vector_embedding_html = modelo.encode(texto_plano).tolist()
 
         # --- Guardar instancia ---

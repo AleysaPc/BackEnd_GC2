@@ -2,31 +2,28 @@
 import logging
 from pgvector.django import CosineDistance
 from rest_framework import serializers
+from gestion_documental.ai.model_loader import get_model  # nuestro singleton
 
-modelo = None  # Variable global para el modelo
 logger = logging.getLogger(__name__)
 
 def consulta_semantica(queryset, consulta, campo_embedding='documentos__vector_embedding'):
     """
     Filtra y ordena un queryset según una consulta semántica usando SentenceTransformer.
     """
-    global modelo
     if not consulta:
         return queryset
 
-    if modelo is None:
-        try:
-            from sentence_transformers import SentenceTransformer
-            modelo = SentenceTransformer('all-MiniLM-L6-v2') #Modelo SBERT version 2
-        except Exception as exc:
-            logger.warning("Búsqueda semántica deshabilitada en este servicio: %s", exc)
-            return queryset
+    try:
+        modelo = get_model()  # reutiliza el singleton
+        embedding = modelo.encode(consulta).tolist()
 
-    embedding = modelo.encode(consulta).tolist()
+        queryset = queryset.filter(**{f"{campo_embedding}__isnull": False})
+        queryset = queryset.annotate(similitud=CosineDistance(campo_embedding, embedding)).order_by('similitud')
+        return queryset
 
-    queryset = queryset.filter(**{f"{campo_embedding}__isnull": False})
-    queryset = queryset.annotate(similitud=CosineDistance(campo_embedding, embedding)).order_by('similitud')
-    return queryset
+    except Exception as exc:
+        logger.warning("Búsqueda semántica deshabilitada en este servicio: %s", exc)
+        return queryset
 
 def crear_objetos_multiple(serializer_class, request, usuario=None, extra_fields=None):
     """
