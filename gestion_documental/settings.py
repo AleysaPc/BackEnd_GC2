@@ -4,10 +4,7 @@ Django settings for gestion_documental project.
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv
 import dj_database_url
-
-load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -90,14 +87,14 @@ REST_FRAMEWORK = {
     ],
 }
 print(os.getenv("DATABASE_URL"))
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 if DATABASE_URL:
     DATABASES = {
         "default": dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
-            ssl_require=not DEBUG,
+            ssl_require=True,
         )
     }
 else:
