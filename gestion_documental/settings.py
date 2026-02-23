@@ -4,7 +4,10 @@ Django settings for gestion_documental project.
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 import dj_database_url
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -86,7 +89,7 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ],
 }
-
+print(os.getenv("DATABASE_URL"))
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL:
