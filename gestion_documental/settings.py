@@ -89,7 +89,6 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ],
 }
-print(os.getenv("DATABASE_URL"))
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 if DATABASE_URL:
