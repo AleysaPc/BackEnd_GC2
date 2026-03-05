@@ -2,8 +2,16 @@ from pdf2image import convert_from_path
 from PIL import Image
 import pytesseract
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-POPPLER_PATH = r'C:\poppler-24.07.0\Library\bin'  # Ajusta esta ruta
+def extraer_texto_de_pdf(ruta_pdf):
+    paginas = convert_from_path(ruta_pdf)
+
+    texto_total = ""
+
+    for pagina in paginas:
+        texto = pytesseract.image_to_string(pagina, lang="spa")
+        texto_total += texto + "\n"
+
+    return texto_total
 
 def extraer_texto_de_imagen(imagen, idioma='spa'):
     return pytesseract.image_to_string(imagen, lang=idioma)
