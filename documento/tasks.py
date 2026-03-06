@@ -13,11 +13,15 @@ import time
 # -----------------------
 logger = get_task_logger(__name__)
 
+
 # -----------------------
 # Task 1: OCR
 # -----------------------
 @shared_task(bind=True)
 def ocr_task(self, nombre_documento, ruta_archivo):
+    
+    logger.info(f"Ruta recibida: {ruta_archivo}")
+    logger.info(f"Existe archivo: {os.path.exists(ruta_archivo)}")
     start_time = time.time()
     ext = os.path.splitext(ruta_archivo)[1].lower()
 
