@@ -1,27 +1,36 @@
 import os
-import time
-from celery import shared_task
-from .busquedaSemantica.ocr import extraer_texto_de_pdf
+
+import pytesseract
+from pdf2image import convert_from_path
+from pdf2image.exceptions import PDFInfoNotInstalledError
 
 
-@shared_task
-def ocr_task(ruta_archivo):
+def extraer_texto_de_imagen(imagen, idioma="spa"):
+    """
+    Extrae texto de una imagen usando Tesseract OCR.
+    """
+    return pytesseract.image_to_string(imagen, lang=idioma)
 
-    print(f"Ruta recibida: {ruta_archivo}")
 
-    tiempo_espera = 0
-    max_espera = 20  # segundos
+def extraer_texto_de_pdf(ruta_pdf, idioma="spa"):
+    """
+    Convierte un PDF en imagenes y extrae el texto de cada pagina.
+    """
+    poppler_path = os.getenv("POPPLER_PATH")
+    try:
+        paginas = convert_from_path(ruta_pdf, poppler_path=poppler_path)
+    except PDFInfoNotInstalledError:
+        # Fallback para entornos donde pdfinfo/poppler no esta instalado.
+        import pypdfium2 as pdfium
 
-    while not os.path.exists(ruta_archivo) and tiempo_espera < max_espera:
-        print(f"Esperando archivo... ({tiempo_espera}s)")
-        time.sleep(1)
-        tiempo_espera += 1
+        pdf = pdfium.PdfDocument(ruta_pdf)
+        scale = 300 / 72
+        paginas = [pdf[i].render(scale=scale).to_pil() for i in range(len(pdf))]
 
-    if not os.path.exists(ruta_archivo):
-        raise FileNotFoundError(f"No se encontró el archivo: {ruta_archivo}")
+    texto_completo = ""
 
-    print("Archivo encontrado. Iniciando OCR...")
+    for i, pagina in enumerate(paginas, start=1):
+        texto_pagina = extraer_texto_de_imagen(pagina, idioma)
+        texto_completo += f"\n--- Pagina {i} ---\n{texto_pagina}"
 
-    texto = extraer_texto_de_pdf(ruta_archivo)
-
-    return texto
+    return texto_completo
