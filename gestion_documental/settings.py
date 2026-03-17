@@ -89,14 +89,13 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ],
 }
-DATABASE_URL = os.environ.get("DATABASE_URL")
 
-if DATABASE_URL:
+if os.getenv("RAILWAY_ENVIRONMENT"):
     DATABASES = {
         "default": dj_database_url.parse(
-            DATABASE_URL,
+            os.environ["DATABASE_URL"],
             conn_max_age=600,
-            ssl_require=False,
+            ssl_require=True,
         )
     }
 else:
