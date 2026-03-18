@@ -127,7 +127,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = "/app/media"
+MEDIA_ROOT = BASE_DIR / "media" #Para desarrollo local
+#MEDIA_ROOT = "/app/media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -137,9 +138,13 @@ EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+print("USER:", EMAIL_HOST_USER)
+print("PASS:", EMAIL_HOST_PASSWORD)
 
 CELERY_BROKER_URL = os.environ.get("REDIS_URL")
 CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL")
+print("REDIS_URL actual:", os.environ.get("REDIS_URL"))
+print("BROKER:", CELERY_BROKER_URL)
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"

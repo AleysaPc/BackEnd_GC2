@@ -2,7 +2,7 @@ from django.db.models.signals import post_save  #Despuesta de guardar un modelo
 from django.dispatch import receiver
 from django.core.mail import EmailMessage
 from django.conf import settings
-from .models import Recibida, Enviada
+from .models import Recibida, CorrespondenciaElaborada
 from .models import AccionCorrespondencia
 from usuario.models import CustomUser
 from .tasks import procesar_notificacion_task
@@ -80,44 +80,24 @@ from django.core.files import File
 import os
 
 @receiver(post_save, sender=Recibida)
-def enviar_notificacion_correo(sender, instance, created, **kwargs):
+def enviar_notificacion_recibida(sender, instance, created, **kwargs):
     if not created: #Solo cuando se crea, no cuando se edita
         return
 
     # Usar transaction.on_commit para asegurar que la transacción se haya completado
     transaction.on_commit(
-        lambda: procesar_notificacion_task.delay(instance.id_correspondencia)
+        lambda: procesar_notificacion_task.delay("recibida", instance.id_correspondencia)
     )                                     #delay envia la tarea a Redis Celery lo ejecuta en segundo plano
 
 # Para el envío de correo en documentos salientes
-@receiver(post_save, sender=Enviada)
-def enviar_notificacion_correo(sender, instance, created, **kwargs):
-    if instance.estado == "en_revision":  # Solo enviar si el estado es "en_revision"
-        cite = instance.cite
-        referencia = instance.referencia
-        destinatario = instance.contacto
-        estado = instance.estado
-
-        mensaje = f'Se ha elaborado un nuevo documento con los siguientes detalles:\n\n'
-        mensaje += f'Nro. CITE: {cite}\n'
-        mensaje += f'Referencia: {referencia}\n'
-
-        if destinatario:
-            mensaje += f'Destinatario: {destinatario.nombre_contacto} {destinatario.apellido_pat_contacto} {destinatario.apellido_mat_contacto}\n'
-            mensaje += f'Cargo: {destinatario.cargo}\n'
-            mensaje += f'Empresa: {destinatario.institucion.razon_social if destinatario.institucion else "No especificado"}\n'
-        else:
-            mensaje += 'Destinatario: No especificado\nCargo: No especificado\nEmpresa: No especificado\n'
-
-        mensaje += f'Estado: {estado}\n'
-
-        archivos_para_adjuntar = []
-
-        if instance.archivo_word:
-            archivos_para_adjuntar.append(instance.archivo_word)
-
-        enviar_correo(f'Nuevo documento elaborado: {cite}', mensaje, archivos_para_adjuntar if archivos_para_adjuntar else None)
-
+@receiver(post_save, sender=CorrespondenciaElaborada)
+def enviar_notificacion_elaborada(sender,instance, created, **kwargs):
+    if not created:
+        return
+     # Usar transaction.on_commit para asegurar que la transacción se haya completado
+    transaction.on_commit(
+        lambda: procesar_notificacion_task.delay("elaborada", instance.id_correspondencia)
+    )                                     #delay envia la tarea a Redis Celery lo ejecuta en segundo plano
 
 #Para envio de notificación
 @receiver(post_save, sender=AccionCorrespondencia)

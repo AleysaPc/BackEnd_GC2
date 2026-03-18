@@ -3,6 +3,9 @@ import os
 import pytesseract
 from pdf2image import convert_from_path
 from pdf2image.exceptions import PDFInfoNotInstalledError
+import pytesseract
+
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 
 def extraer_texto_de_imagen(imagen, idioma="spa"):
