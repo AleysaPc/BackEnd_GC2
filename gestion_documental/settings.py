@@ -149,7 +149,8 @@ print("USER:", EMAIL_HOST_USER)
 print("PASS:", EMAIL_HOST_PASSWORD)
 
 CELERY_BROKER_URL = os.environ.get("REDIS_URL")
-CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL")
+CELERY_RESULT_BACKEND = None
+CELERY_TASK_IGNORE_RESULT= True
 print("REDIS_URL actual:", os.environ.get("REDIS_URL"))
 print("BROKER:", CELERY_BROKER_URL)
 
