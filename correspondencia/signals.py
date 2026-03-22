@@ -86,7 +86,7 @@ def enviar_notificacion_recibida(sender, instance, created, **kwargs):
 
     # Usar transaction.on_commit para asegurar que la transacción se haya completado
     transaction.on_commit(
-        lambda: procesar_notificacion_task.delay("recibida", instance.id_correspondencia)
+        lambda: procesar_notificacion_task("recibida", instance.id_correspondencia) #borrando delay
     )                                     #delay envia la tarea a Redis Celery lo ejecuta en segundo plano
 
 # Para el envío de correo en documentos salientes
@@ -96,7 +96,7 @@ def enviar_notificacion_elaborada(sender,instance, created, **kwargs):
         return
      # Usar transaction.on_commit para asegurar que la transacción se haya completado
     transaction.on_commit(
-        lambda: procesar_notificacion_task.delay("elaborada", instance.id_correspondencia)
+        lambda: procesar_notificacion_task("elaborada", instance.id_correspondencia) #borrando delay
     )                                     #delay envia la tarea a Redis Celery lo ejecuta en segundo plano
 
 #Para envio de notificación
