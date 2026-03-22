@@ -23,11 +23,12 @@ class Documento(models.Model):
     contenido_extraido = models.TextField(blank=True, null=True)  # ← Texto plano del PDF
     
     def save(self, *args, **kwargs):
-        from .busquedaSemantica.procesar_documento import procesar_documento
         super().save(*args, **kwargs)
-        if self.archivo and not self.contenido_extraido:
-            procesar_documento(self.nombre_documento, self.archivo.path)
 
+        if self.archivo and not self.contenido_extraido:
+            from documento.tasks import ocr_task
+            ocr_task.delay(self.nombre_documento, self.archivo.path)
+            
 TIPO_DOCUMENTO_CHOICES = [
     ('comunicado', 'Comunicado'),
     ('convocatoria', 'Convocatoria'),
