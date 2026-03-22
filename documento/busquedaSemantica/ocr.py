@@ -1,29 +1,23 @@
 import os
-
 import pytesseract
 from pdf2image import convert_from_path
 from pdf2image.exceptions import PDFInfoNotInstalledError
-import pytesseract
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# Configurar Tesseract según entorno
+if os.name == "nt":  # Windows (local)
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+else:  # Linux (Railway)
+    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
 
 
 def extraer_texto_de_imagen(imagen, idioma="spa"):
-    """
-    Extrae texto de una imagen usando Tesseract OCR.
-    """
     return pytesseract.image_to_string(imagen, lang=idioma)
 
 
 def extraer_texto_de_pdf(ruta_pdf, idioma="spa"):
-    """
-    Convierte un PDF en imagenes y extrae el texto de cada pagina.
-    """
-    poppler_path = os.getenv("POPPLER_PATH")
     try:
-        paginas = convert_from_path(ruta_pdf, poppler_path=poppler_path)
+        paginas = convert_from_path(ruta_pdf)  # 👈 simplificado
     except PDFInfoNotInstalledError:
-        # Fallback para entornos donde pdfinfo/poppler no esta instalado.
         import pypdfium2 as pdfium
 
         pdf = pdfium.PdfDocument(ruta_pdf)
