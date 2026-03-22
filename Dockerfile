@@ -1,6 +1,5 @@
 FROM python:3.13-slim
 
-# Instalar Tesseract + idioma español + poppler
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     tesseract-ocr-spa \
@@ -13,4 +12,6 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-CMD gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+RUN python manage.py collectstatic --noinput
+
+CMD gunicorn gestion_documental.wsgi:application --bind 0.0.0.0:$PORT
