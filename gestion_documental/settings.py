@@ -95,9 +95,13 @@ if os.getenv("RAILWAY_ENVIRONMENT"):
         "default": dj_database_url.parse(
             os.environ["DATABASE_URL"],
             conn_max_age=600,
-            ssl_require=True,
+            ssl_require=False,
         )
     }
+
+    DATABASES["default"]["OPTIONS"] = {
+        "sslmode": "disable"
+    } # Desactivamos SSL porque Railway usa red interna segura (no requiere SSL)
 else:
     DATABASES = {
         "default": {
