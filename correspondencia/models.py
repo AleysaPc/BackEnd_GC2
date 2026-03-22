@@ -232,8 +232,9 @@ class CorrespondenciaElaborada(Correspondencia):
             if needs_update:
                 texto_plano = _build_semantic_text(self)
                 if texto_plano:
-                    modelo = get_model() #Extracción de embbedings
-                    self.vector_embedding_html = modelo.encode(texto_plano).tolist()
+                    #modelo = get_model() #Extracción de embbedings
+                    #self.vector_embedding_html = modelo.encode(texto_plano).tolist()
+                    self.vector_embedding_html = None
 
         # --- Guardar instancia ---
         super().save(*args, **kwargs)

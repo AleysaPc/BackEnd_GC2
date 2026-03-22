@@ -1,25 +1,25 @@
 import os
 import torch
 
-_model = None  # ← Esta línea falta
+_model = None
 
 def get_model():
+    # 🚫 Desactivar SBERT temporalmente
+    if os.getenv("DISABLE_SBERT", "false") == "true":
+        print("🚫 SBERT desactivado")
+        return None
+
     global _model
     if _model is None:
         print("🧠 Cargando modelo SBERT...")
-        try:
-            from sentence_transformers import SentenceTransformer
-        except ImportError:
-            raise ImportError("Necesitas instalar sentence-transformers para ejecutar esta tarea.")
-        
-        # Configuración para Railway
-        device = 'cuda' if (torch.cuda.is_available() and os.getenv('RAILWAY_ENVIRONMENT') == 'production') else 'cpu'
-        
-        # Optimización para memoria limitada
+        from sentence_transformers import SentenceTransformer
+
+        device = 'cpu'  # fuerza CPU en Railway
+
         _model = SentenceTransformer(
-            "all-MiniLM-L6-v2", 
-            device=device,
-            model_kwargs={'torch_dtype': torch.float16 if device == 'cuda' else torch.float32}
+            "all-MiniLM-L6-v2",
+            device=device
         )
-        print(f"✅ Modelo cargado en {device} (Railway)")
+        print(f"✅ Modelo cargado en {device}")
+
     return _model
