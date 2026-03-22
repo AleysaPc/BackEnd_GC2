@@ -5,3 +5,6 @@ class DocumentoConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'documento'
 
+    def ready(self):
+        import documento.signals
+
