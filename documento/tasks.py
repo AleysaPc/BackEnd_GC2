@@ -1,3 +1,5 @@
+#Este archivo define las tareas individuales que ejecuta Celery. 
+
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from documento.busquedaSemantica.ocr import extraer_texto_de_pdf, extraer_texto_de_imagen
@@ -20,8 +22,8 @@ logger = get_task_logger(__name__)
 @shared_task(bind=True)
 def ocr_task(self, nombre_documento, ruta_archivo):
     
-    logger.info(f"Ruta recibida: {ruta_archivo}")
-    logger.info(f"Existe archivo: {os.path.exists(ruta_archivo)}")
+    #logger.info(f"Ruta recibida: {ruta_archivo}")
+    #logger.info(f"Existe archivo: {os.path.exists(ruta_archivo)}")
     start_time = time.time()
     ext = os.path.splitext(ruta_archivo)[1].lower()
 

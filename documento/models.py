@@ -23,8 +23,9 @@ class Documento(models.Model):
     contenido_extraido = models.TextField(blank=True, null=True)  # ← Texto plano del PDF
     
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs) #<-Guarda archivo y metadatos
 
+        #AQUÍ EMPIEZA EL PROCESO DE EMBEDDINGS
         if self.archivo and not self.contenido_extraido:
             from documento.busquedaSemantica.procesar_documento import procesar_documento
             procesar_documento(self.nombre_documento, self.archivo.path, async_processing=True)

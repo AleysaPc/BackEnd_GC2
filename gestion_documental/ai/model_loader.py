@@ -3,7 +3,7 @@ import torch
 
 _model = None
 
-def get_model():
+def get_model(): #Solo carga el modelo
     global _model
     if _model is None:
         print("🧠 Cargando modelo SBERT...")
@@ -17,7 +17,7 @@ def get_model():
         print(f"🔧 Usando dispositivo: {device}")
         
         try:
-            # Carga más robusta
+            # Carga más robusta Solo carga el modelo la PRIMERA VEZ
             _model = SentenceTransformer(
                 "all-MiniLM-L6-v2", 
                 device=device

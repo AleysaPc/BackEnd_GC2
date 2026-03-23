@@ -16,7 +16,7 @@ def extraer_texto_de_imagen(imagen, idioma="spa"):
 
 def extraer_texto_de_pdf(ruta_pdf, idioma="spa"):
     try:
-        paginas = convert_from_path(ruta_pdf)  # 👈 simplificado
+        paginas = convert_from_path(ruta_pdf) 
     except PDFInfoNotInstalledError:
         import pypdfium2 as pdfium
 

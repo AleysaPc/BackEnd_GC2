@@ -60,7 +60,7 @@ def enviar_correo(asunto, mensaje, destinatarios, archivos=None):
     if archivos:
         for archivo in archivos:
             try:
-                print(f"Adjuntando archivo: {archivo.name}")
+                #print(f"Adjuntando archivo: {archivo.name}")
                 # Si es un objeto File de Django, ya está listo para adjuntar
                 email.attach(archivo.name, archivo.read(), 'application/octet-stream')
             except Exception as e:

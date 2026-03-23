@@ -290,8 +290,8 @@ class EnviadaView(BaseViewSet, AuditableModelViewSet):
         return queryset
 
     def create(self, request, *args, **kwargs):
-        print(" DATA RECIBIDA:", request.data)
-        print(" ARCHIVOS:", request.FILES)
+        #print(" DATA RECIBIDA:", request.data)
+        #print(" ARCHIVOS:", request.FILES)
         return super().create(request, *args, **kwargs)
 
 

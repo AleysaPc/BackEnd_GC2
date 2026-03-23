@@ -1,3 +1,4 @@
+#Este archivo es como un orquestador, asegura que las tareas se ejecuten en orden correcto. 
 import os
 from celery import chain
 from documento.tasks import ocr_task, limpiar_task, embeddings_task, guardar_task
