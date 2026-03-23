@@ -8,8 +8,7 @@ from pgvector.django import CosineDistance
 from .serializers import DocumentoSerializer, PlantillaDocumentoSerializer
 from .models import Documento, PlantillaDocumento
 from gestion_documental.mixins import PaginacionYAllDataMixin
-from gestion_documental.ai.model_loader import get_model  # <-- nuestro singleton SBERT
-
+from documento.busquedaSemantica.embeddings import generar_embedding
 # -------------------------------
 # ViewSet para Documentos
 # -------------------------------
@@ -43,9 +42,7 @@ def buscar_documentos_semanticos(request):
         return Response({'error': 'Consulta no proporcionada'}, status=400)
 
     try:
-        modelo = get_model()  # Reutiliza la instancia única de SBERT
-        embedding_consulta = modelo.encode(consulta).tolist()
-
+        embedding_consulta = generar_embedding(consulta)
         documentos = (
             Documento.objects
             .annotate(similitud=CosineDistance('vector_embedding', embedding_consulta))

@@ -1,5 +1,6 @@
+from BackEnd.documento.busquedaSemantica import embeddings
 from celery import shared_task
-from gestion_documental.ai.model_loader import get_model
+from documento.busquedaSemantica.embeddings import generar_embedding
 
 #bind=True acceso a self
 #autoretry_for reintenta si falla countdown=10 espera 10 segundos entre intentos
@@ -29,8 +30,8 @@ def procesar_ia_pesada_task(self, texto):
     Tarea de ejemplo para inferencia pesada.
     Mantiene la carga de sentence-transformers fuera del servicio web.
     """
-    model = get_model()  # reutiliza el singleton
-    embedding = model.encode(texto).tolist()
+    embedding = generar_embedding(texto)
+    
     return {
         "ok": True,
         "dim": len(embedding),

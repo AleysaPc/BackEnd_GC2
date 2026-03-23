@@ -1,4 +1,4 @@
-from gestion_documental.ai.model_loader import get_model
+from documento.busquedaSemantica.embeddings import generar_embedding
 from pgvector.django import CosineDistance
 
 def get_semantic_queryset(
@@ -15,7 +15,7 @@ def get_semantic_queryset(
         queryset: Queryset de Django a filtrar
         consulta (str): Texto de búsqueda
         embedding_field (str): Campo que contiene el embedding (por defecto: 'documentos__vector_embedding')
-        similarity_threshold (float): Umbral mínimo de similitud (0-1)
+        similarity_threshold (fhloat): Umbral mínimo de similitud (0-1)
         limit (int, optional): Número máximo de resultados a devolver
         
     Returns:
@@ -27,8 +27,7 @@ def get_semantic_queryset(
     
     try:
         # Generar embedding para la consulta
-        model = get_model()
-        embedding = model.encode(consulta).tolist()
+        embedding = generar_embedding(consulta)
         
         # Aplicar búsqueda semántica
         queryset = queryset.annotate(

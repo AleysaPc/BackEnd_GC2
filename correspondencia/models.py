@@ -7,7 +7,6 @@ from jinja2 import Template
 import html
 import re
 from pgvector.django import VectorField
-from gestion_documental.ai.model_loader import get_model
 
 def _strip_html_to_text(value):
     if not value:
@@ -232,9 +231,9 @@ class CorrespondenciaElaborada(Correspondencia):
             if needs_update:
                 texto_plano = _build_semantic_text(self)
                 if texto_plano:
-                    #modelo = get_model() #Extracción de embbedings
-                    #self.vector_embedding_html = modelo.encode(texto_plano).tolist()
-                    self.vector_embedding_html = None
+                    from documento.busquedaSemantica.embeddings import generar_embedding
+                    self.vector_embedding_html = generar_embedding(texto_plano)
+                    #self.vector_embedding_html = None
 
         # --- Guardar instancia ---
         super().save(*args, **kwargs)
