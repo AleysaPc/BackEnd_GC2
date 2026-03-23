@@ -131,8 +131,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
-#MEDIA_ROOT = BASE_DIR / "media" #Para desarrollo local
-MEDIA_ROOT = "/app/media"
+MEDIA_ROOT = BASE_DIR / "media" #Para desarrollo local
+#MEDIA_ROOT = "/app/media"
 # Crear carpeta si no existe (Railway)
 import os
 os.makedirs(MEDIA_ROOT, exist_ok=True)

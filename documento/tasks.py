@@ -58,7 +58,7 @@ def embeddings_task(self, data, chunk_size=1000):
     texto = data["texto_limpio"]
     # Dividir en chunks si es muy largo
     chunks = [texto[i:i+chunk_size] for i in range(0, len(texto), chunk_size)]
-    embeddings = [generar_embedding(chunk) for chunk in chunks]
+    embeddings = [generar_embedding(chunk).tolist() for chunk in chunks]
     data["embeddings"] = embeddings
     end_time = time.time()
     #logger.info(f"[Embeddings] Documento '{data['nombre_documento']}' embeddings generados en {end_time - start_time:.2f} seg")

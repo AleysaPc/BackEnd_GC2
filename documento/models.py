@@ -25,6 +25,12 @@ class Documento(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
+        if self.archivo and not self.contenido_extraido:
+            from documento.busquedaSemantica.procesar_documento import procesar_documento
+            procesar_documento(self.nombre_documento, self.archivo.path, async_processing=True)
+
+
+
 TIPO_DOCUMENTO_CHOICES = [
     ('comunicado', 'Comunicado'),
     ('convocatoria', 'Convocatoria'),
