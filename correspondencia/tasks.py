@@ -1,4 +1,3 @@
-from BackEnd.documento.busquedaSemantica import embeddings
 from celery import shared_task
 from documento.busquedaSemantica.embeddings import generar_embedding
 
@@ -31,7 +30,7 @@ def procesar_ia_pesada_task(self, texto):
     Mantiene la carga de sentence-transformers fuera del servicio web.
     """
     embedding = generar_embedding(texto)
-    
+
     return {
         "ok": True,
         "dim": len(embedding),
