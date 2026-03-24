@@ -1,3 +1,4 @@
+# Dockerfile - Solo backend sin Celery
 FROM python:3.13-slim
 
 RUN apt-get update && apt-get install -y \
@@ -11,7 +12,7 @@ WORKDIR /app
 COPY . .
 
 RUN pip install -r requirements.txt
-
 RUN python manage.py collectstatic --noinput
 
-CMD ["sh", "-c", "gunicorn gestion_documental.wsgi:application --bind 0.0.0.0:$PORT & celery -A gestion_documental worker --loglevel=info --concurrency=1"]
+# SOLO GUNICORN - SIN CELERY WORKER
+CMD gunicorn gestion_documental.wsgi:application --bind 0.0.0.0:$PORT
