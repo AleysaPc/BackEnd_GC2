@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 
 RUN python manage.py collectstatic --noinput
 
-CMD gunicorn gestion_documental.wsgi:application --bind 0.0.0.0:$PORT
+CMD ["sh", "-c", "gunicorn gestion_documental.wsgi:application --bind 0.0.0.0:$PORT & celery -A gestion_documental worker --loglevel=info --concurrency=1"]

@@ -18,6 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
+
+def health_check(request):
+    """Health check endpoint para Railway, para verificar si la aplicación 
+    está en fucionamiento"""
+    return JsonResponse({
+        "status": "healthy", 
+        "service": "SystemGC2"
+    })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +35,5 @@ urlpatterns = [
     path('api/v1/contacto/', include('contacto.urls')),  # Include the app's URLs here
     path('api/v1/usuario/', include(('usuario.urls', 'usuario'), namespace='usuario')),
     path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    path('health/', health_check, name='health_check'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

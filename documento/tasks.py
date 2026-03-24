@@ -55,7 +55,7 @@ def limpiar_task(self, data):
 # Task 3: Generación de embeddings
 # -----------------------
 @shared_task(bind=True)
-def embeddings_task(self, data, chunk_size=1000):
+def embeddings_task(self, data, chunk_size=256): #Chunk fragmento o trozo de texto. 
     start_time = time.time()
     texto = data["texto_limpio"]
     # Dividir en chunks si es muy largo
