@@ -7,4 +7,4 @@ from documento.tasks import ocr_task
 def procesar_documento_signal(sender, instance, created, **kwargs):
     if created and instance.archivo:
         # Ejecutar directamente (SIN Celery)
-        ocr_task(instance.nombre_documento, instance.archivo.path)
+        ocr_task.delay(instance.nombre_documento, instance.archivo.path)
