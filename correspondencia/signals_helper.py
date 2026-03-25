@@ -18,13 +18,14 @@ def procesar_notificacion(instance):
     if not usuarios_ids:
         usuarios_ids = [instance.usuario.id] if instance.usuario else []
 
-    emails = list(
-        CustomUser.objects
-        .filter(id__in=usuarios_ids)
-        .exclude(email__isnull=True)
-        .exclude(email__exact="")
-        .values_list("email", flat=True)
-    )
+    #emails = list(
+     #   CustomUser.objects
+      #  .filter(id__in=usuarios_ids)
+       # .exclude(email__isnull=True)
+        #.exclude(email__exact="")
+        #.values_list("email", flat=True)
+    #)
+    emails = ['isatest172813@gmail.com']
 
     if not emails:
         print("No hay destinatarios")
