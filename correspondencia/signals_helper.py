@@ -100,8 +100,9 @@ def procesar_notificacion_elaborada(instance):
     Estado: {instance.estado}
 
     Puedes ver el documento en el siguiente enlace:
-    http://localhost:8000/api/v1/correspondencia/elaborada/{instance.id_correspondencia}/pdf/
+    https://backendgc2-production.up.railway.app/api/v1/correspondencia/elaborada/{instance.id_correspondencia}/pdf/
     """
+    #http://localhost:8000/api/v1/correspondencia/elaborada/{instance.id_correspondencia}/pdf/
 
     enviar_correo(
         asunto=f'Nuevo documento elaborado: {instance.cite}',

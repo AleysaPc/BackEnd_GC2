@@ -6,6 +6,8 @@ from .models import Recibida, CorrespondenciaElaborada
 from .models import AccionCorrespondencia
 from usuario.models import CustomUser
 from .tasks import procesar_notificacion_task
+import resend
+import os
 
 #Objetivo del archivo Detectar eventos del sistema, no ejecutar logica pesada. 
 #Si se creo una correspondencia dispara algo"
@@ -37,40 +39,61 @@ def construir_mensaje(nro_registro, referencia, remitente, fecha_respuesta):
     return mensaje
 
 def enviar_correo(asunto, mensaje, destinatarios, archivos=None):
-
-    #destinatarios = ['isabella172813@gmail.com']
-    #email = EmailMessage(
-        #mensaje,
-        #asunto,
-        #'isatest172813@gmail.com',  # remitente
-        #destinatarios,
-    #)
-
+    """Enviar email usando Resend API"""
+    
     if not destinatarios:
         print("No hay destinatarios")
         return False
     
-    email = EmailMessage(
-        subject=asunto,
-        body=mensaje,
-        from_email='isatest172813@gmail.com',
-        to=destinatarios,
-    )
-
-    if archivos:
-        for archivo in archivos:
-            try:
-                #print(f"Adjuntando archivo: {archivo.name}")
-                # Si es un objeto File de Django, ya está listo para adjuntar
-                email.attach(archivo.name, archivo.read(), 'application/octet-stream')
-            except Exception as e:
-                print(f"Error al adjuntar archivo: {str(e)}")
-
     try:
-        email.send(fail_silently=False)
-        print("Correo enviado correctamente.")
+        # Configurar API key
+        resend.api_key = os.environ.get('RESEND_API_KEY')
+        
+        # Convertir mensaje a HTML
+        mensaje_html = f"""
+        <html>
+        <body>
+            <pre style="font-family: Arial, sans-serif; white-space: pre-wrap;">{mensaje}</pre>
+        </body>
+        </html>
+        """
+        
+        # Enviar a cada destinatario individualmente
+        for destinatario in destinatarios:
+            params = {
+                "from": "onboarding@resend.dev",
+                "to": [destinatario],
+                "subject": asunto,
+                "html": mensaje_html,
+            }
+            
+            # Adjuntar archivos si existen (Resend soporta attachments)
+            if archivos:
+                attachments = []
+                for archivo in archivos:
+                    try:
+                        file_content = archivo.read()
+                        attachments.append({
+                            "content": file_content,
+                            "filename": archivo.name,
+                            "type": "application/octet-stream"
+                        })
+                    except Exception as e:
+                        print(f"Error leyendo archivo {archivo.name}: {e}")
+                
+                if attachments:
+                    params["attachments"] = attachments
+            
+            # Enviar email
+            result = resend.Emails.send(params)
+            print(f"✅ Email enviado a {destinatario}: {result}")
+        
+        print("Correos enviados correctamente con Resend.")
+        return True
+        
     except Exception as e:
-        print("Error al enviar correo:", str(e))
+        print(f"Error al enviar correo con Resend: {str(e)}")
+        return False
 
 #Para el envío de correo en documentos entrantes
 from django.db import transaction
