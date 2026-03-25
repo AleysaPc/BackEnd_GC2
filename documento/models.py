@@ -27,6 +27,8 @@ class Documento(models.Model):
 
         #AQUÍ EMPIEZA EL PROCESO DE EMBEDDINGS
         if self.archivo and not self.contenido_extraido:
+            print(f"🔍 Archivo guardado en: {self.archivo.path}")
+            print(f"🔍 Existe archivo: {os.path.exists(self.archivo.path)}")
             from documento.busquedaSemantica.procesar_documento import procesar_documento
             procesar_documento(self.nombre_documento, self.archivo.path, async_processing=True)
 

@@ -22,6 +22,11 @@ logger = get_task_logger(__name__)
 @shared_task(bind=True)
 def ocr_task(self, nombre_documento, ruta_archivo):
     
+    import os
+    print(f"🔍 Ruta recibida: {ruta_archivo}")
+    print(f"🔍 Existe archivo: {os.path.exists(ruta_archivo)}")
+    print(f"🔍 Directorio /app/media existe: {os.path.exists('/app/media')}")
+    print(f"🔍 Contenido /app/media: {os.listdir('/app/media') if os.path.exists('/app/media') else 'No existe'}")
     #logger.info(f"Ruta recibida: {ruta_archivo}")
     #logger.info(f"Existe archivo: {os.path.exists(ruta_archivo)}")
     start_time = time.time()
