@@ -41,11 +41,18 @@ def procesar_notificacion(instance):
             archivos_para_adjuntar.append(doc.archivo)
 
     mensaje = construir_mensaje(
-        instance.nro_registro,
-        instance.referencia,
-        instance.contacto,
-        instance.fecha_respuesta,
-    )
+    instance.nro_registro,
+    instance.referencia,
+    instance.contacto,
+    instance.fecha_respuesta,
+)
+
+    # Añadir enlaces de documentos
+    if archivos_para_adjuntar:
+        mensaje += f"\n\n📎 Documentos adjuntos:\n"
+        for doc in archivos_para_adjuntar:
+            enlace = f"https://backendgc2-production.up.railway.app/media/{doc.name}"
+            mensaje += f"• {doc.nombre_documento}: {enlace}\n"
 
     enviar_correo(
         asunto=f'Nuevo documento registrado: {instance.nro_registro}',
@@ -104,6 +111,13 @@ def procesar_notificacion_elaborada(instance):
     https://backendgc2-production.up.railway.app/api/v1/correspondencia/elaborada/{instance.id_correspondencia}/pdf/
     """
     #http://localhost:8000/api/v1/correspondencia/elaborada/{instance.id_correspondencia}/pdf/
+
+    # Añadir enlaces de documentos
+    if archivos_para_adjuntar:
+        mensaje += f"\n\n📎 Documentos adjuntos:\n"
+        for doc in archivos_para_adjuntar:
+            enlace = f"https://backendgc2-production.up.railway.app/media/{doc.name}"
+            mensaje += f"• {doc.nombre_documento}: {enlace}\n"
 
     enviar_correo(
         asunto=f'Nuevo documento elaborado: {instance.cite}',
