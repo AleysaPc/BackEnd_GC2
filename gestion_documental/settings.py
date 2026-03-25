@@ -6,7 +6,6 @@ from pathlib import Path
 import os
 import dj_database_url
 from dotenv import load_dotenv
-import resend
 
 load_dotenv()
 
@@ -140,15 +139,12 @@ os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-#CONFIGURACIÓN DE RESEND
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+#Configuración EmailJS
+# Configuración EmailJS
+EMAILJS_PUBLIC_KEY = os.environ.get("EMAILJS_PUBLIC_KEY")
+EMAILJS_SERVICE_ID = os.environ.get("EMAILJS_SERVICE_ID")
+EMAILJS_TEMPLATE_ID = os.environ.get("EMAILJS_TEMPLATE_ID")
 
-#Inicializar Resend
-if RESEND_API_KEY:
-    resend.api_key = RESEND_API_KEY
-    print("Resend API key configurada")
-else:
-    print("RESEND_API_KEY no encontrada")
 
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend") #smtp para enviar correos reales pero ojo que en railway no estaba funcionando.
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")

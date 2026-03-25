@@ -6,7 +6,8 @@ from .models import Recibida, CorrespondenciaElaborada
 from .models import AccionCorrespondencia
 from usuario.models import CustomUser
 from .tasks import procesar_notificacion_task
-import resend
+import requests
+import json
 import os
 
 #Objetivo del archivo Detectar eventos del sistema, no ejecutar logica pesada. 
@@ -39,60 +40,52 @@ def construir_mensaje(nro_registro, referencia, remitente, fecha_respuesta):
     return mensaje
 
 def enviar_correo(asunto, mensaje, destinatarios, archivos=None):
-    """Enviar email usando Resend API"""
+    """Enviar email usando EmailJS REST API a múltiples destinatarios"""
     
     if not destinatarios:
         print("No hay destinatarios")
         return False
     
     try:
-        # Configurar API key
-        resend.api_key = os.environ.get('RESEND_API_KEY')
+        public_key = os.environ.get("EMAILJS_PUBLIC_KEY")
+        service_id = os.environ.get("EMAILJS_SERVICE_ID")
+        template_id = os.environ.get("EMAILJS_TEMPLATE_ID")
         
-        # Convertir mensaje a HTML
-        mensaje_html = f"""
-        <html>
-        <body>
-            <pre style="font-family: Arial, sans-serif; white-space: pre-wrap;">{mensaje}</pre>
-        </body>
-        </html>
-        """
+        print(f"🔧 Enviando emails con EmailJS:")
+        print(f"   Service ID: {service_id}")
+        print(f"   Template ID: {template_id}")
+        print(f"   Destinatarios: {len(destinatarios)}")
         
-        # Enviar a cada destinatario individualmente
+        # Enviar a cada destinatario
         for destinatario in destinatarios:
-            params = {
-                "from": "onboarding@resend.dev",
-                "to": [destinatario],
-                "subject": asunto,
-                "html": mensaje_html,
+            data = {
+                'service_id': service_id,
+                'template_id': template_id,
+                'user_id': public_key,
+                'template_params': {
+                    'subject': asunto,
+                    'message': mensaje,
+                    'to_email': destinatario,
+                }
             }
             
-            # Adjuntar archivos si existen (Resend soporta attachments)
-            if archivos:
-                attachments = []
-                for archivo in archivos:
-                    try:
-                        file_content = archivo.read()
-                        attachments.append({
-                            "content": file_content,
-                            "filename": archivo.name,
-                            "type": "application/octet-stream"
-                        })
-                    except Exception as e:
-                        print(f"Error leyendo archivo {archivo.name}: {e}")
-                
-                if attachments:
-                    params["attachments"] = attachments
+            response = requests.post(
+                'https://api.emailjs.com/api/v1.0/email/send',
+                data=json.dumps(data),
+                headers={'Content-Type': 'application/json'}
+            )
             
-            # Enviar email
-            result = resend.Emails.send(params)
-            print(f"✅ Email enviado a {destinatario}: {result}")
+            if response.status_code == 200:
+                print(f"✅ Email enviado a {destinatario}")
+            else:
+                print(f"❌ Error enviando a {destinatario}: {response.text}")
+                return False
         
-        print("Correos enviados correctamente con Resend.")
+        print("📧 Correos enviados correctamente con EmailJS.")
         return True
         
     except Exception as e:
-        print(f"Error al enviar correo con Resend: {str(e)}")
+        print(f"❌ Error al enviar correo con EmailJS: {str(e)}")
         return False
 
 #Para el envío de correo en documentos entrantes
