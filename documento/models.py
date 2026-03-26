@@ -42,9 +42,7 @@ class Documento(models.Model):
         
         # Iniciar procesamiento si hay archivo_data y no está procesado
         if self.archivo_data and not self.contenido_extraido:
-            from documento.busquedaSemantica.procesar_documento import procesar_documento
-            # Pasar el ID en lugar de la ruta
-            procesar_documento(self.id, async_processing=True)
+            pass
     
     def file_to_base64(self):
         """Convertir archivo a base64"""
