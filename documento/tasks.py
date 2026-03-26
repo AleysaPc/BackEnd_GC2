@@ -75,49 +75,42 @@ def ocr_task(self, documento_id):
 # Task 2: Limpieza de texto
 # -----------------------
 @shared_task(bind=True)
-def limpiar_task(self, data):
-    start_time = time.time()
-    texto_limpio = limpiar_texto_ocr(data["texto"])
-    data["texto_limpio"] = texto_limpio
-    end_time = time.time()
-    #logger.info(f"[Limpieza] Documento '{data['nombre_documento']}' limpio en {end_time - start_time:.2f} seg")
-    return data
+def limpiar_task(self, ocr_result):
+    """Limpiar texto extraído por OCR"""
+    from documento.busquedaSemantica.clean_text import limpiar_texto_ocr
+    
+    texto_limpio = limpiar_texto_ocr(ocr_result['texto'])
+    print(f"🧹 Texto limpiado: {len(texto_limpio)} caracteres")
+    
+    return {"texto_limpio": texto_limpio, "nombre_documento": ocr_result['nombre_documento']}
 
 # -----------------------
 # Task 3: Generación de embeddings
 # -----------------------
 @shared_task(bind=True)
-def embeddings_task(self, data, chunk_size=256): #Chunk fragmento o trozo de texto. 
-    start_time = time.time()
-    texto = data["texto_limpio"]
-    # Dividir en chunks si es muy largo
-    chunks = [texto[i:i+chunk_size] for i in range(0, len(texto), chunk_size)]
-    embeddings = [generar_embedding(chunk).tolist() for chunk in chunks]
-    data["embeddings"] = embeddings
-    end_time = time.time()
-    #logger.info(f"[Embeddings] Documento '{data['nombre_documento']}' embeddings generados en {end_time - start_time:.2f} seg")
-    return data
+def embeddings_task(self, limpiar_result):
+    """Generar embeddings del texto limpio"""
+    from documento.busquedaSemantica.embeddings import generar_embedding
+    
+    embedding = generar_embedding(limpiar_result['texto_limpio'])
+    print(f"🔢 Embedding generado: {len(embedding)} dimensiones")
+    
+    return {"embedding": embedding, "texto_limpio": limpiar_result['texto_limpio'], "nombre_documento": limpiar_result['nombre_documento']}
+ 
 
 # -----------------------
 # Task 4: Guardar en BD
 # -----------------------
 @shared_task(bind=True)
-def guardar_task(self, data):
-    start_time = time.time()
-    nombre_documento = data["nombre_documento"]
-    doc = Documento.objects.filter(nombre_documento=nombre_documento).first()
-    if not doc:
-        raise ValueError(f"Documento '{nombre_documento}' no encontrado en BD")
-
-    # Promediar todos los embeddings
-    import numpy as np
-    embeddings = np.array(data["embeddings"])
-    embedding_promedio = np.mean(embeddings, axis=0).tolist()
+def guardar_task(self, embeddings_result):
+    """Guardar resultados en la base de datos"""
+    from documento.models import Documento
     
-    doc.contenido_extraido = data["texto_limpio"]
-    doc.vector_embedding = embedding_promedio
+    # Buscar por nombre_documento está bien, pero asegúrate que sea único
+    doc = Documento.objects.get(nombre_documento=embeddings_result['nombre_documento'])
+    doc.contenido_extraido = embeddings_result['texto_limpio']
+    doc.vector_embedding = embeddings_result['embedding'].tolist() if hasattr(embeddings_result['embedding'], "tolist") else embeddings_result['embedding']
     doc.save(update_fields=["contenido_extraido", "vector_embedding"])
     
-    end_time = time.time()
-    logger.info(f"[BD] Documento '{nombre_documento}' guardado en {end_time - start_time:.2f} seg")
-    return doc.pk
+    print(f"💾 Documento guardado: {doc.nombre_documento}")
+    return {"status": "completado", "documento": doc.nombre_documento}
