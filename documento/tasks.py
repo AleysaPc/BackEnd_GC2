@@ -20,30 +20,57 @@ logger = get_task_logger(__name__)
 # Task 1: OCR
 # -----------------------
 @shared_task(bind=True)
-def ocr_task(self, nombre_documento, ruta_archivo):
-    
+def ocr_task(self, documento_id):
+    """Procesar OCR desde base64 storage"""
+    import tempfile
     import os
-    print(f"🔍 Ruta recibida: {ruta_archivo}")
-    print(f"🔍 Existe archivo: {os.path.exists(ruta_archivo)}")
-    print(f"🔍 Directorio /app/media existe: {os.path.exists('/app/media')}")
-    print(f"🔍 Contenido /app/media: {os.listdir('/app/media') if os.path.exists('/app/media') else 'No existe'}")
-    #logger.info(f"Ruta recibida: {ruta_archivo}")
-    #logger.info(f"Existe archivo: {os.path.exists(ruta_archivo)}")
+    import time
+    
     start_time = time.time()
-    ext = os.path.splitext(ruta_archivo)[1].lower()
-
-    if ext in (".png", ".jpg", ".jpeg"):
-        imagen = Image.open(ruta_archivo)
-        texto = extraer_texto_de_imagen(imagen)
-    elif ext == ".pdf":
-        texto = extraer_texto_de_pdf(ruta_archivo)
-    else:
-        raise ValueError(f"Formato no soportado: {ext}")
-
-    end_time = time.time()
-    logger.info(f"[OCR] Documento '{nombre_documento}' procesado en {end_time - start_time:.2f} seg")
-    return {"nombre_documento": nombre_documento, "texto": texto}
-
+    
+    try:
+        from documento.models import Documento
+        doc = Documento.objects.get(id=documento_id)
+        
+        print(f"🔍 Procesando documento ID: {documento_id}")
+        print(f"🔍 Nombre: {doc.nombre_documento}")
+        
+        # Obtener archivo temporal desde base64
+        ruta_temporal = doc.get_archivo_temporal()
+        
+        if not ruta_temporal:
+            raise ValueError("No se pudo crear archivo temporal desde base64")
+        
+        print(f"🔍 Archivo temporal: {ruta_temporal}")
+        print(f"🔍 Existe archivo: {os.path.exists(ruta_temporal)}")
+        
+        # Procesar OCR con archivo temporal
+        ext = os.path.splitext(ruta_temporal)[1].lower()
+        
+        if ext in (".png", ".jpg", ".jpeg"):
+            from PIL import Image
+            imagen = Image.open(ruta_temporal)
+            texto = extraer_texto_de_imagen(imagen)
+        elif ext == ".pdf":
+            texto = extraer_texto_de_pdf(ruta_temporal)
+        else:
+            raise ValueError(f"Formato no soportado: {ext}")
+        
+        # Limpiar archivo temporal
+        os.unlink(ruta_temporal)
+        print(f"🧹 Archivo temporal eliminado: {ruta_temporal}")
+        
+        end_time = time.time()
+        logger.info(f"[OCR] Documento '{doc.nombre_documento}' procesado en {end_time - start_time:.2f} seg")
+        
+        return {"nombre_documento": doc.nombre_documento, "texto": texto}
+        
+    except Documento.DoesNotExist:
+        print(f"❌ Documento ID {documento_id} no encontrado")
+        raise
+    except Exception as e:
+        print(f"❌ Error en OCR task: {str(e)}")
+        raise
 # -----------------------
 # Task 2: Limpieza de texto
 # -----------------------
