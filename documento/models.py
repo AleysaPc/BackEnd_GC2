@@ -16,23 +16,66 @@ def ruta_archivo(instance, filename):
 class Documento(models.Model):
     id_documento = models.AutoField(primary_key=True)
     nombre_documento = models.CharField(max_length=255, blank=True)
-    archivo = models.FileField(upload_to=ruta_archivo, blank=True, null=True)  # Cambia la ruta según tu estructura de carpetas
+    archivo = models.FileField(upload_to=ruta_archivo, blank=True, null=True)
+    
+    # === CAMPOS NUEVOS PARA BASE64 ===
+    archivo_data = models.TextField(null=True, blank=True, help_text="Archivo en formato base64")
+    archivo_nombre = models.CharField(max_length=255, null=True, blank=True, help_text="Nombre original del archivo")
+    
     fecha_subida = models.DateTimeField(auto_now_add=True)
     correspondencia = models.ForeignKey('correspondencia.Correspondencia', on_delete=models.CASCADE, related_name='documentos') 
-    vector_embedding = VectorField(dimensions=384, null=True, blank=True)  # Usa 384 o 768 según tu modelo
-    contenido_extraido = models.TextField(blank=True, null=True)  # ← Texto plano del PDF
+    vector_embedding = VectorField(dimensions=384, null=True, blank=True)
+    contenido_extraido = models.TextField(blank=True, null=True)
     
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs) #<-Guarda archivo y metadatos
-
-        #AQUÍ EMPIEZA EL PROCESO DE EMBEDDINGS
-        if self.archivo and not self.contenido_extraido:
-            print(f"🔍 Archivo guardado en: {self.archivo.path}")
-            print(f"🔍 Existe archivo: {os.path.exists(self.archivo.path)}")
+        # Guardar archivo como base64 si existe y no está guardado
+        if self.archivo and not self.archivo_data:
+            try:
+                self.archivo_data = self.file_to_base64()
+                self.archivo_nombre = self.archivo.name
+                print(f"✅ Archivo convertido a base64: {self.archivo_nombre}")
+            except Exception as e:
+                print(f"❌ Error convirtiendo a base64: {str(e)}")
+        
+        # Guardar el modelo
+        super().save(*args, **kwargs)
+        
+        # Iniciar procesamiento si hay archivo_data y no está procesado
+        if self.archivo_data and not self.contenido_extraido:
             from documento.busquedaSemantica.procesar_documento import procesar_documento
-            procesar_documento(self.nombre_documento, self.archivo.path, async_processing=True)
-
-
+            # Pasar el ID en lugar de la ruta
+            procesar_documento(self.id, async_processing=True)
+    
+    def file_to_base64(self):
+        """Convertir archivo a base64"""
+        import base64
+        self.archivo.seek(0)
+        return base64.b64encode(self.archivo.read()).decode('utf-8')
+    
+    def get_archivo_temporal(self):
+        """Crear archivo temporal para OCR desde base64"""
+        import base64
+        import tempfile
+        import os
+        
+        if self.archivo_data:
+            try:
+                # Decodificar base64
+                file_data = base64.b64decode(self.archivo_data)
+                
+                # Crear archivo temporal con extensión correcta
+                ext = os.path.splitext(self.archivo_nombre)[1]
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
+                temp_file.write(file_data)
+                temp_file.close()
+                
+                print(f"✅ Archivo temporal creado: {temp_file.name}")
+                return temp_file.name
+            except Exception as e:
+                print(f"❌ Error creando archivo temporal: {str(e)}")
+                return None
+        
+        return None
 
 TIPO_DOCUMENTO_CHOICES = [
     ('comunicado', 'Comunicado'),
