@@ -20,30 +20,41 @@ logger = get_task_logger(__name__)
 # Task 1: OCR
 # -----------------------
 @shared_task(bind=True)
-def ocr_task(self, nombre_documento, ruta_archivo):
+def ocr_task(self, nombre_documento, redis_key):
+    """Procesar OCR desde Redis storage"""
+    from documento.redis_utils import obtener_archivo_redis, limpiar_archivo_temporal
     
-    import os
-    print(f"🔍 Ruta recibida: {ruta_archivo}")
-    print(f"🔍 Existe archivo: {os.path.exists(ruta_archivo)}")
-    print(f"🔍 Directorio /app/media existe: {os.path.exists('/app/media')}")
-    print(f"🔍 Contenido /app/media: {os.listdir('/app/media') if os.path.exists('/app/media') else 'No existe'}")
-    #logger.info(f"Ruta recibida: {ruta_archivo}")
-    #logger.info(f"Existe archivo: {os.path.exists(ruta_archivo)}")
-
-    start_time = time.time()
-    ext = os.path.splitext(ruta_archivo)[1].lower()
-
-    if ext in (".png", ".jpg", ".jpeg"):
-        imagen = Image.open(ruta_archivo)
-        texto = extraer_texto_de_imagen(imagen)
-    elif ext == ".pdf":
-        texto = extraer_texto_de_pdf(ruta_archivo)
-    else:
-        raise ValueError(f"Formato no soportado: {ext}")
-
-    end_time = time.time()
-    logger.info(f"[OCR] Documento '{nombre_documento}' procesado en {end_time - start_time:.2f} seg")
-    return {"nombre_documento": nombre_documento, "texto": texto}
+    print(f"🔍 Redis key recibida: {redis_key}")
+    
+    # Obtener archivo desde Redis
+    ruta_temporal = obtener_archivo_redis(redis_key)
+    
+    if not ruta_temporal:
+        raise ValueError(f"No se pudo obtener archivo desde Redis: {redis_key}")
+    
+    try:
+        print(f"🔍 Archivo temporal: {ruta_temporal}")
+        print(f"🔍 Existe archivo: {os.path.exists(ruta_temporal)}")
+        
+        # Procesar OCR
+        ext = os.path.splitext(ruta_temporal)[1].lower()
+        if ext in (".png", ".jpg", ".jpeg"):
+            from PIL import Image
+            imagen = Image.open(ruta_temporal)
+            texto = extraer_texto_de_imagen(imagen)
+        elif ext == ".pdf":
+            texto = extraer_texto_de_pdf(ruta_temporal)
+        else:
+            raise ValueError(f"Formato no soportado: {ext}")
+        
+        # Limpiar archivo temporal
+        limpiar_archivo_temporal(ruta_temporal)
+        
+        return {"nombre_documento": nombre_documento, "texto": texto}
+        
+    except Exception as e:
+        limpiar_archivo_temporal(ruta_temporal)
+        raise
 # -----------------------
 # Task 2: Limpieza de texto
 # -----------------------

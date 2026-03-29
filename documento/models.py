@@ -17,20 +17,30 @@ class Documento(models.Model):
     id_documento = models.AutoField(primary_key=True)
     nombre_documento = models.CharField(max_length=255, blank=True)
     archivo = models.FileField(upload_to=ruta_archivo, blank=True, null=True)
+    archivo_redis_key = models.CharField(max_length=255, null=True, blank=True)
     fecha_subida = models.DateTimeField(auto_now_add=True)
     correspondencia = models.ForeignKey('correspondencia.Correspondencia', on_delete=models.CASCADE, related_name='documentos') 
     vector_embedding = VectorField(dimensions=384, null=True, blank=True)  # Usa 384 o 768 según tu modelo
     contenido_extraido = models.TextField(blank=True, null=True)  # ← Texto plano del PDF
     
     def save(self, *args, **kwargs):
+    # Primero guardar el modelo para obtener ID
         super().save(*args, **kwargs)
-
-        #AQUÍ EMPIEZA EL PROCESO DE EMBEDDINGS
-        if self.archivo and not self.contenido_extraido:
-            print(f"🔍 Archivo guardado en: {self.archivo.path}")
-            print(f"🔍 Existe archivo: {os.path.exists(self.archivo.path)}")
+        
+        # Guardar archivo en Redis si existe y no está guardado
+        if self.archivo and not self.archivo_redis_key:
+            redis_key = f"documento_{self.id_documento}_{self.nombre_documento}"
+            from documento.redis_utils import guardar_archivo_redis
+            guardar_archivo_redis(self.archivo, redis_key)
+            self.archivo_redis_key = redis_key
+            # Guardar nuevamente para actualizar el campo redis_key
+            super().save(update_fields=['archivo_redis_key'])
+        
+        # Procesar OCR si hay archivo en Redis y no está procesado
+        if self.archivo_redis_key and not self.contenido_extraido:
+            print(f"🚀 Procesando OCR desde Redis: {self.archivo_redis_key}")
             from documento.busquedaSemantica.procesar_documento import procesar_documento
-            procesar_documento(self.nombre_documento, self.archivo.path, async_processing=True)
+            procesar_documento(self.nombre_documento, self.archivo_redis_key, async_processing=True)
 
 TIPO_DOCUMENTO_CHOICES = [
     ('comunicado', 'Comunicado'),
