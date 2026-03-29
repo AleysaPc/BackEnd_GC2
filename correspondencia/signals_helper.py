@@ -40,12 +40,16 @@ def procesar_notificacion(instance):
         if doc.archivo and os.path.exists(doc.archivo.path):
             archivos_para_adjuntar.append(doc.archivo)
 
+    # Mantener el endpoint existente
+    base_url = "https://backendgc2-production.up.railway.app"
+    documento_url = f"{base_url}/api/v1/correspondencia/recibida/{instance.id_correspondencia}/pdf/"
+
     mensaje = construir_mensaje(
         instance.nro_registro,
         instance.referencia,
         instance.contacto,
         instance.fecha_respuesta,
-    )
+    ) + f"\n\nPuedes ver el documento en el siguiente enlace:\n{documento_url}"
     enviar_correo(
         asunto=f'Nuevo documento registrado: {instance.nro_registro}',
         mensaje=mensaje,

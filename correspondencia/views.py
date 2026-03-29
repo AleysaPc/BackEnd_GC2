@@ -26,6 +26,7 @@ from django.template.loader import render_to_string
 from usuario.models import CustomUser
 from .signals import enviar_correo, construir_mensaje
 from .tasks import procesar_ia_pesada_task
+from django.http import HttpResponse, FileResponse
 
 
 User = get_user_model()
@@ -191,7 +192,25 @@ class RecibidaView(BaseViewSet, AuditableModelViewSet):
 
         return Response(data)
 
-
+    @action(detail=True, methods=["get"], url_path="pdf")
+    def obtener_pdf(self, request, pk=None):
+        recibida = self.get_object()
+        
+        # Buscar el primer documento adjunto
+        documento = recibida.documentos.first()
+        if not documento or not documento.archivo:
+            return Response(
+                {"error": "No hay archivo PDF adjunto"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Servir el archivo directamente
+        response = FileResponse(
+            documento.archivo.open('rb'),
+            content_type='application/pdf'
+        )
+        response['Content-Disposition'] = f'inline; filename="{documento.nombre_documento}"'
+        return response
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
