@@ -90,7 +90,8 @@ REST_FRAMEWORK = {
     ],
 }
 
-if os.getenv("RAILWAY_ENVIRONMENT"):
+if os.getenv("RAILWAY_ENVIRONMENT") and os.getenv("DATABASE_URL"):
+    # Configuración Railway (Producción)
     DATABASES = {
         "default": dj_database_url.parse(
             os.environ["DATABASE_URL"],
@@ -98,11 +99,19 @@ if os.getenv("RAILWAY_ENVIRONMENT"):
             ssl_require=False,
         )
     }
-
-    DATABASES["default"]["OPTIONS"] = {
-        "sslmode": "disable"
-    } # Desactivamos SSL porque Railway usa red interna segura (no requiere SSL)
+    DATABASES["default"]["OPTIONS"] = {"sslmode": "disable"}
+elif os.getenv("DATABASE_URL") and not os.getenv("RAILWAY_ENVIRONMENT"):
+    # Usar Railway DB para desarrollo local
+    DATABASES = {
+        "default": dj_database_url.parse(
+            os.environ["DATABASE_URL"],
+            conn_max_age=600,
+            ssl_require=False,
+        )
+    }
+    DATABASES["default"]["OPTIONS"] = {"sslmode": "disable"}
 else:
+    # Configuración Local (Desarrollo)
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -131,8 +140,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
-#MEDIA_ROOT = BASE_DIR / "media" #Para desarrollo local
-MEDIA_ROOT = "/app/media"
+MEDIA_ROOT = BASE_DIR / "media" #Para desarrollo local
+#MEDIA_ROOT = "/app/media"
 # Crear carpeta si no existe (Railway)
 import os
 os.makedirs(MEDIA_ROOT, exist_ok=True)

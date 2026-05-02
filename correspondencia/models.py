@@ -68,7 +68,7 @@ class Correspondencia(models.Model):
 
 class Recibida(Correspondencia):
     nro_registro = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    fecha_recepcion = models.DateTimeField(blank=False, null=False)
+    fecha_recepcion = models.DateTimeField()
     fecha_respuesta = models.DateTimeField(blank=True, null=True)
     relacionada_a = models.ForeignKey(
         'Correspondencia',
