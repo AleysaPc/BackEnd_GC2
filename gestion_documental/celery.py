@@ -2,6 +2,12 @@
 import os
 from celery import Celery #Importación de celery
 
+import os
+import certifi
+
+os.environ['SSL_CERT_FILE'] = certifi.where()
+os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
+
 #Arranque de Celery
 
 # Define settings del proyecto principal - “Usa los settings de Django como si fueras Django”

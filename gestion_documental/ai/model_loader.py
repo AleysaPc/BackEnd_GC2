@@ -1,5 +1,8 @@
 import os
 import torch
+#FOR SOULTION SSL
+import ssl
+import certifi
 
 _model = None
 

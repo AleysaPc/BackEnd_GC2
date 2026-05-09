@@ -36,4 +36,5 @@ urlpatterns = [
     path('api/v1/usuario/', include(('usuario.urls', 'usuario'), namespace='usuario')),
     path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('health/', health_check, name='health_check'),
+    path('api/v1/alertas/', include('alertas.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

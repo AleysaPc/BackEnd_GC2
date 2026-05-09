@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "usuario",
     "contacto",
     "documento",
+    "alertas",
     "django_filters",
 ]
 
@@ -176,3 +177,38 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "America/La_Paz"
+
+
+## settings.py - Modificar sección LOGGING
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'structured': {
+            'format': '%(asctime)s [%(name)s] %(levelname)s: %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'structured',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'logs/alertas.log',
+            'formatter': 'structured',
+        },
+    },
+    'loggers': {
+        'alertas.services': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'propagate': False,
+        },
+        'alertas.signals': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'propagate': False,
+        }
+    },
+}
