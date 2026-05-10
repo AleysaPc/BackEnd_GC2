@@ -38,13 +38,23 @@ def obtener_alertas_usuario(request):
         data = []
         for alerta in alertas: #Construcción manual del Json
             nro_registro = None
+            cite = None
+            tipo_correspondencia = "desconocido"
+
             if hasattr(alerta.correspondencia, "recibida"):
                 nro_registro = alerta.correspondencia.recibida.nro_registro
+                tipo_correspondencia = "recibida"
+            elif hasattr(alerta.correspondencia, "correspondenciaelaborada"):
+                cite = alerta.correspondencia.correspondenciaelaborada.cite
+                tipo_correspondencia = "elaborada"
+
             data.append({
                 'id': alerta.id,
                 'correspondencia_id': alerta.correspondencia.id_correspondencia,
                 'correspondencia_codigo': alerta.correspondencia.referencia,
                 'nro_registro': nro_registro,
+                'cite': cite,
+                'tipo_correspondencia': tipo_correspondencia,
                 'tipo_alerta': alerta.tipo_alerta,
                 'nivel_alerta': alerta.nivel_alerta,
                 'fecha_alerta': alerta.fecha_alerta,

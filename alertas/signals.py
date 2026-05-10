@@ -105,6 +105,47 @@ def crear_alerta_al_asignar_usuario(sender, instance, created, **kwargs):
                 logger.info("No tiene fecha_respuesta")
         else:
             logger.info("No es documento Recibida")
+           
+        # Verificar si es una CorrespondenciaElaborada con fecha_seguimiento
+        if hasattr(correspondencia, 'correspondenciaelaborada'):
+            elaborada = correspondencia.correspondenciaelaborada
+            logger.info(f"Es documento CorrespondenciaElaborada - Fecha seguimiento: {elaborada.fecha_seguimiento}")
+            
+            if elaborada.fecha_seguimiento:
+                hoy = timezone.now()
+                logger.info(f"Hoy: {hoy}")
+                
+                # Evaluar fecha inmediatamente
+                if elaborada.fecha_seguimiento <= hoy + timezone.timedelta(hours=24):
+                    if elaborada.fecha_seguimiento <= hoy:
+                        # Documento vencido
+                        tipo_alerta = 'vencido'
+                        nivel_alerta = 'critica'
+                        logger.info("Creando alerta VENCIDO")
+                    else:
+                        # Documento por vencer (24h)
+                        tipo_alerta = 'por_vencer'
+                        nivel_alerta = 'preventiva'
+                        logger.info("Creando alerta POR VENCER")
+                else:
+                    # No necesita alerta aún
+                    logger.info("No necesita alerta, fecha futura")
+                    return
+                
+                logger.info(f"Creando alerta: {tipo_alerta} - {nivel_alerta}")
+                transaction.on_commit(
+                    lambda: crear_alerta_segura(
+                        correspondencia_id=correspondencia.id_correspondencia,
+                        usuario_id=instance.usuario_destino.id,
+                        tipo_alerta=tipo_alerta,
+                        nivel_alerta=nivel_alerta
+                    )
+                )
+            else:
+                logger.info("No tiene fecha_seguimiento")
+        else:
+            logger.info("No es documento Recibida ni CorrespondenciaElaborada")
+
     else:
         logger.info("No es acción de derivación con usuario destino")
 
@@ -146,7 +187,7 @@ def crear_alerta_inmediata_enviada(sender, instance, created, **kwargs):
         transaction.on_commit(
             lambda: crear_alerta_segura(
                 correspondencia_id=instance.id_correspondencia,
-                usuario_id=instance.destino_interno.id,
+                usuario_id=instance.usuario.id,
                 tipo_alerta=tipo_alerta,
                 nivel_alerta=nivel_alerta
             )
@@ -154,48 +195,47 @@ def crear_alerta_inmediata_enviada(sender, instance, created, **kwargs):
     else:
         logger.info("No tiene fecha_seguimiento o usuario")
 
-##@receiver(post_save, sender=CorrespondenciaElaborada)
-##def crear_alerta_inmediata_elaborada(sender, instance, created, **kwargs):
+@receiver(post_save, sender=CorrespondenciaElaborada)
+def crear_alerta_inmediata_elaborada(sender, instance, created, **kwargs):
     """Crea alerta automática inmediata al crear documento elaborado"""
-    ##logger.info(f"Signal Elaborada ejecutado - created: {created}")
-    ##logger.info(f"Documento ID: {instance.id_correspondencia}")
-    ##logger.info(f"Fecha seguimiento: {instance.fecha_seguimiento}")
-    ##logger.info(f"Usuario: {instance.destino_interno.id}")
+    logger.info(f"Signal Elaborada ejecutado - created: {created}")
+    logger.info(f"Documento ID: {instance.id_correspondencia}")
+    logger.info(f"Fecha seguimiento: {instance.fecha_seguimiento}")
+    logger.info(f"Usuario: {instance.usuario.id}")
     
-    ##if not created:
-    ##    logger.info("No es creación, retornando...")
-    ##    return
-    ##
+    if not created:
+        logger.info("No es creación, retornando...")
+        return
+    
     # Solo si tiene fecha_seguimiento y usuario responsable
-    ##if instance.fecha_seguimiento and instance.destino_interno:
-        #hoy = timezone.now()
-        #logger.info(f"Hoy: {hoy}")
-        
-        # Evaluar fecha inmediatamente
-        #if instance.fecha_seguimiento <= hoy + timezone.timedelta(hours=24):
-        #    if instance.fecha_seguimiento <= hoy:
-        #        # Documento vencido
-        #        tipo_alerta = 'vencido'
-        #        nivel_alerta = 'critica'
-       #         logger.info("Creando alerta VENCIDO")
-        #    else:
-        #        # Documento por vencer (24h)
-        #        tipo_alerta = 'por_vencer'
-        #        nivel_alerta = 'preventiva'
-        #        logger.info("Creando alerta POR VENCER")
-        #else:
-        #    # No necesita alerta aún
-        #    logger.info("No necesita alerta, fecha futura")
-        #    return
-        
-        #logger.info(f"Creando alerta: {tipo_alerta} - {nivel_alerta}")
-        #transaction.on_commit(
-        #    lambda: crear_alerta_segura(
-        #        correspondencia_id=instance.id_correspondencia,
-        #        usuario_id=instance.destino_interno.id,
-        #        tipo_alerta=tipo_alerta,
-        #        nivel_alerta=nivel_alerta
-        #    )
-    #    )
-  #  else:
-#        logger.info("No tiene fecha_seguimiento o usuario")
+    if instance.fecha_seguimiento and instance.usuario:
+        hoy = timezone.now()
+        logger.info(f"Hoy: {hoy}")
+            
+        #Evaluar fecha inmediatamente
+        if instance.fecha_seguimiento <= hoy + timezone.timedelta(hours=24):
+            if instance.fecha_seguimiento <= hoy:
+                # Documento vencido
+                tipo_alerta = 'vencido'
+                nivel_alerta = 'critica'
+                logger.info("Creando alerta VENCIDO")
+            else:
+                # Documento por vencer (24h)
+                tipo_alerta = 'por_vencer'
+                nivel_alerta = 'preventiva'
+                logger.info("Creando alerta POR VENCER")
+        else:
+            # No necesita alerta aún
+            logger.info("No necesita alerta, fecha futura")
+            return
+            
+        logger.info(f"Creando alerta: {tipo_alerta} - {nivel_alerta}")
+        transaction.on_commit(
+            lambda: crear_alerta_segura(
+                correspondencia_id=instance.id_correspondencia,
+                usuario_id=instance.usuario.id,
+                tipo_alerta=tipo_alerta,
+                nivel_alerta=nivel_alerta
+            )
+    )
+    else: logger.info("No tiene fecha_seguimiento o usuario")

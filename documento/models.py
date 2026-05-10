@@ -35,12 +35,15 @@ class Documento(models.Model):
             self.archivo_redis_key = redis_key
             # Guardar nuevamente para actualizar el campo redis_key
             super().save(update_fields=['archivo_redis_key'])
-        
+            print(f"✅ Archivo guardado en Redis: {redis_key}")
+
         # Procesar OCR si hay archivo en Redis y no está procesado
         if self.archivo_redis_key and not self.contenido_extraido:
             print(f"🚀 Procesando OCR desde Redis: {self.archivo_redis_key}")
             from documento.busquedaSemantica.procesar_documento import procesar_documento
             procesar_documento(self.nombre_documento, self.archivo_redis_key, async_processing=True)
+        elif self.archivo_redis_key and self.contenido_extraido:
+                print(f"ℹ️ Documento ya procesado: {self.nombre_documento}")
 
 TIPO_DOCUMENTO_CHOICES = [
     ('comunicado', 'Comunicado'),

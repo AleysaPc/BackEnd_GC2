@@ -325,7 +325,7 @@ class CorrespondenciaElaboradaView(BaseViewSet, AuditableModelViewSet):
     search_fields = [
         'cite', 'referencia','contacto__nombre_contacto','contacto__apellido_pat_contacto',
         'contacto__apellido_mat_contacto','contacto__institucion__razon_social',
-        'plantilla__nombre_plantilla','email'
+        'plantilla__nombre_plantilla','email','tipo_entrega'
     ]
     ordering_fields = search_fields
 

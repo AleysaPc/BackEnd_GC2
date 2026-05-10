@@ -19,10 +19,11 @@ class DocumentoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         documento = serializer.save()
-        # Usar la versión asíncrona para procesamiento pesado
-        from documento.busquedaSemantica.procesar_documento import procesar_documento
-        procesar_documento(documento.nombre_documento, documento.archivo.path)
-
+        # Usar la versión asíncrona para procesamiento pesado porque en el modelo ya esta todo el proceso por eso usamos
+        # pass
+        #from documento.busquedaSemantica.procesar_documento import procesar_documento
+        #procesar_documento(documento.nombre_documento, documento.archivo.path)
+        pass
 
 # -------------------------------
 # ViewSet para Plantillas
