@@ -361,7 +361,7 @@ class RecibidaListSerializer(serializers.ModelSerializer):
         fields = [
             'id_correspondencia', 'tipo', 'referencia', 'fecha_registro', 'fecha_recepcion',
             'prioridad', 'estado', 'nro_registro', 'contacto', 'datos_contacto',
-            'usuario', 'documentos', 'acciones', 'similitud',
+            'usuario', 'documentos', 'acciones', 'similitud', 'fecha_respuesta',
         ]
 
 

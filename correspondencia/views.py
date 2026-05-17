@@ -283,6 +283,50 @@ def generar_pre_sello(request):
             {"error": f"No se pudo generar el pre-sello: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+## PARA MOSTRAR EL SELLO SIGUIENTE
+@api_view(['GET']) #Esta función acepta peticiones get
+@permission_classes([IsAuthenticated]) #Seguridad para usuarios logueados
+def proximo_nro_registro(request):
+    try:
+        ultimo_oficial = Recibida.objects.order_by( #Accede a la tabla Recibida / order descendiente
+            '-id_correspondencia'
+        ).first()
+        if ultimo_oficial and ultimo_oficial.nro_registro:
+            try:
+                numero_actual = int(
+                    ultimo_oficial.nro_registro.split("-")[1]
+                )
+            except(IndexError, ValueError):
+                numero_actual = 0
+        else:
+            numero_actual = 0
+
+        ultimo_pre = PreSelloRecibida.objects.order_by(
+            "-id"
+        ).first() #Obtener pre sello
+
+        if ultimo_pre:
+            try:
+                numero_actual = max(
+                    numero_actual,
+                    int(
+                        ultimo_pre.pre_nro_registro.split("-")[1]
+                    )
+                )
+            except (IndexError, ValueError):
+                pass
+        siguiente = numero_actual + 1
+
+        return Response({
+            "actual": f"Reg-{numero_actual:03}",
+            "siguiente": f"Reg-{siguiente:03}",
+        })
+    except Exception as e:
+
+        return Response(
+            {"error": str(e)},
+            status=500
+        )
 
 class EnviadaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = EnviadaSerializer
