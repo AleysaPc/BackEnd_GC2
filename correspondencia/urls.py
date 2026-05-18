@@ -7,6 +7,7 @@ from .views import (
     EnviadaView,
     CorrespondenciaElaboradaView,
     AccionCorrespondenciaViewSet,
+    estadisticas_dashboard,
     generar_documento,
     generar_pre_sello,
     notificaciones_pendientes,
@@ -33,4 +34,5 @@ urlpatterns = [
     path("ia/tarea/estado/<str:task_id>/", estado_tarea_ia, name="estado_tarea_ia"),
     path("proximo_nro_registro/", proximo_nro_registro),
     path("generar_pre_sello/", generar_pre_sello),
+    path("estadisticas/",estadisticas_dashboard, name="estadisticas"),
 ]

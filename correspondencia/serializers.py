@@ -379,7 +379,7 @@ class EnviadaSerializer(CorrespondenciaSerializerBase):
         model = Enviada
         fields = [
             'id_correspondencia', 'tipo', 'descripcion', 'fecha_registro',
-            'referencia', 'paginas', 'documentos', 'contacto', 'usuario', 'comentario',
+            'referencia', 'paginas', 'documentos', 'contacto', 'usuario',
             'acciones', 'datos_contacto', 'usuarios', 'fecha_envio', 'fecha_recepcion',
             'fecha_seguimiento', 'cite', 'similitud'
         ]
