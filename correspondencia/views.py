@@ -759,11 +759,22 @@ def estadisticas_dashboard(request):
     busquedas_exitosas = 85  # Placeholder
     busquedas_sin_resultados = 15  # Placeholder
     
-    # 9. Tipos de documentos (por plantilla)
+    # 9. Tipos de documentos por ámbito
     tipos_documentos = PlantillaDocumento.objects.annotate(
-        cantidad=Count('correspondencias')
-    ).values('tipo', 'cantidad').order_by('-cantidad')
-    
+        internos=Count(
+            'correspondencias',
+            filter=Q(correspondencias__ambito='interno')
+        ),
+        externos=Count(
+            'correspondencias',
+            filter=Q(correspondencias__ambito='externo')
+        )
+    ).values(
+        'tipo',
+        'internos',
+        'externos'
+    ).order_by('tipo')
+        
     # 10. Flujo mensual de correspondencia
     flujo_correspondencia = Correspondencia.objects.filter(
         fecha_registro__gte=fecha_inicio
@@ -890,7 +901,11 @@ def estadisticas_dashboard(request):
             {'name': 'Sin resultados', 'cantidad': busquedas_sin_resultados}
         ],
         'tipos_documentos': [
-            {'tipo': item['tipo'].capitalize(), 'cantidad': item['cantidad']}
+            {
+                'tipo': item['tipo'].capitalize(),
+                'internos': item['internos'],
+                'externos': item['externos'],
+            }
             for item in tipos_documentos
         ],
         'flujo_correspondencia': [
@@ -904,3 +919,123 @@ def estadisticas_dashboard(request):
         ],
         'rendimiento_busqueda': rendimiento_busqueda
     })
+# =============================================
+# ARCHIVO EXCEL
+# =============================================
+from openpyxl import Workbook
+from django.http import HttpResponse
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def exportar_excel(request):
+
+    hoy = timezone.now()
+
+    periodo = request.GET.get("periodo", "dia")
+    cantidad = int(request.GET.get("cantidad", 7))
+
+    # CONFIGURACIÓN
+    if periodo == "dia":
+        fecha_inicio = hoy - timedelta(days=cantidad)
+
+    elif periodo == "semana":
+        fecha_inicio = hoy - timedelta(weeks=cantidad)
+
+    elif periodo == "mes":
+        fecha_inicio = hoy - timedelta(days=30 * cantidad)
+
+    elif periodo == "gestion":
+        fecha_inicio = hoy - timedelta(days=365 * cantidad)
+
+    else:
+        fecha_inicio = hoy - timedelta(days=7)
+
+    # CONSULTA
+    recibidas = Recibida.objects.filter(
+        fecha_registro__gte=fecha_inicio
+    )
+    enviadas = CorrespondenciaElaborada.objects.filter(
+        fecha_envio__gte=fecha_inicio
+    )
+    # CREAR EXCEL
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Reporte Correspondencia"
+
+    # ENCABEZADOS
+    ws.append([
+        "TIPO",
+        "ID",
+        "NRO REGISTRO/CITE",
+        "FECHA RECEPCIÓN",
+        "FECHA RESPUESTA",
+        "FECHA ENVÍO",
+        "FECHA SEGUIMIENTO",
+        "ESTADO",
+        "PRIORIDAD",
+        "ÁMBITO"
+    ])
+
+    ##RECIBIDAS
+    for doc in recibidas:
+        ws.append([
+             "RECIBIDA",
+            str(doc.id_correspondencia),
+            doc.nro_registro if hasattr(doc, 'nro_registro') else "-",
+
+            doc.fecha_recepcion.strftime("%d/%m/%Y")
+            if doc.fecha_recepcion else "-",
+
+            doc.fecha_respuesta.strftime("%d/%m/%Y")
+            if doc.fecha_respuesta else "-",
+
+            "-",  # fecha envio
+
+            "-",  # fecha seguimiento
+
+            doc.estado,
+
+            doc.prioridad if hasattr(doc, 'prioridad') else "-",
+
+            "-"  # ambito no existe
+             ])
+
+
+    for doc in enviadas:
+
+        ws.append([
+            "ENVIADA",
+
+            str(doc.id_correspondencia),
+
+            doc.cite if hasattr(doc, 'cite') else "-",
+
+            "-",  # fecha recepcion
+
+            "-",  # fecha respuesta
+
+            doc.fecha_envio.strftime("%d/%m/%Y")
+            if doc.fecha_envio else "-",
+
+            doc.fecha_seguimiento.strftime("%d/%m/%Y")
+            if hasattr(doc, 'fecha_seguimiento') and doc.fecha_seguimiento
+            else "-",
+
+            doc.estado,
+
+            doc.prioridad if hasattr(doc, 'prioridad') else "-",
+
+            doc.ambito if hasattr(doc, 'ambito') else "-"
+        ])
+
+    # RESPUESTA
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    response['Content-Disposition'] = (
+        'attachment; filename="reporte_correspondencia.xlsx"'
+    )
+
+    wb.save(response)
+
+    return response
