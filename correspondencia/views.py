@@ -554,7 +554,7 @@ def estado_tarea_ia(request, task_id):
 from django.db.models import Count, Q, Avg, F, ExpressionWrapper, DurationField
 from django.utils import timezone
 from datetime import timedelta, datetime
-from django.db.models.functions import TruncDay, TruncWeek, TruncMonth
+from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYear
 from documento.models import PlantillaDocumento
 
 
@@ -565,56 +565,159 @@ def estadisticas_dashboard(request):
     Endpoint principal que retorna todas las estadísticas para el dashboard
     """
     hoy = timezone.now() #Obtiene la fecha actual
-    dias = int(request.GET.get("dias", 7))
-    fecha_inicio = hoy - timedelta(days=dias)
+    periodo = request.GET.get("periodo", "dia")
+    cantidad = int(request.GET.get("cantidad",7))
 
+    MESES = {
+        1: "Ene",
+        2: "Feb",
+        3: "Mar",
+        4: "Abr",
+        5: "May",
+        6: "Jun",
+        7: "Jul",
+        8: "Ago",
+        9: "Sep",
+        10: "Oct",
+        11: "Nov",
+        12: "Dic"   
+        }
 
-    mes_pasado = hoy - timedelta(days=365)
+    #### CONFIGURACIÓN DINAMICA ####
+
+    if periodo == "dia":
+        fecha_inicio = hoy - timedelta(days=cantidad)
+        truncado = TruncDay #Define como agrupar en este caso por día
     
+    elif periodo == "semana":
+        fecha_inicio = hoy - timedelta(weeks=cantidad)
+        truncado = TruncWeek #Define como agrupar en este caso por semana
+    
+    elif periodo == "mes":
+        fecha_inicio = hoy - timedelta(days=30 * cantidad)
+        truncado = TruncMonth
+    
+    elif periodo == "gestion":
+        fecha_inicio = hoy - timedelta(days=365 * cantidad)
+        truncado = TruncYear
+    
+    else:
+        fecha_inicio = hoy - timedelta(days=7)
+        truncado = TruncDay
+
+    
+    def formatear_fecha(fecha, periodo):
+        if periodo == "dia":
+            return fecha.strftime("%d/%m")
+        elif periodo == "semana":
+            return f"Sem {fecha.isocalendar().week}"
+        elif periodo == "mes":
+            return MESES[fecha.month]
+        elif periodo == "gestion":
+            return str(fecha.year)
+        return fecha.strftime("%d/%m")
+
     # 1. Correspondencia recibida semanal //Recibida.objects --> voy a trabajar con la tabla Recibida
     # .filter --> solo dame algunos registros que cumplan con la condición
     # gte --> greater than or equal (mayor o igual)
-    recibida_semanal = Recibida.objects.filter(
+    recibida_data = Recibida.objects.filter(
         #Means: Dame registros desde hace 7 días hasta hoy
         fecha_registro__gte=fecha_inicio
     ).annotate( #Agrupa por día
-
-        dia=TruncDay('fecha_registro')
+        fecha=truncado('fecha_registro')
     #values() = solo quiero el día
-    ).values('dia').annotate(
+    ).values('fecha').annotate(
                  #count = cuenta cuantos documentos hay por día
         cantidad=Count('id_correspondencia')
-    ).order_by('dia')
+    ).order_by('fecha')
     
     # 2. Correspondencia enviada semanal
-    enviada_semanal = CorrespondenciaElaborada.objects.filter(
-        fecha_envio__gte=fecha_inicio
+    enviada_data = CorrespondenciaElaborada.objects.filter(
+        fecha_envio__gte=fecha_inicio ##PORQUE
     ).annotate(
-        dia=TruncDay('fecha_registro')
-    ).values('dia').annotate(
+        fecha=truncado('fecha_envio')
+    ).values('fecha').annotate(
         cantidad=Count('id_correspondencia')
-    ).order_by('dia')
+    ).order_by('fecha')
     
     # 3. Correspondencia recibida vs enviada (combinado)
+ 
     recibida_vs_enviada = []
-    for i in range(30): #Repite 7 veces
-        dia = hoy - timedelta(days=29-i)
-        dia_truncado = dia.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    for i in range(cantidad):
+
+        ## Generar fecha según periodo
+
+        if periodo == "dia":
+            fecha_actual = hoy - timedelta(days=cantidad - 1 - i)
+
+        elif periodo == "semana":
+            fecha_actual = hoy - timedelta(weeks=cantidad - 1 - i)
+
+        elif periodo == "mes":
+            fecha_actual = hoy - timedelta(days=(30 * (cantidad - 1 - i)))
+
+        elif periodo == "gestion":
+            fecha_actual = hoy - timedelta(days=(365 * (cantidad - 1 - i)))  
+ 
+        ## Filtros según periodo
+
+        if periodo == "dia":
+            recibidas = Recibida.objects.filter(
+                fecha_registro__date=fecha_actual.date()
+            ).count()
+
+            enviadas = CorrespondenciaElaborada.objects.filter(
+                fecha_registro__date=fecha_actual.date()
+            ).count()
         
-        recibidas = Recibida.objects.filter(
-            fecha_registro__date=dia.date()
-        ).count()
-        
-        enviadas = CorrespondenciaElaborada.objects.filter(
-            fecha_registro__date=dia.date()
-        ).count()
-        
+        elif periodo == "semana":
+
+            inicio_semana = fecha_actual - timedelta(days=fecha_actual.weekday())
+            fin_semana = inicio_semana + timedelta(days=6)
+
+            recibidas = Recibida.objects.filter(
+                fecha_registro__date__range=[
+                    inicio_semana.date(),
+                    fin_semana.date()
+                ]
+            ).count()
+
+            enviadas = CorrespondenciaElaborada.objects.filter(
+                fecha_registro__date__range=[
+                        inicio_semana.date(),
+                        fin_semana.date()
+                    ]
+                ).count()
+
+        elif periodo == "mes":
+
+            recibidas = Recibida.objects.filter(
+                fecha_registro__year=fecha_actual.year,
+                fecha_registro__month=fecha_actual.month
+            ).count()
+
+            enviadas = CorrespondenciaElaborada.objects.filter(
+                fecha_registro__year=fecha_actual.year,
+                fecha_registro__month=fecha_actual.month
+             ).count()
+
+        elif periodo == "gestion":
+
+            recibidas = Recibida.objects.filter(
+                fecha_registro__year=fecha_actual.year
+            ).count()
+
+            enviadas = CorrespondenciaElaborada.objects.filter(
+                fecha_registro__year=fecha_actual.year
+            ).count()
+
         recibida_vs_enviada.append({
-            'semana': dia.strftime('%m/%d'),
+            'fecha': formatear_fecha(fecha_actual, periodo),
             'recibida': recibidas,
             'enviada': enviadas
         })
-    
+
     # 4. Estado de documentos
     estado_documentos = Correspondencia.objects.values('estado').annotate(
         cantidad=Count('id_correspondencia')
@@ -627,12 +730,13 @@ def estadisticas_dashboard(request):
     
     atrasados = Correspondencia.objects.filter(
         estado__in=['borrador', 'en_revision'],
-        fecha_registro__lt=hoy - timedelta(days=30)
+        fecha_registro__lt=fecha_inicio
     ).count()
     
     # 6. Tiempo promedio de respuesta (para Recibida)
     respuestas = Recibida.objects.filter(
-        fecha_respuesta__isnull=False
+        fecha_respuesta__isnull=False,
+        fecha_recepcion__gte=fecha_inicio
     ).annotate(
         tiempo_respuesta=ExpressionWrapper(
             F('fecha_respuesta') - F('fecha_recepcion'),
@@ -661,38 +765,100 @@ def estadisticas_dashboard(request):
     ).values('tipo', 'cantidad').order_by('-cantidad')
     
     # 10. Flujo mensual de correspondencia
-    flujo_mensual = Correspondencia.objects.filter(
-        fecha_registro__gte=mes_pasado
+    flujo_correspondencia = Correspondencia.objects.filter(
+        fecha_registro__gte=fecha_inicio
     ).annotate(
-        mes=TruncMonth('fecha_registro')
-    ).values('mes').annotate(
+        fecha=truncado('fecha_registro')
+    ).values('fecha').annotate(
         cantidad=Count('id_correspondencia')
-    ).order_by('mes')
+    ).order_by('fecha')
     
     # 11. Documentos procesados por día
     procesados_por_dia = []
-    for i in range(7):
-        dia = hoy - timedelta(days=6-i)
-        procesados = Correspondencia.objects.filter(
-            fecha_registro__date=dia.date(),
-            estado__in=['aprobado', 'archivado', 'enviado']
-        ).count()
-        
-        pendientes_dia = Correspondencia.objects.filter(
-            fecha_registro__date=dia.date(),
-            estado__in=['borrador', 'en_revision']
-        ).count()
-        
+
+    for i in range(cantidad):
+
+        if periodo == "dia":
+            fecha_actual = hoy - timedelta(days=cantidad - 1 - i)
+
+        elif periodo == "semana":
+            fecha_actual = hoy - timedelta(weeks=cantidad - 1 - i)
+
+        elif periodo == "mes":
+            fecha_actual = hoy - timedelta(days=30 * (cantidad - 1 - i))
+
+        elif periodo == "gestion":
+            fecha_actual = hoy - timedelta(days=365 * (cantidad - 1 - i))
+
+        # CONSULTAS
+        if periodo == "dia":
+
+            procesados = Correspondencia.objects.filter(
+                fecha_registro__date=fecha_actual.date(),
+                estado__in=['aprobado', 'archivado', 'enviado']
+            ).count()
+
+            pendientes_dia = Correspondencia.objects.filter(
+                fecha_registro__date=fecha_actual.date(),
+                estado__in=['borrador', 'en_revision']
+            ).count()
+
+        elif periodo == "semana":
+
+            inicio_semana = fecha_actual - timedelta(days=fecha_actual.weekday())
+            fin_semana = inicio_semana + timedelta(days=6)
+
+            procesados = Correspondencia.objects.filter(
+                fecha_registro__date__range=[
+                    inicio_semana.date(),
+                    fin_semana.date()
+                ],
+                estado__in=['aprobado', 'archivado', 'enviado']
+            ).count()
+
+            pendientes_dia = Correspondencia.objects.filter(
+                fecha_registro__date__range=[
+                    inicio_semana.date(),
+                    fin_semana.date()
+                ],
+                estado__in=['borrador', 'en_revision']
+            ).count()
+
+        elif periodo == "mes":
+
+            procesados = Correspondencia.objects.filter(
+                fecha_registro__year=fecha_actual.year,
+                fecha_registro__month=fecha_actual.month,
+                estado__in=['aprobado', 'archivado', 'enviado']
+            ).count()
+
+            pendientes_dia = Correspondencia.objects.filter(
+                fecha_registro__year=fecha_actual.year,
+                fecha_registro__month=fecha_actual.month,
+                estado__in=['borrador', 'en_revision']
+            ).count()
+
+        elif periodo == "gestion":
+
+            procesados = Correspondencia.objects.filter(
+                fecha_registro__year=fecha_actual.year,
+                estado__in=['aprobado', 'archivado', 'enviado']
+            ).count()
+
+            pendientes_dia = Correspondencia.objects.filter(
+                fecha_registro__year=fecha_actual.year,
+                estado__in=['borrador', 'en_revision']
+            ).count()
+
         procesados_por_dia.append({
-            'dia': dia.strftime('%m/%d'),
+            'fecha': formatear_fecha(fecha_actual, periodo),
             'procesados': procesados,
             'pendientes': pendientes_dia
         })
-    
     # 12. Días con mayor actividad
     dias_actividad = Correspondencia.objects.annotate(
-        dia=TruncDay('fecha_registro')
-    ).values('dia').annotate(
+        fecha=truncado('fecha_registro')
+    ).values('fecha').annotate(
         cantidad=Count('id_correspondencia')
     ).order_by('-cantidad')[:5]
     
@@ -700,13 +866,13 @@ def estadisticas_dashboard(request):
     rendimiento_busqueda = 94  # Placeholder - necesitarías métricas reales
     
     return Response({
-        'recibida_semanal': [          #%A Convierte una fecha a Monday, Tuesday, etc. 
-            {'semana': item['dia'].strftime('%d/%m'), 'cantidad': item['cantidad']}
-            for item in recibida_semanal
+        'recibida_data': [          #%A Convierte una fecha a Monday, Tuesday, etc. 
+            {'fecha': formatear_fecha(item['fecha'], periodo), 'cantidad': item['cantidad']}
+            for item in recibida_data
         ],
-        'enviada_semanal': [
-            {'semana': item['dia'].strftime('%d/%m'), 'cantidad': item['cantidad']}
-            for item in enviada_semanal
+        'enviada_data': [
+            {'fecha': formatear_fecha(item['fecha'], periodo), 'cantidad': item['cantidad']}
+            for item in enviada_data
         ],
         'recibida_vs_enviada': recibida_vs_enviada,
         'estado_documentos': [
@@ -727,13 +893,13 @@ def estadisticas_dashboard(request):
             {'tipo': item['tipo'].capitalize(), 'cantidad': item['cantidad']}
             for item in tipos_documentos
         ],
-        'flujo_mensual': [
-            {'mes': item['mes'].strftime('%m/%d'), 'cantidad': item['cantidad']} #%B
-            for item in flujo_mensual
+        'flujo_correspondencia': [
+            {'fecha': formatear_fecha(item['fecha'],periodo), 'cantidad': item['cantidad']} #%B
+            for item in flujo_correspondencia
         ],
         'procesados_por_dia': procesados_por_dia,
         'dias_mayor_actividad': [
-            {'dia': item['dia'].strftime('%Y-%m-%d'), 'cantidad': item['cantidad']}
+            {'fecha': formatear_fecha(item['fecha'],periodo), 'cantidad': item['cantidad']}
             for item in dias_actividad
         ],
         'rendimiento_busqueda': rendimiento_busqueda

@@ -15248,3 +15248,1143 @@
 2026-05-17 21:33:02,620 [alertas.services] INFO: Alertas obtenidas
 2026-05-17 21:33:07,859 [alertas.services] DEBUG: Obteniendo alertas de usuario
 2026-05-17 21:33:07,862 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:41:38,895 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:41:38,913 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:41:44,087 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:41:44,091 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:43:28,439 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:43:28,473 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:43:33,729 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:43:33,738 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:43:39,141 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:43:39,152 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:43:44,564 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:43:44,584 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:43:50,608 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:43:50,706 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:44:04,258 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:44:04,322 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:44:40,992 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:44:41,046 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:44:46,361 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:44:46,371 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:45:29,257 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:45:29,283 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:47:32,708 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:47:32,766 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:47:38,119 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:47:38,123 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:47:43,373 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:47:43,373 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:47:48,521 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:47:48,530 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:47:53,680 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:47:53,684 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:47:58,859 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:47:58,862 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:48:04,034 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:48:04,039 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:48:24,201 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:48:24,212 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:51:16,252 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:51:16,276 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:51:21,472 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:51:21,474 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:52:09,391 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:52:09,408 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:55:09,071 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:55:09,093 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:55:14,498 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:55:14,501 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:55:19,865 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:55:19,871 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:55:25,084 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:55:25,086 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:55:30,289 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:55:30,295 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:55:35,477 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:55:35,484 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:55:40,696 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:55:40,702 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:55:45,917 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:55:45,928 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:55:51,248 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:55:51,253 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:55:56,426 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:55:56,429 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:56:01,558 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:56:01,563 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:56:06,735 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:56:06,739 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:56:11,865 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:56:11,867 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:56:17,012 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:56:17,017 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:56:22,205 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:56:22,212 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:56:27,433 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:56:27,442 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:57:42,740 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:57:42,813 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:57:48,208 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:57:48,217 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:57:53,371 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:57:53,375 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:57:58,561 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:57:58,567 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:58:03,768 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:58:03,779 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:58:09,021 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:58:09,026 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:58:14,241 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:58:14,248 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:59:33,070 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:59:33,074 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:59:43,491 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:59:43,517 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:59:48,789 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:59:48,789 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:59:50,851 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:59:50,880 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 11:59:56,130 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 11:59:56,146 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:00:01,335 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:00:01,336 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:00:29,339 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:00:29,350 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:00:40,230 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:00:40,264 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:00:45,547 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:00:45,551 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:00:50,714 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:00:50,718 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:00:55,973 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:00:55,973 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:01:01,150 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:01:01,153 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:01:06,312 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:01:06,316 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:01:11,580 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:01:11,602 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:01:16,793 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:01:16,800 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:01:22,174 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:01:22,205 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:01:26,454 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:01:26,461 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:01:31,610 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:01:31,612 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:01:36,785 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:01:36,788 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:01:41,954 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:01:41,958 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:01:47,123 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:01:47,123 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:03:02,621 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:03:02,631 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:03:07,803 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:03:07,808 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:03:12,974 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:03:12,978 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:03:18,155 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:03:18,158 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:03:23,318 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:03:23,321 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:03:28,651 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:03:28,666 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:21:08,445 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:21:09,002 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:21:41,076 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:21:41,080 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:24:21,922 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:24:21,972 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:24:27,345 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:24:27,360 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:24:32,537 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:24:32,542 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:24:37,682 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:24:37,685 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:24:48,469 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:24:48,492 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:24:53,692 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:24:53,695 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:25:38,239 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:25:38,305 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:25:43,797 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:25:43,801 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:25:48,989 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:25:48,992 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:25:54,169 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:25:54,179 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:25:59,353 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:25:59,355 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:04,547 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:04,552 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:11,607 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:11,611 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:16,823 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:16,830 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:22,021 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:22,024 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:27,216 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:27,222 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:32,373 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:32,381 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:37,582 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:37,587 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:42,845 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:42,851 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:48,001 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:48,003 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:53,203 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:53,211 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:26:58,391 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:26:58,395 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:03,555 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:03,557 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:08,760 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:08,765 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:13,957 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:13,964 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:19,179 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:19,183 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:24,415 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:24,460 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:29,779 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:29,785 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:35,024 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:35,027 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:40,180 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:40,183 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:45,316 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:45,319 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:50,469 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:50,469 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:27:55,603 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:27:55,603 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:00,762 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:00,765 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:06,111 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:06,115 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:11,267 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:11,271 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:16,403 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:16,406 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:21,591 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:21,595 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:26,787 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:26,793 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:31,956 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:31,962 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:37,313 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:37,318 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:42,838 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:42,860 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:48,257 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:48,305 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:54,212 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:54,240 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:28:59,784 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:28:59,794 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:29:04,936 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:29:04,945 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:29:10,103 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:29:10,103 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:29:15,350 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:29:15,386 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:29:20,761 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:29:20,766 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:29:25,905 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:29:25,908 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:29:38,098 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:29:38,170 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:29:43,516 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:29:43,548 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:29:48,941 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:29:48,958 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:29:54,791 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:29:54,801 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:00,015 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:00,026 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:05,215 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:05,219 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:10,469 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:10,473 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:15,617 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:15,620 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:20,931 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:20,943 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:26,199 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:26,203 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:31,374 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:31,377 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:37,180 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:37,195 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:38,165 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:38,199 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:43,644 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:43,660 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:48,839 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:48,843 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:54,015 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:54,019 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:30:59,169 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:30:59,169 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:04,321 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:04,324 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:09,489 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:09,492 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:14,642 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:14,647 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:19,780 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:19,780 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:24,942 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:24,948 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:30,124 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:30,128 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:35,317 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:35,320 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:40,473 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:40,479 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:45,635 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:45,639 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:50,761 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:50,765 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:31:56,255 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:31:56,275 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:32:01,680 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:32:01,704 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:32:07,322 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:32:07,365 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:32:12,738 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:32:12,743 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:32:16,369 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:32:16,377 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:32:21,565 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:32:21,569 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:32:26,724 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:32:26,734 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:32:31,926 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:32:31,930 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:33:08,189 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:33:08,220 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:33:12,236 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:33:12,283 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:33:17,461 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:33:17,464 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:34:30,569 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:34:30,586 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:36:44,475 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:36:44,689 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:36:50,254 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:36:50,254 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:02,938 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:02,945 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:08,157 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:08,171 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:13,348 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:13,351 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:18,566 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:18,573 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:23,797 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:23,800 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:28,967 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:28,974 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:34,245 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:34,248 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:39,373 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:39,379 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:44,531 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:44,534 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:49,692 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:49,699 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:37:54,891 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:37:54,897 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:00,079 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:00,085 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:05,258 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:05,261 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:10,449 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:10,451 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:15,661 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:15,665 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:20,853 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:20,855 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:26,045 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:26,048 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:31,253 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:31,255 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:36,429 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:36,435 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:41,625 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:41,628 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:46,829 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:46,835 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:52,029 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:52,035 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:38:57,234 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:38:57,239 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:02,420 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:02,423 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:07,631 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:07,635 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:12,812 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:12,816 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:17,968 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:17,971 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:23,404 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:23,410 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:28,613 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:28,618 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:33,820 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:33,824 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:38,981 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:38,985 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:44,161 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:44,164 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:49,333 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:49,336 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:54,511 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:54,517 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:39:59,683 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:39:59,687 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:05,033 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:05,084 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:10,301 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:10,305 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:15,442 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:15,447 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:20,616 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:20,620 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:25,803 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:25,803 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:30,966 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:30,969 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:36,157 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:36,161 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:41,368 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:41,373 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:46,535 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:46,539 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:51,713 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:51,717 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:40:56,907 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:40:56,911 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:02,176 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:02,179 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:07,363 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:07,366 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:12,512 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:12,516 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:17,716 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:17,724 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:22,937 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:22,944 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:28,103 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:28,113 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:33,365 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:33,369 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:38,848 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:38,879 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:44,659 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:44,693 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:50,036 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:50,041 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:41:55,395 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:41:55,441 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:42:37,059 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:42:37,082 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:42:42,471 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:42:42,475 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:42:47,624 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:42:47,624 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:42:52,782 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:42:52,786 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:42:58,016 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:42:58,019 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:43:03,366 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:43:03,380 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:43:08,561 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:43:08,564 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:43:12,639 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:43:12,646 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:45:15,558 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:45:15,598 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:45:20,921 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:45:20,928 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:45:26,428 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:45:26,436 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:45:31,839 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:45:31,846 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:45:37,300 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:45:37,305 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:45:42,452 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:45:42,455 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:45:47,610 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:45:47,614 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:45:52,744 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:45:52,745 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:45:57,979 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:45:57,979 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:46:03,221 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:46:03,224 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:46:08,368 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:46:08,371 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:46:13,600 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:46:13,609 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:46:18,777 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:46:18,782 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:46:24,045 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:46:24,061 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:46:29,366 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:46:29,370 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:46:34,614 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:46:34,618 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:46:39,846 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:46:39,850 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:46:45,028 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:46:45,032 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:50:42,201 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:50:42,215 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:50:47,471 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:50:47,479 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:50:52,680 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:50:52,692 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:50:57,859 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:50:57,862 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:51:03,029 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:51:03,032 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:51:22,057 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:51:22,065 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:51:27,277 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:51:27,362 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:51:33,012 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:51:33,017 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:51:38,302 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:51:38,306 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:51:43,486 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:51:43,491 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:51:48,665 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:51:48,668 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:51:53,834 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:51:53,836 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:51:59,031 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:51:59,032 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:52:04,183 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:52:04,185 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:52:09,409 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:52:09,414 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:52:14,582 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:52:14,582 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:52:20,050 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:52:20,063 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:52:25,544 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:52:25,565 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:52:53,679 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:52:53,685 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:52:58,866 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:52:58,869 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:04,103 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:04,115 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:09,593 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:09,599 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:11,002 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:11,007 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:16,195 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:16,199 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:21,416 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:21,420 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:26,650 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:26,657 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:31,865 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:31,869 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:37,057 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:37,061 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:42,198 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:42,214 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:47,391 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:47,396 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:52,615 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:52,623 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:53:57,815 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:53:57,821 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:54:02,985 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:54:02,989 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:56:20,311 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:56:20,328 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:56:21,615 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:56:21,621 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:56:26,835 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:56:26,844 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:56:32,201 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:56:32,204 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:57:20,751 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:57:20,787 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 12:57:32,426 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 12:57:32,435 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:32:16,311 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:32:16,339 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:32:21,604 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:32:21,615 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:32:26,798 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:32:26,803 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:32:31,976 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:32:31,982 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:32:37,154 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:32:37,162 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:32:42,445 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:32:42,448 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:32:47,612 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:32:47,617 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:32:52,884 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:32:52,888 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:32:58,045 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:32:58,045 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:33:03,192 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:33:03,195 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:33:08,395 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:33:08,400 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:33:13,553 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:33:13,558 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:33:18,713 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:33:18,718 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:33:23,903 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:33:23,915 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:33:29,221 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:33:29,246 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:33:34,416 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:33:34,419 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:33:39,598 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:33:39,603 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:34:10,008 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:34:10,116 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:34:15,544 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:34:15,549 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:34:20,752 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:34:20,756 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:34:25,905 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:34:25,908 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:34:31,066 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:34:31,069 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:34:36,216 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:34:36,220 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:34:41,373 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:34:41,376 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:04,686 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:04,699 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:09,871 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:09,877 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:15,016 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:15,019 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:20,259 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:20,306 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:25,560 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:25,565 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:30,740 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:30,745 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:35,869 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:35,871 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:41,062 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:41,066 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:46,185 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:46,190 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:51,340 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:51,342 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:36:56,529 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:36:56,529 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:37:01,729 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:37:01,729 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:37:06,930 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:37:06,930 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:37:10,960 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:37:10,987 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:37:34,566 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:37:34,570 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:38:17,612 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:38:17,626 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:38:22,913 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:38:22,926 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:38:28,253 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:38:28,253 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:38:33,435 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:38:33,442 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:38:38,631 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:38:38,635 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:38:43,829 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:38:43,837 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:38:48,993 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:38:48,996 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:38:54,192 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:38:54,195 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:38:59,674 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:38:59,712 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:39:05,138 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:39:05,163 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:39:10,648 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:39:10,670 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:39:16,394 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:39:16,411 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:39:21,875 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:39:21,891 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:39:27,206 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:39:27,269 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:39:32,578 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:39:32,591 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:39:41,972 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:39:41,997 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:40:51,791 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:40:51,820 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:40:58,498 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:40:58,502 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:41:03,768 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:41:03,772 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:41:08,916 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:41:08,919 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:41:14,101 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:41:14,105 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:41:18,888 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:41:18,898 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:41:24,739 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:41:24,745 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:45:24,283 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:45:24,310 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:52:41,439 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:52:41,486 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:52:46,742 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:52:46,753 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:52:51,927 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:52:51,934 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:52:57,123 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:52:57,127 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:02,305 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:02,309 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:07,495 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:07,498 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:12,654 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:12,664 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:17,855 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:17,861 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:23,130 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:23,136 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:28,304 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:28,311 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:33,495 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:33,498 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:38,685 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:38,692 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:43,873 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:43,873 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:49,060 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:49,064 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:54,242 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:54,245 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:53:59,455 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:53:59,461 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:04,645 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:04,648 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:09,823 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:09,825 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:15,040 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:15,049 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:20,229 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:20,235 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:25,423 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:25,429 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:30,623 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:30,629 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:35,823 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:35,823 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:41,023 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:41,030 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:46,223 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:46,223 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:51,419 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:51,423 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:54:56,624 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:54:56,630 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:01,830 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:01,835 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:07,014 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:07,015 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:12,223 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:12,223 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:17,416 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:17,422 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:22,616 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:22,621 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:27,823 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:27,823 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:33,023 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:33,023 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:38,223 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:38,223 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:43,423 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:43,430 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:48,625 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:48,630 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:53,773 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:53,782 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:55:58,951 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:55:58,955 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:04,155 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:04,155 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:09,329 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:09,335 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:14,529 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:14,529 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:19,723 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:19,723 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:24,925 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:24,925 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:30,105 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:30,111 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:35,301 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:35,305 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:40,491 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:40,495 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:45,673 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:45,677 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:50,860 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:50,867 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:56:56,070 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:56:56,075 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:57:01,250 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:57:01,254 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:57:06,411 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:57:06,419 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:57:23,395 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:57:23,500 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:57:28,953 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:57:28,955 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:57:34,204 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:57:34,207 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:57:39,392 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:57:39,395 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:58:14,894 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:58:15,108 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:58:20,752 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:58:20,780 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:58:25,991 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:58:25,995 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:58:31,196 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:58:31,200 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:58:36,348 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:58:36,354 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:58:41,508 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:58:41,512 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:58:46,679 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:58:46,689 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 13:58:52,018 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 13:58:52,032 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:02:11,559 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:02:11,571 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:02:16,902 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:02:16,921 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:02:22,128 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:02:22,133 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:02:27,336 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:02:27,342 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:02:32,546 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:02:32,549 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:02:37,724 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:02:37,724 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:02:42,945 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:02:42,948 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:02:48,158 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:02:48,164 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:02:53,376 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:02:53,381 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:02:59,213 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:02:59,221 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:04,473 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:04,473 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:12,956 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:12,978 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:18,230 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:18,239 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:23,410 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:23,416 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:28,613 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:28,618 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:33,773 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:33,779 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:38,954 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:38,958 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:44,155 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:44,155 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:49,329 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:49,335 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:54,535 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:54,535 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:03:59,737 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:03:59,753 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:04,906 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:04,913 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:10,065 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:10,066 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:15,223 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:15,229 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:20,402 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:20,407 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:25,599 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:25,603 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:30,773 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:30,773 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:35,973 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:35,980 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:41,173 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:41,177 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:46,373 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:46,373 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:51,579 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:51,585 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:04:56,808 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:04:56,817 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:01,995 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:01,998 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:07,181 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:07,187 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:12,443 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:12,449 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:17,695 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:17,700 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:22,934 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:22,937 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:28,129 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:28,134 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:33,391 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:33,406 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:38,581 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:38,585 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:43,899 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:43,903 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:49,149 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:49,153 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:54,295 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:54,298 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:05:59,613 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:05:59,617 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:06:04,792 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:06:04,795 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:06:09,999 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:06:10,005 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:06:15,239 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:06:15,243 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:06:20,415 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:06:20,419 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:06:25,603 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:06:25,607 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:06:30,812 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:06:30,820 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:06:36,085 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:06:36,090 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:06:41,306 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:06:41,310 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:35:15,600 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:35:15,617 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:35:20,822 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:35:20,829 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:35:26,174 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:35:26,180 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:36:12,969 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:36:12,995 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:36:19,104 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:36:19,169 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:36:24,438 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:36:24,491 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:36:29,706 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:36:29,710 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:36:34,962 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:36:34,969 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:36:40,118 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:36:40,125 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:37:52,631 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:37:52,701 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:37:58,390 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:37:58,390 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:04,086 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:04,139 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:09,823 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:09,846 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:15,130 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:15,137 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:20,625 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:20,641 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:26,284 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:26,337 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:31,606 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:31,619 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:36,802 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:36,802 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:42,039 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:42,048 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:47,327 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:47,344 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:52,618 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:52,628 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:38:57,847 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:38:57,863 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:03,149 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:03,161 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:08,783 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:08,815 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:14,629 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:14,706 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:20,004 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:20,012 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:25,294 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:25,298 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:30,631 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:30,653 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:35,913 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:35,917 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:41,112 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:41,117 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:46,374 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:46,380 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:51,627 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:51,632 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:39:56,825 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:39:56,828 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:40:02,024 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:40:02,029 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:40:07,224 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:40:07,228 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:40:12,413 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:40:12,422 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:40:17,635 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:40:17,639 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:40:22,804 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:40:22,810 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:40:35,359 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:40:35,378 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:40:48,032 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:40:48,075 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:42:54,214 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:42:54,519 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:43:00,333 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:43:00,343 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:43:05,541 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:43:05,545 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:43:10,707 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:43:10,707 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:43:15,884 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:43:15,887 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:45:25,496 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:45:25,518 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:45:30,794 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:45:30,798 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:45:35,975 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:45:35,978 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:45:41,229 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:45:41,239 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:46:33,310 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:46:33,356 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:46:38,978 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:46:38,982 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:46:41,308 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:46:41,353 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:46:46,530 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:46:46,541 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:46:51,722 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:46:51,722 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:46:56,877 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:46:56,880 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:47:02,022 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:47:02,030 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:47:07,264 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:47:07,273 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:49:55,446 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:49:55,593 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:01,186 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:01,189 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:06,378 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:06,381 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:11,586 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:11,591 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:16,747 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:16,749 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:21,906 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:21,906 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:27,066 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:27,071 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:28,585 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:28,636 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:33,848 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:33,848 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:39,014 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:39,018 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:44,251 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:44,258 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:46,884 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:46,922 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:52,178 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:52,186 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:50:57,791 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:50:57,795 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:02,971 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:02,971 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:08,179 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:08,183 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:13,417 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:13,421 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:18,567 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:18,569 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:23,742 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:23,746 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:28,912 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:28,916 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:34,063 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:34,069 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:39,257 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:39,260 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:44,412 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:44,416 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:49,590 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:49,597 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:54,771 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:54,771 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:51:59,943 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:51:59,948 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:05,128 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:05,140 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:10,303 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:10,307 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:15,469 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:15,472 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:20,629 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:20,629 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:25,771 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:25,771 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:30,907 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:30,912 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:36,058 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:36,063 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:41,335 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:41,339 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:46,489 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:46,492 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:51,612 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:51,616 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:52:56,979 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:52:56,989 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:53:02,189 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:53:02,207 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:53:07,381 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:53:07,383 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:53:12,563 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:53:12,568 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:53:17,734 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:53:17,740 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:53:22,949 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:53:22,967 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:53:28,146 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:53:28,153 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:53:33,462 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:53:33,528 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:53:39,203 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:53:39,248 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:53:44,573 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:53:44,578 [alertas.services] INFO: Alertas obtenidas
+2026-05-19 14:53:49,934 [alertas.services] DEBUG: Obteniendo alertas de usuario
+2026-05-19 14:53:49,948 [alertas.services] INFO: Alertas obtenidas
