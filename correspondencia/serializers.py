@@ -311,7 +311,15 @@ class RespuestaRelacionSerializer(serializers.ModelSerializer):
 # ---------------------------
 # Serializadores concretos
 # ---------------------------
+from .utils import obtener_siguiente_numero_registro
 class RecibidaSerializer(CorrespondenciaSerializerBase):
+    pre_sello = serializers.PrimaryKeyRelatedField(
+        queryset=PreSelloRecibida.objects.filter(
+            estado="pendiente"
+        ),
+        write_only=True,
+        required=False
+    )
     similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
     respuestas = serializers.SerializerMethodField()
@@ -324,7 +332,7 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
             'referencia', 'paginas', 'prioridad', 'estado',
             'documentos', 'contacto', 'usuario', 'acciones',
             'comentario_derivacion', 'usuarios', 'datos_contacto','similitud', 'nro_registro',
-            'respuestas', 'relacionada_a', 'relacionada_a_info',
+            'respuestas', 'relacionada_a', 'relacionada_a_info', 'pre_sello',
         ]
         extra_kwargs = {
             'fecha_recepcion': {'required': False},
@@ -346,6 +354,36 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
             "referencia": parent.referencia,
             "numero": _obtener_numero_documento(parent),
         }
+    
+    #Creamos una función llamada create
+    @transaction.atomic
+    def create(self, validated_data):
+
+        pre_sello = validated_data.pop('pre_sello', None)
+
+        # =========================
+        # SI VIENE PRE-SELLO
+        # =========================
+        if pre_sello:
+            validated_data['nro_registro'] = f"Reg-{pre_sello.numero:03}"
+
+        # =========================
+        # SI NO VIENE PRE-SELLO
+        # =========================
+        else:
+            siguiente = obtener_siguiente_numero_registro()
+            validated_data['nro_registro'] = f"Reg-{siguiente:03}"
+
+        # crear registro
+        recibida = super().create(validated_data)
+
+        # marcar pre-sello como usado
+        if pre_sello:
+            pre_sello.estado = "usado"
+            pre_sello.correspondencia = recibida
+            pre_sello.save()
+
+        return recibida
 
 
 class RecibidaListSerializer(serializers.ModelSerializer):
@@ -366,9 +404,18 @@ class RecibidaListSerializer(serializers.ModelSerializer):
 
 
 class PreSelloSerializer(serializers.ModelSerializer):
+
+#Por qué ReadOnlyField(), porque pre_nro_registro no es un campo de la base de datos es una operación de @property
+    pre_nro_registro = serializers.ReadOnlyField()
     class Meta:
         model = PreSelloRecibida
-        fields = '__all__'
+        fields = [
+            'id',
+            'numero',
+            'pre_nro_registro',
+            'estado',
+            'fecha_generacion',
+        ]
 
 
 class EnviadaSerializer(CorrespondenciaSerializerBase):

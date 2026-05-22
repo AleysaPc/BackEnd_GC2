@@ -238,50 +238,80 @@ def proximo_nro_registro(request):
 from django.db import transaction
 from .models import PreSelloRecibida
 from .serializers import PreSelloSerializer
+from django.db.models import Max
+from .utils import obtener_siguiente_numero_registro
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def generar_pre_sello(request):
-    """
-    Genera un pre-sello unico para mostrar en PDF.
-    Cada click genera un nuevo unico correlativo, sin crear el registro oficial.
-    """
+
     try:
+
         with transaction.atomic():
-            # Obtener el ultimo número oficial
-            ultimo_oficial = Recibida.objects.order_by('-id_correspondencia').first()
+
+            # =========================
+            # OBTENER ÚLTIMO OFICIAL
+            # =========================
+
+            ultimo_oficial = Recibida.objects.order_by(
+                '-id_correspondencia'
+            ).first()
+
             if ultimo_oficial and ultimo_oficial.nro_registro:
+
                 try:
-                    numero_actual = int(ultimo_oficial.nro_registro.split('-')[1])
+
+                    max_oficial = int(
+                        ultimo_oficial.nro_registro.split('-')[1]
+                    )
+
                 except (IndexError, ValueError):
-                    numero_actual = 0
+
+                    max_oficial = 0
+
             else:
-                numero_actual = 0
 
-            # Obtener el último pre-sello temporal
-            ultimo_pre = PreSelloRecibida.objects.order_by('-id').first()
-            if ultimo_pre:
-                try:
-                    numero_actual = max(numero_actual, int(ultimo_pre.pre_nro_registro.split('-')[1]))
-                except (IndexError, ValueError):
-                    pass
+                max_oficial = 0
 
-            nuevo_numero = numero_actual + 1
-            pre_nro = f"Reg-{nuevo_numero:03}"
+            # =========================
+            # OBTENER ÚLTIMO PRE-SELLO
+            # =========================
+
+            ultimo_pre = PreSelloRecibida.objects.aggregate(
+                Max('numero')
+            )
+
+            max_pre = ultimo_pre['numero__max'] or 0
+
+            # =========================
+            # GENERAR NUEVO NÚMERO
+            # =========================
+
+            nuevo_numero = obtener_siguiente_numero_registro()
+
+            # =========================
+            # CREAR PRE-SELLO
+            # =========================
 
             pre_sello = PreSelloRecibida.objects.create(
-                pre_nro_registro=pre_nro,
+                numero=nuevo_numero,
                 usuario=request.user
             )
 
-        serializer = PreSelloSerializer(pre_sello)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer = PreSelloSerializer(pre_sello)
+
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
 
     except Exception as e:
+
         return Response(
-            {"error": f"No se pudo generar el pre-sello: {str(e)}"},
+            {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+    
 ## PARA MOSTRAR EL SELLO SIGUIENTE
 @api_view(['GET']) #Esta función acepta peticiones get
 @permission_classes([IsAuthenticated]) #Seguridad para usuarios logueados
@@ -327,6 +357,22 @@ def proximo_nro_registro(request):
             status=500
         )
 
+########################################
+# MOSTRAR SELLOS PENDIENES POR REGISTRA
+########################################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def pre_sellos_pendientes(request):
+    pendientes = PreSelloRecibida.objects.filter(
+        estado="pendiente"
+    ).order_by("numero")
+
+    serializer = PreSelloSerializer(pendientes, many=True)
+
+    return Response(serializer.data)
+########################
+#ENVIDAD
+######################
 class EnviadaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('-fecha_registro')

@@ -102,10 +102,20 @@ class Recibida(Correspondencia):
         return f"{self.nro_registro}"
 
 class PreSelloRecibida(models.Model):
-    pre_nro_registro = models.CharField(max_length=20, unique=True)
+    ESTADOS = (
+        ("pendiente", "Pendiente"),
+        ("usado", "Usado"),
+        ("cancelado", "Cancelado"),
+    )
+    numero = models.PositiveIntegerField(default=0)
     usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
     fecha_generacion = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default="pendiente")
+    correspondencia = models.OneToOneField('Recibida', on_delete=models.SET_NULL, null=True, blank=True, related_name='pre_sello')   
     
+    @property
+    def pre_nro_registro(self):
+        return f"Pre-{self.numero:03}"
     def __str__(self):
         return self.pre_nro_registro
         

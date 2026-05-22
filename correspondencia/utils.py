@@ -19,6 +19,7 @@ def get_pdfkit_config():
     #1) Permite fijar ruta por variable de entorno (Railway/local)
     #2) Si no existe, busca "WKHTMLTOPDF_PATH" en Path del sistema
 
+    
     wkhtml_path = os.getenv("WKHTMLTOPDF_PATH") or shutil.which("wkhtmltopdf")
     if not wkhtml_path:
         raise RuntimeError(
@@ -133,3 +134,30 @@ def derivar_correspondencia(correspondencia, usuario_origen, usuario_destino, co
                 accion="DERIVADO",
                 comentario=comentario_derivacion
             )
+
+# utils.py
+
+from django.db.models import Max
+from .models import Recibida, PreSelloRecibida
+from django.db import transaction
+
+@transaction.atomic
+def obtener_siguiente_numero_registro():
+
+    # 1. último número oficial (Recibida)
+    ultimo_oficial = Recibida.objects.order_by('-id_correspondencia').first()
+
+    max_oficial = 0
+    if ultimo_oficial and ultimo_oficial.nro_registro:
+        try:
+            max_oficial = int(ultimo_oficial.nro_registro.split("-")[1])
+        except:
+            max_oficial = 0
+
+    # 2. último pre-sello generado
+    max_pre = PreSelloRecibida.objects.aggregate(
+        Max("numero")
+    )["numero__max"] or 0
+
+    # 3. devolver el mayor + 1
+    return max(max_oficial, max_pre) + 1
