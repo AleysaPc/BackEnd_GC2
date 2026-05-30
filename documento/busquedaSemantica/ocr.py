@@ -16,13 +16,22 @@ def extraer_texto_de_imagen(imagen, idioma="spa"):
 
 def extraer_texto_de_pdf(ruta_pdf, idioma="spa"):
     try:
-        paginas = convert_from_path(ruta_pdf) 
+        paginas = convert_from_path(
+            ruta_pdf,
+            first_page=1,
+            last_page=2
+        )
     except PDFInfoNotInstalledError:
         import pypdfium2 as pdfium
 
         pdf = pdfium.PdfDocument(ruta_pdf)
         scale = 300 / 72
-        paginas = [pdf[i].render(scale=scale).to_pil() for i in range(len(pdf))]
+        total_paginas = min(len(pdf), 2)
+
+        paginas = [
+            pdf[i].render(scale=scale).to_pil()
+            for i in range(total_paginas)
+        ]
 
     texto_completo = ""
 
