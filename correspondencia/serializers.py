@@ -72,6 +72,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     comentario_derivacion = serializers.CharField(
         write_only=True, required=False, allow_blank=True
     )
+    estado = serializers.CharField(source='correspondencia.estado', read_only=True)
 
     #Usuarios Devuelve un objeto
     usuario_origen = UsuarioSerializer(read_only=True)
@@ -102,7 +103,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
         model = AccionCorrespondencia
         fields = [
             'id', 'correspondencia','correspondencia_id','usuario_origen_id', 'usuario_destino_id', 'usuario_origen', 'usuario_destino',
-            'accion','comentario_derivacion','comentario','fecha_inicio','fecha_modificacion','visto', 'fecha_visto','estado_resultante',
+            'accion','comentario_derivacion','comentario','fecha_inicio','fecha_modificacion','visto', 'fecha_visto','estado_resultante', 'estado',
         ]
         read_only_fields = [
             'id',
@@ -358,8 +359,9 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
     #Creamos una función llamada create
     @transaction.atomic
     def create(self, validated_data):
-
+        print("VALIDATED DATA:", validated_data)
         pre_sello = validated_data.pop('pre_sello', None)
+        print("PRE SELLO:", pre_sello)
 
         # =========================
         # SI VIENE PRE-SELLO
