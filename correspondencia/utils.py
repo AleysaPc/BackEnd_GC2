@@ -11,10 +11,6 @@ from jinja2 import Template
 import os
 import shutil
 
-def renderizar_contenido_html(template_string, context):
-    template = Template(template_string)
-    return template.render(context)
-
 def get_pdfkit_config():
     #1) Permite fijar ruta por variable de entorno (Railway/local)
     #2) Si no existe, busca "WKHTMLTOPDF_PATH" en Path del sistema

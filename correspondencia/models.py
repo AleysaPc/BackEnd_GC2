@@ -130,12 +130,7 @@ class Enviada(Correspondencia):
         return f"{self.cite}"
 
 # correspondencia/models.py
-
-
-def renderizar_contenido_html(estructura_html, context):
-    template = Template(estructura_html)
-    return template.render(context)
-
+from correspondencia.tasks import generar_embedding_html_task
 class CorrespondenciaElaborada(Correspondencia):
     AMBITO_CHOICES = [('interno', 'Interno'), ('externo','Externo')]
     ambito = models.CharField(max_length=20, choices=AMBITO_CHOICES, blank=True, null=True )
@@ -221,7 +216,7 @@ class CorrespondenciaElaborada(Correspondencia):
 
             # Generamos el CITE completo
             # Ej: FSTL-FTA/NOTA-I/2025-001
-            self.cite = f"{self.sigla}/{sigla_tipo}{ambito_sufijo}/{self.gestion}-{self.numero:03}"
+            self.cite = f"CITE: {self.sigla}/{sigla_tipo}{ambito_sufijo}/{self.numero:03}-{self.gestion}"
 
         # --- Generar contenido HTML ---
         # Siempre se genera el HTML actualizado, incluso si ya existe uno
@@ -229,25 +224,9 @@ class CorrespondenciaElaborada(Correspondencia):
 
         # --- Embedding semántico desde contenido_html ---
         # Solo recalcula si no existe o si el contenido cambió.
-        if self.contenido_html:
-            if self.pk:
-                prev = CorrespondenciaElaborada.objects.filter(pk=self.pk).values_list(
-                    "contenido_html", "vector_embedding_html"
-                ).first()
-                prev_html = prev[0] if prev else None
-                prev_embedding = prev[1] if prev else None
-                needs_update = (prev_embedding is None) or (prev_html != self.contenido_html)
-            else:
-                needs_update = True
-
-            if needs_update:
-                texto_plano = _build_semantic_text(self)
-                if texto_plano:
-                    modelo = get_model() #Extracción de embeddings
-                    self.vector_embedding_html = modelo.encode(texto_plano).tolist()
-
-        # --- Guardar instancia ---
+        
         super().save(*args, **kwargs)
+        generar_embedding_html_task.delay(self.pk)
 
 
 class AccionCorrespondencia(models.Model):

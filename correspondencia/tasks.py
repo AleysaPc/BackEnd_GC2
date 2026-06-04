@@ -37,6 +37,44 @@ def procesar_ia_pesada_task(self, texto):
         "preview": embedding[:5],
     }
 
+@shared_task(
+    bind=True,
+    autoretry_for=(Exception,),
+    retry_kwargs={"max_retries": 3, "countdown": 10}
+)
+def generar_embedding_html_task(self, correspondencia_id):
+
+    from .models import (
+        CorrespondenciaElaborada,
+        _build_semantic_text
+    )
+
+    doc = CorrespondenciaElaborada.objects.get(
+        pk=correspondencia_id
+    )
+
+    texto_plano = _build_semantic_text(doc)
+
+    if not texto_plano:
+        return
+
+    model = get_model()
+
+    embedding = model.encode(
+        texto_plano
+    ).tolist()
+
+    CorrespondenciaElaborada.objects.filter(
+        pk=correspondencia_id
+    ).update(
+        vector_embedding_html=embedding
+    )
+
+    return {
+        "ok": True,
+        "correspondencia_id": correspondencia_id
+    }
+
 #Define tareas Celery
 #Maneja reintentos
 #Llama la lógica pesada
