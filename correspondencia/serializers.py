@@ -72,7 +72,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     comentario_derivacion = serializers.CharField(
         write_only=True, required=False, allow_blank=True
     )
-    estado = serializers.CharField(source='correspondencia.estado', read_only=True)
+    estado = serializers.SerializerMethodField()
 
     #Usuarios Devuelve un objeto
     usuario_origen = UsuarioSerializer(read_only=True)
@@ -88,7 +88,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     usuario_destino_id = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(),
         source='usuario_destino',
-        required=True,
+        required=False,
         write_only=True,
         many=True
     )   
@@ -125,7 +125,36 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
             validated_data['comentario'] = comentario
         return validated_data
 
+    def get_estado(self, obj):
+        if obj.estado_resultante:
+            return obj.estado_resultante
+        return self._estado_por_accion(obj.accion)
+
+    @staticmethod
+    def _estado_por_accion(accion):
+        accion_normalizada = (accion or "").lower()
+        acciones_a_estado = {
+            "aprobado": "aprobado",
+            "rechazado": "rechazado",
+            "archivado": "archivado",
+            "devuelto": "devuelto",
+            "derivado": "derivado",
+            "observado": "observado",
+        }
+        return acciones_a_estado.get(accion_normalizada)
+
+    @staticmethod
+    def _accion_requiere_destino(accion):
+        return (accion or "").lower() in {"derivado", "devuelto"}
+
     #Crear nueva acción (registro de evento) request=pedido
+    def to_internal_value(self, data):
+        data = data.copy()
+        usuario_destino_id = data.get('usuario_destino_id')
+        if usuario_destino_id and not isinstance(usuario_destino_id, (list, tuple)):
+            data['usuario_destino_id'] = [usuario_destino_id]
+        return super().to_internal_value(data)
+
     def create(self, validated_data):
         request = self.context.get('request')
 
@@ -136,18 +165,30 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
         # comentario_derivacion → comentario
         validated_data = self._handle_comentario_derivacion(validated_data)
 
-        # lista de usuarios destino
-        usuarios_destino = validated_data.pop('usuario_destino')
+        usuarios_destino = validated_data.pop('usuario_destino', [])
 
         # obtener correspondencia_id y convertir en objeto Correspondencia
         correspondencia = validated_data.pop('correspondencia_id')
 
+        accion_solicitada = validated_data.get('accion')
+        if (accion_solicitada or "").lower() == "archivado":
+            usuarios_destino = []
+
+        if self._accion_requiere_destino(accion_solicitada) and not usuarios_destino:
+            raise serializers.ValidationError({
+                "usuario_destino_id": "Esta acción requiere al menos un usuario destino."
+            })
+
         acciones_creadas = []
+
+        if not usuarios_destino:
+            usuarios_destino = [None]
 
         for usuario in usuarios_destino:
             data = validated_data.copy()
             data['usuario_destino'] = usuario
             data['correspondencia'] = correspondencia  # <--- asignar objeto correcto
+            data['estado_resultante'] = self._estado_por_accion(data.get('accion'))
             accion = AccionCorrespondencia.objects.create(**data)
             acciones_creadas.append(accion)
     
@@ -168,12 +209,27 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
 class AccionCorrespondenciaListSerializer(serializers.ModelSerializer):
     usuario_origen = UsuarioMiniSerializer(read_only=True)
     usuario_destino = UsuarioMiniSerializer(read_only=True)
+    estado = serializers.SerializerMethodField()
+
+    def get_estado(self, obj):
+        if obj.estado_resultante:
+            return obj.estado_resultante
+        accion_normalizada = (obj.accion or "").lower()
+        acciones_a_estado = {
+            "aprobado": "aprobado",
+            "rechazado": "rechazado",
+            "archivado": "archivado",
+            "devuelto": "devuelto",
+            "derivado": "derivado",
+            "observado": "observado",
+        }
+        return acciones_a_estado.get(accion_normalizada)
 
     class Meta:
         model = AccionCorrespondencia
         fields = [
             'id', 'accion', 'comentario', 'fecha_inicio', 'visto', 'fecha_visto',
-            'estado_resultante', 'usuario_origen', 'usuario_destino',
+            'estado', 'estado_resultante', 'usuario_origen', 'usuario_destino',
         ]
 
 
@@ -498,7 +554,20 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
             validated_data['usuario'] = self.context['request'].user
         if not validated_data.get('tipo'):
             validated_data['tipo'] = 'enviado'
-        return super().create(validated_data)
+        respuesta_a = validated_data.get('respuesta_a')
+        elaborada = super().create(validated_data)
+
+        if respuesta_a:
+            AccionCorrespondencia.objects.create(
+                correspondencia=respuesta_a,
+                usuario_origen=self.context['request'].user,
+                usuario_destino=respuesta_a.usuario,
+                accion='devuelto',
+                estado_resultante='observado',
+                comentario=validated_data.get('comentario_derivacion') or '',
+            )
+
+        return elaborada
 
 
 class CorrespondenciaElaboradaListSerializer(serializers.ModelSerializer):

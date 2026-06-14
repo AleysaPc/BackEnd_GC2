@@ -1,6 +1,6 @@
-from datetime import timezone
 from tokenize import blank_re
 from django.db import models
+from django.utils import timezone
 from django.utils.timezone import now
 from django.db import models, transaction
 from django.db.models import Max
@@ -267,9 +267,14 @@ class AccionCorrespondencia(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Primero guardamos la acción
 
+        update_fields = kwargs.get("update_fields")
+        if update_fields and not {"accion", "estado_resultante", "correspondencia"}.intersection(update_fields):
+            return
+
         correspondencia = self.correspondencia
 
         # Sincroniza el estado general con la última acción relevante
+        accion_normalizada = (self.accion or "").lower()
         acciones_a_estado = {
             "aprobado": "aprobado",
             "rechazado": "rechazado",
@@ -279,7 +284,7 @@ class AccionCorrespondencia(models.Model):
             "observado": "observado",
         }
 
-        nuevo_estado = acciones_a_estado.get(self.accion)
+        nuevo_estado = self.estado_resultante or acciones_a_estado.get(accion_normalizada)
         if nuevo_estado:
             correspondencia.estado = nuevo_estado
             correspondencia.estado_actual = nuevo_estado.upper()

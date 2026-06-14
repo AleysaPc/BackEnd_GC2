@@ -120,14 +120,15 @@ def derivar_correspondencia(correspondencia, usuario_origen, usuario_destino, co
         if not AccionCorrespondencia.objects.filter(
             correspondencia=correspondencia,
             usuario_destino=usuario,
-            accion="DERIVADO",
+            accion="derivado",
             comentario=comentario_derivacion
         ).exists():
             AccionCorrespondencia.objects.create(
                 correspondencia=correspondencia,
                 usuario_origen=usuario_origen,
                 usuario_destino=usuario,
-                accion="DERIVADO",
+                accion="derivado",
+                estado_resultante="derivado",
                 comentario=comentario_derivacion
             )
 

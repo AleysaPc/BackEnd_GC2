@@ -63,7 +63,7 @@ def crear_alerta_al_asignar_usuario(sender, instance, created, **kwargs):
     logger.info(f"Correspondencia ID: {instance.correspondencia.id_correspondencia}")
     
     # Solo cuando se crea una acción de derivación con usuario destino
-    if created and instance.usuario_destino and instance.accion == 'DERIVADO':
+    if created and instance.usuario_destino and (instance.accion or '').lower() == 'derivado':
         correspondencia = instance.correspondencia
         
         # Verificar si es una Recibida con fecha_respuesta
