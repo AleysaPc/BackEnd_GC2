@@ -168,15 +168,9 @@ class CorrespondenciaElaborada(Correspondencia):
     estado_entrega = models.CharField(
         max_length=30,
         choices=[
-            ("pendiente", "Pendiente"),
             ("entregado", "Entregado"),
             ("no_entregado", "No entregado"),
-            ("devuelto", "Devuelto"),
-            ("rechazado", "Rechazado"),
-            ("extraviado", "Extraviado"),
-            ("direccion_incorrecta", "Dirección incorrecta"),
-            ("destinatario_incorrecto","Destinatario incorrecto")
-        ],
+         ],
         default="pendiente"
     )
 
