@@ -1,8 +1,8 @@
-from dataclasses import field
 from rest_framework import serializers
 from django.db import transaction
 from django.core.files import File
 from django.utils import timezone
+
 from .models import Correspondencia, PreSelloRecibida, Recibida, Enviada, AccionCorrespondencia, CorrespondenciaElaborada
 from documento.models import Documento, PlantillaDocumento
 from documento.serializers import DocumentoSerializer, PlantillaDocumentoSerializer
@@ -72,7 +72,6 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
     comentario_derivacion = serializers.CharField(
         write_only=True, required=False, allow_blank=True
     )
-    estado = serializers.SerializerMethodField()
 
     #Usuarios Devuelve un objeto
     usuario_origen = UsuarioSerializer(read_only=True)
@@ -103,7 +102,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
         model = AccionCorrespondencia
         fields = [
             'id', 'correspondencia','correspondencia_id','usuario_origen_id', 'usuario_destino_id', 'usuario_origen', 'usuario_destino',
-            'accion','comentario_derivacion','comentario','fecha_inicio','fecha_modificacion','visto', 'fecha_visto','estado_resultante', 'estado',
+            'accion','comentario_derivacion','comentario','fecha_inicio','fecha_modificacion','visto', 'fecha_visto','estado_resultante',
         ]
         read_only_fields = [
             'id',
@@ -125,27 +124,25 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
             validated_data['comentario'] = comentario
         return validated_data
 
-    def get_estado(self, obj):
-        if obj.estado_resultante:
-            return obj.estado_resultante
-        return self._estado_por_accion(obj.accion)
-
     @staticmethod
     def _estado_por_accion(accion):
-        accion_normalizada = (accion or "").lower()
+        accion_normalizada = (accion or "").strip().lower()
         acciones_a_estado = {
+            "derivado": "en_revision",
+            "observado": "en_revision",
+            "respondido": "enviado",
             "aprobado": "aprobado",
             "rechazado": "rechazado",
             "archivado": "archivado",
             "devuelto": "devuelto",
-            "derivado": "derivado",
-            "observado": "observado",
+            "enviar": "enviado",
+            "entregar": "entregado",
         }
         return acciones_a_estado.get(accion_normalizada)
 
     @staticmethod
     def _accion_requiere_destino(accion):
-        return (accion or "").lower() in {"derivado", "devuelto"}
+        return (accion or "").strip().lower() in {"derivado", "devuelto"}
 
     #Crear nueva acción (registro de evento) request=pedido
     def to_internal_value(self, data):
@@ -171,7 +168,7 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
         correspondencia = validated_data.pop('correspondencia_id')
 
         accion_solicitada = validated_data.get('accion')
-        if (accion_solicitada or "").lower() == "archivado":
+        if (accion_solicitada or "").strip().lower() == "archivado":
             usuarios_destino = []
 
         if self._accion_requiere_destino(accion_solicitada) and not usuarios_destino:
@@ -188,7 +185,8 @@ class AccionCorrespondenciaSerializer(serializers.ModelSerializer):
             data = validated_data.copy()
             data['usuario_destino'] = usuario
             data['correspondencia'] = correspondencia  # <--- asignar objeto correcto
-            data['estado_resultante'] = self._estado_por_accion(data.get('accion'))
+            accion_norm = (data.get('accion') or "").strip().lower() #.strip elimina espacios adelante y al final .lower = minusculas
+            data['estado_resultante'] = self._estado_por_accion(accion_norm)
             accion = AccionCorrespondencia.objects.create(**data)
             acciones_creadas.append(accion)
     
@@ -214,15 +212,18 @@ class AccionCorrespondenciaListSerializer(serializers.ModelSerializer):
     def get_estado(self, obj):
         if obj.estado_resultante:
             return obj.estado_resultante
-        accion_normalizada = (obj.accion or "").lower()
+        accion_normalizada = (obj.accion or "").strip().lower()
         acciones_a_estado = {
+            "derivado": "en_revision",
+            "observado": "en_revision",
+            "respondido": "enviado",
             "aprobado": "aprobado",
             "rechazado": "rechazado",
             "archivado": "archivado",
             "devuelto": "devuelto",
-            "derivado": "derivado",
-            "observado": "observado",
-        }
+            "enviar": "enviado",
+            "entregar": "entregado",
+                }
         return acciones_a_estado.get(accion_normalizada)
 
     class Meta:
@@ -309,7 +310,7 @@ class CorrespondenciaSerializerBase(serializers.ModelSerializer):
                 setattr(instance, attr, value)
             instance.save()
 
-        # Crear/actualizar documentos
+        # Crear/actualizar documentos ELIMINA LOS DOCUMENTOS??
         if documentos_data:
             if instance.pk and instance.documentos.exists():
                 instance.documentos.all().delete()
@@ -368,15 +369,8 @@ class RespuestaRelacionSerializer(serializers.ModelSerializer):
 # ---------------------------
 # Serializadores concretos
 # ---------------------------
-from .utils import obtener_siguiente_numero_registro
 class RecibidaSerializer(CorrespondenciaSerializerBase):
-    pre_sello = serializers.PrimaryKeyRelatedField(
-        queryset=PreSelloRecibida.objects.filter(
-            estado="pendiente"
-        ),
-        write_only=True,
-        required=False
-    )
+    
     similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
     respuestas = serializers.SerializerMethodField()
@@ -389,7 +383,7 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
             'referencia', 'paginas', 'prioridad', 'estado',
             'documentos', 'contacto', 'usuario', 'acciones',
             'comentario_derivacion', 'usuarios', 'datos_contacto','similitud', 'nro_registro',
-            'respuestas', 'relacionada_a', 'relacionada_a_info', 'pre_sello',
+            'respuestas', 'relacionada_a', 'relacionada_a_info',
         ]
         extra_kwargs = {
             'fecha_recepcion': {'required': False},
@@ -412,37 +406,7 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
             "numero": _obtener_numero_documento(parent),
         }
     
-    #Creamos una función llamada create
-    @transaction.atomic
-    def create(self, validated_data):
-        print("VALIDATED DATA:", validated_data)
-        pre_sello = validated_data.pop('pre_sello', None)
-        print("PRE SELLO:", pre_sello)
-
-        # =========================
-        # SI VIENE PRE-SELLO
-        # =========================
-        if pre_sello:
-            validated_data['nro_registro'] = f"Reg-{pre_sello.numero:03}"
-
-        # =========================
-        # SI NO VIENE PRE-SELLO
-        # =========================
-        else:
-            siguiente = obtener_siguiente_numero_registro()
-            validated_data['nro_registro'] = f"Reg-{siguiente:03}"
-
-        # crear registro
-        recibida = super().create(validated_data)
-
-        # marcar pre-sello como usado
-        if pre_sello:
-            pre_sello.estado = "usado"
-            pre_sello.correspondencia = recibida
-            pre_sello.save()
-
-        return recibida
-
+    
 
 class RecibidaListSerializer(serializers.ModelSerializer):
     contacto = serializers.StringRelatedField()
@@ -463,17 +427,9 @@ class RecibidaListSerializer(serializers.ModelSerializer):
 
 class PreSelloSerializer(serializers.ModelSerializer):
 
-#Por qué ReadOnlyField(), porque pre_nro_registro no es un campo de la base de datos es una operación de @property
-    pre_nro_registro = serializers.ReadOnlyField()
     class Meta:
         model = PreSelloRecibida
-        fields = [
-            'id',
-            'numero',
-            'pre_nro_registro',
-            'estado',
-            'fecha_generacion',
-        ]
+        fields = '__all__'
 
 
 class EnviadaSerializer(CorrespondenciaSerializerBase):
@@ -562,8 +518,8 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
                 correspondencia=respuesta_a,
                 usuario_origen=self.context['request'].user,
                 usuario_destino=respuesta_a.usuario,
-                accion='devuelto',
-                estado_resultante='observado',
+                accion='observado',
+                estado_resultante=Correspondencia.estado,
                 comentario=validated_data.get('comentario_derivacion') or '',
             )
 
@@ -587,6 +543,6 @@ class CorrespondenciaElaboradaListSerializer(serializers.ModelSerializer):
             'estado', 'cite', 'ambito', 'firmado', 'version', 'fecha_elaboracion',
             'fecha_envio', 'fecha_recepcion', 'fecha_seguimiento',
             'contacto', 'datos_contacto', 'usuario', 'plantilla', 'destino_interno_info',
-            'documentos', 'acciones', 'similitud',
+            'documentos', 'acciones', 'similitud', 'estado_entrega',
         ]
 

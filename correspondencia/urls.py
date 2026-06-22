@@ -10,7 +10,6 @@ from .views import (
     estadisticas_dashboard,
     generar_documento,
     generar_pre_sello,
-    pre_sellos_pendientes,
     notificaciones_pendientes,
     marcar_notificacion_vista,
     proximo_nro_registro,
@@ -35,8 +34,6 @@ urlpatterns = [
     path("ia/tarea/iniciar/", iniciar_tarea_ia, name="iniciar_tarea_ia"),
     path("ia/tarea/estado/<str:task_id>/", estado_tarea_ia, name="estado_tarea_ia"),
     path("proximo_nro_registro/", proximo_nro_registro),
-    ##ESTE ES LE NOMBRE QUE USAS PARA LA URL DE LA VISTA LO QUE ESTA EN COMILLAS
-    path("pre_sellos_pendientes/", pre_sellos_pendientes),
     path("generar_pre_sello/", generar_pre_sello),
     path("estadisticas/",estadisticas_dashboard, name="estadisticas"),
     path(

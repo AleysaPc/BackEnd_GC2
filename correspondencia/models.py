@@ -41,9 +41,8 @@ class Correspondencia(models.Model):
         ('rechazado', 'Rechazado'),
         ('enviado', 'Enviado'),
         ('archivado', 'Archivado'),
-        ('derivado', 'Derivado'),
-        ('observado', 'Observado'),
         ('devuelto', 'Devuelto'),
+        ('entregado', 'Entregado'),
     ]
     TIPO_CHOICES_PRIORIDAD = [('alta', 'Alta'), ('media', 'Media'), ('baja', 'Baja')]
     TIPO_CHOICES = [('recibido', 'Recibido'), ('enviado', 'Enviado')]
@@ -54,10 +53,9 @@ class Correspondencia(models.Model):
     descripcion = models.TextField(null=True, blank=True)
     paginas = models.IntegerField(default=1)
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
-    estado = models.CharField(max_length=20, choices=TIPO_CHOICES_ESTADO)
+    estado = models.CharField(max_length=20, choices=TIPO_CHOICES_ESTADO, default='borrador')
     contacto = models.ForeignKey('contacto.Contacto', on_delete=models.CASCADE, blank=True, null=True)
     usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
-    estado_actual = models.CharField(max_length=50, default='REGISTRADO',help_text="Último estado del documento (Ej: Derivado, En proceso, Archivado, Finalizado)")
     ultima_modificacion = models.DateTimeField(auto_now=True, help_text="Fecha y hora de la última acción o modificación registrada")
     activo = models.BooleanField(default=True)
     
@@ -83,18 +81,28 @@ class Recibida(Correspondencia):
     def save(self, *args, **kwargs):
         if not self.nro_registro:
             with transaction.atomic():
-                ultimo = Recibida.objects.order_by('-id_correspondencia').first()  # Usa el campo 'id' heredado de Correspondencia
-                
-                if ultimo and ultimo.nro_registro:
-                    try:
-                        numero_actual = int(ultimo.nro_registro.split('-')[1])
-                    except (IndexError, ValueError):
-                        numero_actual = 0
-                else:
-                    numero_actual = 0
 
-                nuevo_numero = numero_actual + 1
-                self.nro_registro = f"Reg-{nuevo_numero:03}"
+                numero_actual = 0
+
+                registros = Recibida.objects.exclude(
+                    nro_registro__isnull=True
+                ).exclude(
+                    nro_registro=""
+                )
+
+                for registro in registros:
+                    try:
+                        numero = int(
+                            registro.nro_registro.split("-")[1]
+                        )
+                        numero_actual = max(
+                            numero_actual,
+                            numero
+                        )
+                    except (IndexError, ValueError):
+                        pass
+
+                self.nro_registro = f"Reg-{numero_actual + 1:03}"
 
         super().save(*args, **kwargs)
 
@@ -102,20 +110,12 @@ class Recibida(Correspondencia):
         return f"{self.nro_registro}"
 
 class PreSelloRecibida(models.Model):
-    ESTADOS = (
-        ("pendiente", "Pendiente"),
-        ("usado", "Usado"),
-        ("cancelado", "Cancelado"),
-    )
-    numero = models.PositiveIntegerField(default=0)
+    pre_nro_registro = models.CharField(max_length=20, unique=True)
+
     usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
     fecha_generacion = models.DateTimeField(auto_now_add=True)
-    estado = models.CharField(max_length=20, choices=ESTADOS, default="pendiente")
-    correspondencia = models.OneToOneField('Recibida', on_delete=models.SET_NULL, null=True, blank=True, related_name='pre_sello')   
     
-    @property
-    def pre_nro_registro(self):
-        return f"Pre-{self.numero:03}"
+    
     def __str__(self):
         return self.pre_nro_registro
         
@@ -250,8 +250,7 @@ class AccionCorrespondencia(models.Model):
     fecha_modificacion = models.DateTimeField(auto_now=True)
     visto = models.BooleanField(default=False)
     fecha_visto = models.DateTimeField(null=True, blank=True)
-    estado_resultante = models.CharField(max_length=50, blank=True, null=True)
-
+    estado_resultante = models.CharField(max_length=20, choices=Correspondencia.TIPO_CHOICES_ESTADO, blank=True, null= True)
     class Meta:
         ordering = ['-fecha_inicio']
 
@@ -265,27 +264,8 @@ class AccionCorrespondencia(models.Model):
             self.save(update_fields=['visto', 'fecha_visto'])
             
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # Primero guardamos la acción
+        super().save(*args, **kwargs)
 
-        update_fields = kwargs.get("update_fields")
-        if update_fields and not {"accion", "estado_resultante", "correspondencia"}.intersection(update_fields):
-            return
-
-        correspondencia = self.correspondencia
-
-        # Sincroniza el estado general con la última acción relevante
-        accion_normalizada = (self.accion or "").lower()
-        acciones_a_estado = {
-            "aprobado": "aprobado",
-            "rechazado": "rechazado",
-            "archivado": "archivado",
-            "devuelto": "devuelto",
-            "derivado": "derivado",
-            "observado": "observado",
-        }
-
-        nuevo_estado = self.estado_resultante or acciones_a_estado.get(accion_normalizada)
-        if nuevo_estado:
-            correspondencia.estado = nuevo_estado
-            correspondencia.estado_actual = nuevo_estado.upper()
-            correspondencia.save(update_fields=["estado", "estado_actual"])
+        if self.estado_resultante:
+            self.correspondencia.estado = self.estado_resultante
+            self.correspondencia.save(update_fields=["estado"])

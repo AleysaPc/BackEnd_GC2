@@ -134,13 +134,6 @@ class RecibidaView(BaseViewSet, AuditableModelViewSet):
         serializer.is_valid(raise_exception=True)
         correspondencia = serializer.save()
 
-        # 2ï¸âƒ£ Guardar los usuarios seleccionados (IDs)
-        usuarios_ids = request.data.get("usuarios", [])
-        if usuarios_ids:
-            # Convertir a enteros por si vienen como strings
-            usuarios_ids = [int(u) for u in usuarios_ids]
-            correspondencia.save()
-
         # 3ï¸âƒ£ Retornar la respuesta normal del serializer
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -238,8 +231,6 @@ def proximo_nro_registro(request):
 from django.db import transaction
 from .models import PreSelloRecibida
 from .serializers import PreSelloSerializer
-from django.db.models import Max
-from .utils import obtener_siguiente_numero_registro
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -248,67 +239,45 @@ def generar_pre_sello(request):
     try:
 
         with transaction.atomic():
-
-            # =========================
-            # OBTENER ÚLTIMO OFICIAL
-            # =========================
-
-            ultimo_oficial = Recibida.objects.order_by(
-                '-id_correspondencia'
-            ).first()
+            # Obtener el ultimo número oficial
+            ultimo_oficial = Recibida.objects.order_by('-id_correspondencia').first()
 
             if ultimo_oficial and ultimo_oficial.nro_registro:
 
                 try:
 
-                    max_oficial = int(
-                        ultimo_oficial.nro_registro.split('-')[1]
-                    )
+                    numero_actual = int(ultimo_oficial.nro_registro.split('-')[1])
 
                 except (IndexError, ValueError):
 
-                    max_oficial = 0
+                    numero_actual = 0
 
             else:
 
-                max_oficial = 0
+                numero_actual = 0
 
-            # =========================
-            # OBTENER ÚLTIMO PRE-SELLO
-            # =========================
+                # Obtener el último pre-sello temporal
+                ultimo_pre = PreSelloRecibida.objects.order_by('-id').first()
+                if ultimo_pre:
+                    try:
+                        numero_actual = max(numero_actual, int(ultimo_pre.pre_nro_registro.split('-')[1]))
+                    except (IndexError, ValueError):
+                        pass
+                nuevo_numero = numero_actual + 1
+                pre_nro = f"Reg-{nuevo_numero:03}"
 
-            ultimo_pre = PreSelloRecibida.objects.aggregate(
-                Max('numero')
-            )
-
-            max_pre = ultimo_pre['numero__max'] or 0
-
-            # =========================
-            # GENERAR NUEVO NÚMERO
-            # =========================
-
-            nuevo_numero = obtener_siguiente_numero_registro()
-
-            # =========================
-            # CREAR PRE-SELLO
-            # =========================
-
-            pre_sello = PreSelloRecibida.objects.create(
-                numero=nuevo_numero,
-                usuario=request.user
-            )
-
+                pre_sello = PreSelloRecibida.objects.create(
+                    pre_nro_registro=pre_nro,
+                    usuario=request.user
+                )
             serializer = PreSelloSerializer(pre_sello)
-
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
 
     except Exception as e:
 
         return Response(
-            {"error": str(e)},
+            {"error": f"No se pudo generar el pre-sello: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
     
@@ -357,22 +326,7 @@ def proximo_nro_registro(request):
             status=500
         )
 
-########################################
-# MOSTRAR SELLOS PENDIENES POR REGISTRA
-########################################
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def pre_sellos_pendientes(request):
-    pendientes = PreSelloRecibida.objects.filter(
-        estado="pendiente"
-    ).order_by("numero")
 
-    serializer = PreSelloSerializer(pendientes, many=True)
-
-    return Response(serializer.data)
-########################
-#ENVIDAD
-######################
 class EnviadaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('-fecha_registro')
