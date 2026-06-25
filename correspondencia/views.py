@@ -204,33 +204,10 @@ class RecibidaView(BaseViewSet, AuditableModelViewSet):
         response['Content-Disposition'] = f'inline; filename="{documento.nombre_documento}"'
         return response
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def proximo_nro_registro(request):
-    """
-    Devuelve el prÃ³ximo nro_registro disponible segÃºn la lÃ³gica de la clase Recibida.
-    No crea ningÃºn registro en la base de datos.
-    """
-    # Tomamos la última correspondencia recibida
-    ultimo = Recibida.objects.order_by('-id_correspondencia').first()
-
-    if ultimo and ultimo.nro_registro:
-        try:
-            # Tomamos el número despúes del guion: Reg-001 001
-            numero_actual = int(ultimo.nro_registro.split('-')[1])
-        except (IndexError, ValueError):
-            numero_actual = 0
-    else:
-        numero_actual = 0
-
-    nuevo_numero = numero_actual + 1
-    nro_registro_temporal = f"Reg-{nuevo_numero:03}"
-
-    return Response({"proximo_nro_registro": nro_registro_temporal})
-
 from django.db import transaction
 from .models import PreSelloRecibida
 from .serializers import PreSelloSerializer
+from django.db.models import Max
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -239,93 +216,96 @@ def generar_pre_sello(request):
     try:
 
         with transaction.atomic():
-            # Obtener el ultimo número oficial
-            ultimo_oficial = Recibida.objects.order_by('-id_correspondencia').first()
+            #Obtiene el máximo de recibida
+            max_recibida = (
+                Recibida.objects.aggregate(
+                    Max("numero_correlativo")
+                )["numero_correlativo__max"]
+                or 0
+            )
+            #Obtiene el máximo de pre-sello
+            max_presello = (
+                PreSelloRecibida.objects.aggregate(
+                    Max("numero_correlativo")
+                )["numero_correlativo__max"]
+                or 0
+            )
+            #Determina el siguiente pre-sello
+            siguiente = max(
+                max_recibida,
+                max_presello
+            ) + 1
+            #Crea el pre-sello
+            pre_sello = PreSelloRecibida.objects.create(
+                pre_nro_registro=f"Reg-{siguiente:03}",
+                numero_correlativo=siguiente,
+                estado="reservado",
+                usuario=request.user
+            )
 
-            if ultimo_oficial and ultimo_oficial.nro_registro:
+            serializer = PreSelloSerializer(
+                pre_sello
+            )
 
-                try:
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
 
-                    numero_actual = int(ultimo_oficial.nro_registro.split('-')[1])
-
-                except (IndexError, ValueError):
-
-                    numero_actual = 0
-
-            else:
-
-                numero_actual = 0
-
-                # Obtener el último pre-sello temporal
-                ultimo_pre = PreSelloRecibida.objects.order_by('-id').first()
-                if ultimo_pre:
-                    try:
-                        numero_actual = max(numero_actual, int(ultimo_pre.pre_nro_registro.split('-')[1]))
-                    except (IndexError, ValueError):
-                        pass
-                nuevo_numero = numero_actual + 1
-                pre_nro = f"Reg-{nuevo_numero:03}"
-
-                pre_sello = PreSelloRecibida.objects.create(
-                    pre_nro_registro=pre_nro,
-                    usuario=request.user
-                )
-            serializer = PreSelloSerializer(pre_sello)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-
-    except Exception as e:
-
-        return Response(
-            {"error": f"No se pudo generar el pre-sello: {str(e)}"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
-    
-## PARA MOSTRAR EL SELLO SIGUIENTE
-@api_view(['GET']) #Esta función acepta peticiones get
-@permission_classes([IsAuthenticated]) #Seguridad para usuarios logueados
-def proximo_nro_registro(request):
-    try:
-        ultimo_oficial = Recibida.objects.order_by( #Accede a la tabla Recibida / order descendiente
-            '-id_correspondencia'
-        ).first()
-        if ultimo_oficial and ultimo_oficial.nro_registro:
-            try:
-                numero_actual = int(
-                    ultimo_oficial.nro_registro.split("-")[1]
-                )
-            except(IndexError, ValueError):
-                numero_actual = 0
-        else:
-            numero_actual = 0
-
-        ultimo_pre = PreSelloRecibida.objects.order_by(
-            "-id"
-        ).first() #Obtener pre sello
-
-        if ultimo_pre:
-            try:
-                numero_actual = max(
-                    numero_actual,
-                    int(
-                        ultimo_pre.pre_nro_registro.split("-")[1]
-                    )
-                )
-            except (IndexError, ValueError):
-                pass
-        siguiente = numero_actual + 1
-
-        return Response({
-            "actual": f"Reg-{numero_actual:03}",
-            "siguiente": f"Reg-{siguiente:03}",
-        })
     except Exception as e:
 
         return Response(
             {"error": str(e)},
             status=500
         )
+    
+## PARA MOSTRAR EL SELLO SIGUIENTE
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def proximo_nro_registro(request):
 
+    max_recibida = (
+        Recibida.objects.aggregate(
+            Max("numero_correlativo")
+        )["numero_correlativo__max"]
+        or 0
+    )
+
+    max_presello = (
+        PreSelloRecibida.objects.aggregate(
+            Max("numero_correlativo")
+        )["numero_correlativo__max"]
+        or 0
+    )
+
+    actual = max(
+        max_recibida,
+        max_presello
+    )
+
+    return Response({
+        "actual": f"Reg-{actual:03}",
+        "siguiente": f"Reg-{actual + 1:03}"
+    })
+
+#CREAMOS UN ENPOINT PARA PRE-SELLO
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def pre_sellos_disponibles(request):
+
+    #Aqui se buscan los pre-sellos disponibles
+    presellos = PreSelloRecibida.objects.filter(
+        estado="reservado"
+    ).order_by(
+        "numero_correlativo"
+    )
+
+    serializer = PreSelloSerializer(
+        presellos,
+        many=True
+    )
+
+    return Response(serializer.data)
 
 class EnviadaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = EnviadaSerializer
@@ -335,6 +315,7 @@ class EnviadaView(BaseViewSet, AuditableModelViewSet):
     ordering_fields = ['cite']
 
     def get_serializer_class(self):
+        
         if self.action == 'list':
             return EnviadaListSerializer
         return EnviadaSerializer

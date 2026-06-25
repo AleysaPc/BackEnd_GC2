@@ -369,12 +369,14 @@ class RespuestaRelacionSerializer(serializers.ModelSerializer):
 # ---------------------------
 # Serializadores concretos
 # ---------------------------
+from django.db.models import Max
 class RecibidaSerializer(CorrespondenciaSerializerBase):
     
     similitud = serializers.FloatField(read_only=True)
     datos_contacto = serializers.StringRelatedField(source='contacto', read_only=True)
     respuestas = serializers.SerializerMethodField()
     relacionada_a_info = serializers.SerializerMethodField()
+    pre_sello = serializers.PrimaryKeyRelatedField(queryset=PreSelloRecibida.objects.filter(estado="reservado"), required=False, write_only=True,allow_null=True)
 
     class Meta:
         model = Recibida
@@ -383,7 +385,7 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
             'referencia', 'paginas', 'prioridad', 'estado',
             'documentos', 'contacto', 'usuario', 'acciones',
             'comentario_derivacion', 'usuarios', 'datos_contacto','similitud', 'nro_registro',
-            'respuestas', 'relacionada_a', 'relacionada_a_info',
+            'respuestas', 'relacionada_a', 'relacionada_a_info', 'pre_sello', 'numero_correlativo',
         ]
         extra_kwargs = {
             'fecha_recepcion': {'required': False},
@@ -405,8 +407,75 @@ class RecibidaSerializer(CorrespondenciaSerializerBase):
             "referencia": parent.referencia,
             "numero": _obtener_numero_documento(parent),
         }
-    
-    
+    @transaction.atomic
+    def create(self, validated_data):
+
+        #En el caso de que se use pre_sello llega a esta parte
+        #del serializador 
+        pre_sello = validated_data.pop(
+            "pre_sello",
+            None
+        )
+        #pop extrae el objeto
+
+        if pre_sello:
+
+            if pre_sello.estado != "reservado":
+                raise serializers.ValidationError(
+                    {
+                        "pre_sello":
+                        "Este pre-sello ya fue utilizado."
+                    }
+                )
+            #Este codigo hace que se guarde Recibida.pre_sello
+            validated_data["pre_sello"] = pre_sello
+
+            #Aqui se almacena el número reservado, el cual se utiliza
+            validated_data["nro_registro"] = (
+                pre_sello.pre_nro_registro
+            )
+
+            validated_data["numero_correlativo"] = (
+                pre_sello.numero_correlativo
+            )
+            #Cambia el estado
+            pre_sello.estado = "usado"
+            # y lo guarda
+            pre_sello.save(
+                update_fields=["estado"]
+            )
+
+        else:
+            #Obtiene el último número usado
+            max_recibida = (
+                Recibida.objects.aggregate(
+                    Max("numero_correlativo")
+                )["numero_correlativo__max"]
+                or 0
+            )
+            #Obtiene el último pre-sello generado:
+            max_presello = (
+                PreSelloRecibida.objects.exclude(
+                    estado="anulado"
+                ).aggregate(
+                    Max("numero_correlativo")
+                )["numero_correlativo__max"]
+                or 0
+            )
+
+            siguiente = max(max_recibida, max_presello) + 1
+
+            validated_data["numero_correlativo"] = (
+                siguiente
+            )
+
+            validated_data["nro_registro"] = (
+                f"Reg-{siguiente:03}"
+            )
+
+        return super().create(
+            validated_data
+        )
 
 class RecibidaListSerializer(serializers.ModelSerializer):
     contacto = serializers.StringRelatedField()

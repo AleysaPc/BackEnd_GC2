@@ -66,7 +66,9 @@ class Correspondencia(models.Model):
         return f"{self.referencia} - {self.tipo}"
 
 class Recibida(Correspondencia):
-    nro_registro = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    nro_registro = models.CharField(max_length=50, unique=True, db_index=True, null=True, blank=True)
+    numero_correlativo = models.PositiveIntegerField(null=True, blank=True, db_index=True, unique=True)
+    pre_sello = models.OneToOneField('PreSelloRecibida', on_delete=models.PROTECT, null=True, blank=True, related_name='recibida')
     fecha_recepcion = models.DateTimeField()
     fecha_respuesta = models.DateTimeField(blank=True, null=True)
     relacionada_a = models.ForeignKey(
@@ -78,47 +80,25 @@ class Recibida(Correspondencia):
         help_text="Documento previo con el que esta nota recibida se relaciona"
     )
 
-    def save(self, *args, **kwargs):
-        if not self.nro_registro:
-            with transaction.atomic():
-
-                numero_actual = 0
-
-                registros = Recibida.objects.exclude(
-                    nro_registro__isnull=True
-                ).exclude(
-                    nro_registro=""
-                )
-
-                for registro in registros:
-                    try:
-                        numero = int(
-                            registro.nro_registro.split("-")[1]
-                        )
-                        numero_actual = max(
-                            numero_actual,
-                            numero
-                        )
-                    except (IndexError, ValueError):
-                        pass
-
-                self.nro_registro = f"Reg-{numero_actual + 1:03}"
-
-        super().save(*args, **kwargs)
-
+    
     def __str__(self):
         return f"{self.nro_registro}"
 
 class PreSelloRecibida(models.Model):
-    pre_nro_registro = models.CharField(max_length=20, unique=True)
 
+    ESTADOS = [
+        ("disponible", "Disponible"),
+        ("reservado", "Reservado"),
+        ("usado", "Usado"),
+        ("anulado", "Anulado"),
+    ]
+
+    pre_nro_registro = models.CharField(max_length=20, unique=True,db_index=True)
+    numero_correlativo = models.PositiveIntegerField(db_index=True, unique=True)
+    estado = models.CharField(max_length=15,choices=ESTADOS,default="disponible",db_index=True)
     usuario = models.ForeignKey('usuario.CustomUser', on_delete=models.CASCADE, blank=True, null=True)
     fecha_generacion = models.DateTimeField(auto_now_add=True)
     
-    
-    def __str__(self):
-        return self.pre_nro_registro
-        
 class Enviada(Correspondencia):
     cite = models.CharField(max_length=50, blank=True, null=True)
     fecha_envio = models.DateTimeField(blank=True, null=True)
