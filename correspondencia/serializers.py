@@ -554,7 +554,7 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
     class Meta:
         model = CorrespondenciaElaborada
         fields = [
-            'id_correspondencia', 'fecha_envio', 'fecha_recepcion', 'fecha_seguimiento','estado_entrega',
+            'id_correspondencia', 'fecha_envio', 'fecha_recepcion', 'fecha_seguimiento','estado_entrega', 'motivo_no_entrega',
             'referencia', 'descripcion', 'prioridad', 'estado', 'contacto', 'usuario',
             'documentos', 'acciones', 'paginas', 'respuesta_a', 'datos_contacto', 'similitud',
             'plantilla', 'plantilla_id', 'sigla', 'numero', 'gestion', 'cite', 'firmado',
@@ -594,6 +594,8 @@ class CorrespondenciaElaboradaSerializer(CorrespondenciaSerializerBase):
 
         return elaborada
 
+#Destino_interno es un campo del modelo FK hacia CustomUser
+# Destino_interno_info no existe en la base de datos
 
 class CorrespondenciaElaboradaListSerializer(serializers.ModelSerializer):
     contacto = serializers.StringRelatedField()

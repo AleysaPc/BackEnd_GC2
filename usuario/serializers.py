@@ -52,7 +52,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
     nombre_institucion = serializers.CharField(source="institucion.razon_social", read_only=True)
     roles = serializers.SerializerMethodField()
     sigla = serializers.CharField(source="departamento.sigla", read_only=True)
-
+    creado_por_nombre = serializers.SerializerMethodField()
+    modificado_por_nombre = serializers.SerializerMethodField()
     class Meta:
         model = CustomUser
         fields = [
@@ -82,12 +83,27 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'celular',
             'cargo',
             'imagen',
+            'last_login',
+            'creado_por',
+            'creado_por_nombre',
+            'modificado_por',
+            'modificado_por_nombre',
+            
         ]
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},
             'new_password': {'write_only': True, 'required': False},
         }
-    
+    def get_creado_por_nombre(self, obj):
+        if obj.creado_por:
+            return f"{obj.creado_por.first_name} {obj.creado_por.last_name}".strip()
+        return None
+
+
+    def get_modificado_por_nombre(self, obj):
+        if obj.modificado_por:
+            return f"{obj.modificado_por.first_name} {obj.modificado_por.last_name}".strip()
+        return None
     #Validaciones
     def validate_email(self, value):
         #Verifica si o tro usuario ya tiene ese email
@@ -148,6 +164,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
             if institucion:
                 user.institucion = institucion
 
+            # Registrar quién creó el usuario
+            request = self.context.get("request")
+            if request and request.user.is_authenticated:
+                user.creado_por = request.user
+
             user.save()
             
         return user
@@ -159,7 +180,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
             instance.set_password(new_password)
 
         for attr, value in validated_data.items():
-            setattr(instance, attr, value)  
+            setattr(instance, attr, value)
+
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            instance.modificado_por = request.user
+
         instance.save()
 
         # Extraer solo IDs de los roles
@@ -198,6 +224,7 @@ class UsuarioListSerializer(serializers.ModelSerializer):
             'nombre_departamento',
             'is_active',
             'email',
+            'cargo',
         ]
     
     #Para obtener los roles del usuario

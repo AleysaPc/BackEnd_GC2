@@ -20,6 +20,8 @@ def generar_nota_word(correspondenciaElaborada):
     sin_espacios(p_fecha)
 
     parrafo_cite = doc.add_paragraph()
+    runtitulo = parrafo_cite.add_run("CITE: ")
+    runtitulo.bold = True
     run_cite = parrafo_cite.add_run(correspondenciaElaborada.cite)
     run_cite.bold = True
 

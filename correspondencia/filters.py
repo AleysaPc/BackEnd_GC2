@@ -10,6 +10,34 @@ from .models import Correspondencia, CorrespondenciaElaborada, Enviada, Recibida
 class Unaccent(Func):
     function = "unaccent"
 
+class BaseFilterSet(django_filters.FilterSet):
+
+    @staticmethod
+    def _strip_accents(text):
+        if text is None:
+            return ""
+        return "".join(
+            c for c in unicodedata.normalize("NFD", text)
+            if unicodedata.category(c) != "Mn"
+        )
+
+    def filter_unaccent(self, queryset, field, value):
+        if not value:
+            return queryset
+
+        value = self._strip_accents(value).lower()
+
+        alias = f"{field.replace('__', '_')}_norm"
+
+        return queryset.annotate(
+            **{
+                alias: Lower(Unaccent(field))
+            }
+        ).filter(
+            **{
+                f"{alias}__icontains": value
+            }
+        )
 
 class CorrespondenciaFilter(django_filters.FilterSet):
     tipo = django_filters.CharFilter(field_name="tipo", lookup_expr="icontains")
@@ -31,13 +59,14 @@ class CorrespondenciaFilter(django_filters.FilterSet):
             | Q(contacto__apellido_pat_contacto__icontains=value)
             | Q(contacto__apellido_mat_contacto__icontains=value)
         )
+    def filter_referencia(self, queryset, name, value):
+        return self.filter_unaccent(queryset, name, value)
 
-
-class CorrespondenciaElaboradaFilter(django_filters.FilterSet):
+class CorrespondenciaElaboradaFilter(BaseFilterSet):
     cite = django_filters.CharFilter(field_name="cite", lookup_expr="icontains")
     estado = django_filters.CharFilter(field_name="estado", lookup_expr="icontains")
     estado__in = django_filters.BaseInFilter(field_name="estado", lookup_expr="in")
-    referencia = django_filters.CharFilter(field_name="referencia", lookup_expr="icontains")
+    referencia = django_filters.CharFilter(method="filter_referencia")
     contacto_nombre_completo = django_filters.CharFilter(method="filter_contacto_nombre_completo")
     contacto__institucion__razon_social = django_filters.CharFilter(
         field_name="contacto__institucion__razon_social", lookup_expr="icontains"
@@ -55,11 +84,21 @@ class CorrespondenciaElaboradaFilter(django_filters.FilterSet):
         fields = []
 
     def filter_contacto_nombre_completo(self, queryset, name, value):
-        return queryset.filter(
-            Q(contacto__nombre_contacto__icontains=value)
-            | Q(contacto__apellido_pat_contacto__icontains=value)
-            | Q(contacto__apellido_mat_contacto__icontains=value)
-        )
+        if not value:
+            return queryset
+
+        palabras = value.split()
+        print(palabras)
+
+        for palabra in palabras:
+            queryset = queryset.filter(
+                Q(contacto__nombre_contacto__icontains=palabra)
+                | Q(contacto__apellido_pat_contacto__icontains=palabra)
+                | Q(contacto__apellido_mat_contacto__icontains=palabra)
+                | Q(contacto__cargo__icontains=palabra)
+            )
+
+        return queryset
 
     @staticmethod
     def _strip_accents(text):
@@ -85,15 +124,23 @@ class CorrespondenciaElaboradaFilter(django_filters.FilterSet):
     def filter_destino_interno(self, queryset, name, value):
         if not value:
             return queryset
-        return queryset.filter(
-            Q(destino_interno__first_name__icontains=value)
-            | Q(destino_interno__second_name__icontains=value)
-            | Q(destino_interno__last_name__icontains=value)
-            | Q(destino_interno__second_last_name__icontains=value)
-            | Q(destino_interno__email__icontains=value)
-            | Q(destino_interno__departamento__nombre__icontains=value)
-            | Q(destino_interno__departamento__sigla__icontains=value)
-        )
+
+        palabras = value.split()
+
+        for palabra in palabras:
+            queryset = queryset.filter(
+                Q(destino_interno__first_name__icontains=palabra)
+                | Q(destino_interno__second_name__icontains=palabra)
+                | Q(destino_interno__last_name__icontains=palabra)
+                | Q(destino_interno__second_last_name__icontains=palabra)
+                | Q(destino_interno__email__icontains=palabra)
+                | Q(destino_interno__departamento__nombre__icontains=palabra)
+                | Q(destino_interno__departamento__sigla__icontains=palabra)
+            )
+
+        return queryset
+    def filter_referencia(self, queryset, name, value):
+        return self.filter_unaccent(queryset, "referencia", value)
 
 
 class EnviadaFilter(django_filters.FilterSet):
@@ -116,9 +163,10 @@ class EnviadaFilter(django_filters.FilterSet):
         )
 
 
-class RecibidaFilter(django_filters.FilterSet):
+class RecibidaFilter(BaseFilterSet):
     nro_registro = django_filters.CharFilter(field_name="nro_registro", lookup_expr="icontains")
-    referencia = django_filters.CharFilter(field_name="referencia", lookup_expr="icontains")
+    referencia = django_filters.CharFilter(method="filter_referencia")
+    contacto_nombre_completo = django_filters.CharFilter(method="filter_contacto_nombre_completo")
     contacto__institucion__razon_social = django_filters.CharFilter(
         field_name="contacto__institucion__razon_social", lookup_expr="icontains"
     )
@@ -126,3 +174,24 @@ class RecibidaFilter(django_filters.FilterSet):
     class Meta:
         model = Recibida
         fields = []
+
+        
+    def filter_contacto_nombre_completo(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        palabras = value.split()
+        print(palabras)
+
+        for palabra in palabras:
+            queryset = queryset.filter(
+                Q(contacto__nombre_contacto__icontains=palabra)
+                | Q(contacto__apellido_pat_contacto__icontains=palabra)
+                | Q(contacto__apellido_mat_contacto__icontains=palabra)
+                | Q(contacto__cargo__icontains=palabra)
+            )
+
+        return queryset
+    def filter_referencia(self, queryset, name, value):
+        return self.filter_unaccent(queryset, "referencia", value)
+    

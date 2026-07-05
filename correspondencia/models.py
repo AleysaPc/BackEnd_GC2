@@ -150,6 +150,7 @@ class CorrespondenciaElaborada(Correspondencia):
         choices=[
             ("entregado", "Entregado"),
             ("no_entregado", "No entregado"),
+            ("pendiente", "Pendiente"),
          ],
         default="pendiente"
     )

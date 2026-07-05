@@ -351,7 +351,9 @@ class CorrespondenciaElaboradaView(BaseViewSet, AuditableModelViewSet):
         'contacto__apellido_mat_contacto','contacto__institucion__razon_social',
         'plantilla__nombre_plantilla','email','tipo_entrega'
     ]
-    ordering_fields = search_fields
+    #ordering_fields = [
+     #   "",
+    #]
 
     def get_serializer_class(self):
         if self.action == 'list':

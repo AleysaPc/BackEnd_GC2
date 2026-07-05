@@ -50,6 +50,22 @@ class CustomUser(AbstractUser):
     celular = models.CharField(max_length=100, null=True, blank=True)
     cargo = models.CharField(max_length=100, null=True, blank=True)
     imagen = models.ImageField(upload_to='usuarios/', null=True, blank=True)
+    creado_por = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="usuarios_creados"
+    )
+
+    modificado_por = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="usuarios_modificados"
+    )
+
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
