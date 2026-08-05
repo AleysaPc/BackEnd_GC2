@@ -33,12 +33,29 @@ class LoginSerializer(serializers.Serializer):
     departamento = serializers.PrimaryKeyRelatedField(queryset=Departamento.objects.all(), source="departamento.id", required=False)
     full_name = serializers.SerializerMethodField()
     rol = serializers.SerializerMethodField()
+    imagen = serializers.SerializerMethodField()
 
     def get_full_name(self, obj):
-        return obj.first_name + " " + obj.last_name
-
+        return (
+            f"{obj.first_name} "
+            f"{obj.second_name} "
+            f"{obj.last_name} "
+            f"{obj.second_last_name}"
+        ).strip()
+    
     def get_rol(self, obj):
         return [group.name for group in obj.groups.all()]
+
+    def get_imagen(self, obj):
+        if not obj.imagen:
+            return None
+
+        request = self.context.get("request")
+
+        if request:
+            return request.build_absolute_uri(obj.imagen.url)
+
+        return obj.imagen.url
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

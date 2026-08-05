@@ -24,8 +24,12 @@ class LoginViewset(viewsets.ViewSet):
             user = authenticate(request, email=email, password=password)
             if user:
                 _, token = AuthToken.objects.create(user)
+                user_serializer = self.serializer_class(
+                    user,
+                    context={"request": request}
+                )
                 return Response({
-                    "user": self.serializer_class(user).data,
+                    "user": user_serializer.data,
                     "token": token
                 })
             else:
