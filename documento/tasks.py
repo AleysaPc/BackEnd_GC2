@@ -20,7 +20,7 @@ logger = get_task_logger(__name__)
 # Task 1: OCR
 # -----------------------
 @shared_task(bind=True)
-def ocr_task(self, nombre_documento, redis_key):
+def ocr_task(self, id_documento, redis_key):
     """Procesar OCR desde Redis storage"""
     from documento.redis_utils import obtener_archivo_redis, limpiar_archivo_temporal
     
@@ -50,7 +50,7 @@ def ocr_task(self, nombre_documento, redis_key):
         # Limpiar archivo temporal
         limpiar_archivo_temporal(ruta_temporal)
         
-        return {"nombre_documento": nombre_documento, "texto": texto}
+        return {"id_documento": id_documento, "texto": texto}
         
     except Exception as e:
         limpiar_archivo_temporal(ruta_temporal)
@@ -74,12 +74,27 @@ def embeddings_task(self, data, chunk_size=256): #Chunk fragmento o trozo de tex
     start_time = time.time()
     texto = data["texto_limpio"]
     # Dividir en chunks si es muy largo
-    chunks = [texto[i:i+chunk_size] for i in range(0, len(texto), chunk_size)]
-    embeddings = [generar_embedding(chunk).tolist() for chunk in chunks]
+    #chunks = [texto[i:i+chunk_size] for i in range(0, len(texto), chunk_size)]
+    #embeddings = [generar_embedding(chunk).tolist() for chunk in chunks]
+    embeddings = generar_embedding(texto).tolist()
     data["embeddings"] = embeddings
     end_time = time.time()
     #logger.info(f"[Embeddings] Documento '{data['nombre_documento']}' embeddings generados en {end_time - start_time:.2f} seg")
     return data
+
+    embedding = generar_embedding(texto)
+
+    print("Tipo embedding:", type(embedding))
+    print("Shape:", embedding.shape)
+
+    data["embeddings"] = embedding.tolist()
+
+
+    import numpy as np
+
+    emb = np.asarray(data["embeddings"])
+
+    print("Shape antes de guardar:", emb.shape)
 
 # -----------------------
 # Task 4: Guardar en BD
@@ -87,20 +102,26 @@ def embeddings_task(self, data, chunk_size=256): #Chunk fragmento o trozo de tex
 @shared_task(bind=True)
 def guardar_task(self, data):
     start_time = time.time()
-    nombre_documento = data["nombre_documento"]
-    doc = Documento.objects.filter(nombre_documento=nombre_documento).first()
-    if not doc:
-        raise ValueError(f"Documento '{nombre_documento}' no encontrado en BD")
 
-    # Promediar todos los embeddings
-    import numpy as np
-    embeddings = np.array(data["embeddings"])
-    embedding_promedio = np.mean(embeddings, axis=0).tolist()
+    id_documento = data["id_documento"]
+    doc = Documento.objects.get(pk=id_documento)
+
+    # ===== DEPURACIÓN =====
+    emb = data["embeddings"]
+
+    print("Tipo de emb:", type(emb))
+    print("Longitud:", len(emb))
+    print("Tipo del primer elemento:", type(emb[0]))
+    print("Primeros 5 valores:", emb[:5])
+
+    # ======================
 
     doc.contenido_extraido = data["texto_limpio"]
-    doc.vector_embedding = embedding_promedio
+    doc.vector_embedding = emb
+
     doc.save(update_fields=["contenido_extraido", "vector_embedding"])
 
     end_time = time.time()
-    logger.info(f"[BD] Documento '{nombre_documento}' guardado en {end_time - start_time:.2f} seg")
+    logger.info(f"[BD] Documento '{id_documento}' guardado en {end_time - start_time:.2f} seg")
+
     return doc.pk

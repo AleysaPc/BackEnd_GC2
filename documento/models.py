@@ -3,20 +3,26 @@ import os
 from pgvector.django import VectorField
 
 def ruta_archivo(instance, filename):
-    tipo = instance.correspondencia.tipo if instance.correspondencia else 'otros'
+    tipo = instance.correspondencia.tipo if instance.correspondencia else "otros"
+
     try:
         sindicato = instance.correspondencia.contacto.institucion.razon_social
-        sindicato = sindicato.replace(" ", "_").replace("/", "-")  # Limpieza de nombre
+        sindicato = sindicato.replace(" ", "_").replace("/", "-")
     except AttributeError:
         sindicato = "desconocido"
-    anio = instance.correspondencia.fecha_registro.year if instance.correspondencia and instance.correspondencia.fecha_registro else "sin_fecha"
-    return os.path.join('documentos', sindicato, tipo, str(anio), filename)
 
+    anio = (
+        instance.correspondencia.fecha_registro.year
+        if instance.correspondencia and instance.correspondencia.fecha_registro
+        else "sin_fecha"
+    )
+
+    return f"documentos/{sindicato}/{tipo}/{anio}/{filename}"
     
 class Documento(models.Model):
     id_documento = models.AutoField(primary_key=True)
     nombre_documento = models.CharField(max_length=255, blank=True)
-    archivo = models.FileField(upload_to=ruta_archivo, blank=True, null=True)
+    archivo = models.FileField(upload_to=ruta_archivo, max_length=255, blank=True, null=True)
     archivo_redis_key = models.CharField(max_length=255, null=True, blank=True)
     fecha_subida = models.DateTimeField(auto_now_add=True)
     correspondencia = models.ForeignKey('correspondencia.Correspondencia', on_delete=models.CASCADE, related_name='documentos') 
@@ -41,7 +47,7 @@ class Documento(models.Model):
         if self.archivo_redis_key and not self.contenido_extraido:
             print(f"🚀 Procesando OCR desde Redis: {self.archivo_redis_key}")
             from documento.busquedaSemantica.procesar_documento import procesar_documento
-            procesar_documento(self.nombre_documento, self.archivo_redis_key, async_processing=True)
+            procesar_documento(self.id_documento, self.archivo_redis_key, async_processing=True)
         elif self.archivo_redis_key and self.contenido_extraido:
                 print(f"ℹ️ Documento ya procesado: {self.nombre_documento}")
 

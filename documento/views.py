@@ -9,6 +9,7 @@ from .serializers import DocumentoSerializer, PlantillaDocumentoSerializer
 from .models import Documento, PlantillaDocumento
 from gestion_documental.mixins import PaginacionYAllDataMixin
 from gestion_documental.ai.model_loader import get_model
+from documento.busquedaSemantica.clean_text import limpiar_consulta
 # -------------------------------
 # ViewSet para Documentos
 # -------------------------------
@@ -38,13 +39,20 @@ class PlantillaDocumentoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 # -------------------------------
 @api_view(['POST'])
 def buscar_documentos_semanticos(request):
+    print(">>> Entró a buscar_documentos_semanticos")
     consulta = request.data.get('consulta', '')
     if not consulta:
         return Response({'error': 'Consulta no proporcionada'}, status=400)
 
     try:
         modelo = get_model()
-        embedding_consulta = modelo.encode(consulta).tolist()
+
+        #Limpieza de la consulta
+        consulta_limpia = limpiar_consulta(consulta)
+
+        embedding_consulta = modelo.encode(
+            consulta_limpia,normalize_embeddings=True
+            ).tolist()
         documentos = (
             Documento.objects
             .annotate(similitud=CosineDistance('vector_embedding', embedding_consulta))
@@ -55,6 +63,10 @@ def buscar_documentos_semanticos(request):
         for doc in documentos:
             if doc.similitud is None:
                 continue
+            print("----------------------")
+            print("Documento:", doc.nombre_documento)
+            print("CosineDistance:", doc.similitud)
+            print("Similitud enviada:", 1 - doc.similitud)
             data.append({
                 'id': doc.pk,
                 'nombre_documento': doc.nombre_documento,

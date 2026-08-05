@@ -3,7 +3,7 @@ import os
 from celery import chain
 from documento.tasks import ocr_task, limpiar_task, embeddings_task, guardar_task
 
-def procesar_documento(nombre_documento: str, redis_key: str, async_processing: bool = True) -> None:
+def procesar_documento(id_documento: int, redis_key: str, async_processing: bool = True) -> None:
     """
     Procesa un documento de forma síncrona o asíincrona usando Celery
     
@@ -14,7 +14,7 @@ def procesar_documento(nombre_documento: str, redis_key: str, async_processing: 
     if async_processing:
         # Versión asíncrona usando Celery
         chain(
-            ocr_task.s(nombre_documento, redis_key),  # ← Cambiar aquí
+            ocr_task.s(id_documento, redis_key),  # ← Cambiar aquí
             limpiar_task.s(),
             embeddings_task.s(),
             guardar_task.s()
@@ -29,7 +29,7 @@ def procesar_documento(nombre_documento: str, redis_key: str, async_processing: 
         from documento.busquedaSemantica.embeddings import generar_embedding
         from PIL import Image
         
-        doc = Documento.objects.get(nombre_documento=nombre_documento)
+        doc = Documento.objects.get(pk=id_documento)
         ruta_temporal = obtener_archivo_redis(redis_key)
         
         if not ruta_temporal:

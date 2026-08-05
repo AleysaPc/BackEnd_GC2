@@ -3,6 +3,7 @@ import logging
 from pgvector.django import CosineDistance
 from rest_framework import serializers
 from gestion_documental.ai.model_loader import get_model
+from documento.busquedaSemantica.clean_text import limpiar_consulta
 logger = logging.getLogger(__name__)
 
 def consulta_semantica(queryset, consulta, campo_embedding='documentos__vector_embedding'):
@@ -14,7 +15,8 @@ def consulta_semantica(queryset, consulta, campo_embedding='documentos__vector_e
 
     try:
         modelo = get_model()
-        embedding = modelo.encode(consulta).tolist()
+        consulta = limpiar_consulta(consulta)
+        embedding = modelo.encode(consulta, normalize_embeddings=True).tolist()
 
         queryset = queryset.filter(**{f"{campo_embedding}__isnull": False})
         queryset = queryset.annotate(similitud=CosineDistance(campo_embedding, embedding)).order_by('similitud')

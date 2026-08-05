@@ -5,4 +5,4 @@ def generar_embedding(texto):
     Genera un embedding para un texto usando el modelo SBERT único.
     """
     modelo = get_model()
-    return modelo.encode(texto)
+    return modelo.encode(texto, normalize_embeddings=True)
