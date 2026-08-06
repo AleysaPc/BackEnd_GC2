@@ -307,6 +307,56 @@ def pre_sellos_disponibles(request):
 
     return Response(serializer.data)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def resumen_inicio(request):
+    """Datos mínimos necesarios para la página de inicio."""
+    recibidas = Recibida.objects.all()
+    elaboradas = CorrespondenciaElaborada.objects.all()
+
+    totales_recibidas = recibidas.aggregate(
+        recibidas=Count('pk'),
+        recibidas_sin_responder=Count(
+            'pk',
+            filter=Q(fecha_respuesta__isnull=False, estado='en_revision'),
+        ),
+    )
+    totales_elaboradas = elaboradas.aggregate(
+        elaboradas=Count('pk'),
+        elaboradas_externas=Count('pk', filter=Q(ambito='externo')),
+        elaboradas_internas=Count('pk', filter=Q(ambito='interno')),
+        elaboradas_por_enviar=Count('pk', filter=Q(estado='aprobado')),
+    )
+
+    ultimas_recibidas = (
+        recibidas.select_related('contacto')
+        .only(
+            'id_correspondencia', 'nro_registro', 'referencia', 'prioridad',
+            'estado', 'fecha_registro', 'contacto',
+        )
+        .order_by('-fecha_registro')[:5]
+    )
+
+    return Response({
+        'totales': {
+            **totales_recibidas,
+            **totales_elaboradas,
+        },
+        'ultimas_recibidas': [
+            {
+                'id_correspondencia': recibida.id_correspondencia,
+                'nro_registro': recibida.nro_registro,
+                'referencia': recibida.referencia,
+                'datos_contacto': str(recibida.contacto) if recibida.contacto else None,
+                'prioridad': recibida.prioridad,
+                'estado': recibida.estado,
+            }
+            for recibida in ultimas_recibidas
+        ],
+    })
+
+
 class EnviadaView(BaseViewSet, AuditableModelViewSet):
     serializer_class = EnviadaSerializer
     queryset = Enviada.objects.all().order_by('-fecha_registro')

@@ -17,6 +17,7 @@ from .views import (
     estado_tarea_ia,
     exportar_excel,
     pre_sellos_disponibles,
+    resumen_inicio,
 )
 
 router = DefaultRouter()
@@ -37,6 +38,7 @@ urlpatterns = [
     path("proximo_nro_registro/", proximo_nro_registro),
     path("generar_pre_sello/", generar_pre_sello),
     path("pre_sellos_disponibles/", pre_sellos_disponibles),
+    path("inicio/resumen/", resumen_inicio, name="resumen_inicio"),
     path("estadisticas/",estadisticas_dashboard, name="estadisticas"),
     path(
     'exportar-excel/',
