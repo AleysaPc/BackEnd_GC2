@@ -10,6 +10,7 @@ import re
 from pgvector.django import VectorField
 from gestion_documental.ai.model_loader import get_model
 
+#Convierte texto con formato HTML en texto plano limpio
 def _strip_html_to_text(value):
     if not value:
         return ""
@@ -19,8 +20,9 @@ def _strip_html_to_text(value):
     # Collapse whitespace.
     return " ".join(text.split())
 
+#Construye un texto plano semántico a partir de los campos de la correspondencia
 def _build_semantic_text(instance):
-    parts = [
+    parts = [ #Arma un arreglo con los campos de la correspondencia
         instance.referencia,
         instance.descripcion_introduccion,
         instance.descripcion_desarrollo,
@@ -201,7 +203,7 @@ class CorrespondenciaElaborada(Correspondencia):
         # Solo recalcula si no existe o si el contenido cambió.
         
         super().save(*args, **kwargs)
-        generar_embedding_html_task.delay(self.pk)
+        generar_embedding_html_task.delay(self.pk)# Delay ejecuta la tarea en segundo plano
 
 
 class AccionCorrespondencia(models.Model):

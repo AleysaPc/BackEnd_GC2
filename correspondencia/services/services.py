@@ -6,6 +6,9 @@ from gestion_documental.ai.model_loader import get_model
 from documento.busquedaSemantica.clean_text import limpiar_consulta
 logger = logging.getLogger(__name__)
 
+#Queryset el conjunto de datos que ya se estaba consultando
+#consulta es lo que se quiere buscar
+#campo_embedding es el campo que contiene el embedding
 def consulta_semantica(queryset, consulta, campo_embedding='documentos__vector_embedding'):
     """
     Filtra y ordena un queryset según una consulta semántica usando SentenceTransformer.
@@ -26,6 +29,7 @@ def consulta_semantica(queryset, consulta, campo_embedding='documentos__vector_e
         logger.warning("Búsqueda semántica deshabilitada en este servicio: %s", exc)
         return queryset
 
+#Permite derivar un documento a multiple usuarios
 def crear_objetos_multiple(serializer_class, request, usuario=None, extra_fields=None):
     """
     Crea objetos para cada usuario destino si es necesario.
